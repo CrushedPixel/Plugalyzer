@@ -1,7 +1,8 @@
 #include "Plugalyzer.h"
 
 void plugalyze(const juce::String& pluginPath, const std::vector<juce::File>& inputFiles,
-               const juce::File& outputFile, int blockSize) {
+               const juce::File& outputFile, int blockSize,
+               std::optional<int> numOutputChannelsOpt) {
 
     juce::AudioPluginFormatManager audioPluginFormatManager;
     audioPluginFormatManager.addDefaultFormats();
@@ -72,15 +73,15 @@ void plugalyze(const juce::String& pluginPath, const std::vector<juce::File>& in
         totalNumInputChannels += inputFileReader->numChannels;
     }
 
-    // create an output bus with the same amount of channels as the main input file
-    // TODO: make customizable via command line arg?
-    unsigned int totalNumOutputChannels = inputFileReaders[0]->numChannels;
+    // create an output bus with the desired amount of channels,
+    // defaulting same amount of channels as the main input file
+    unsigned int totalNumOutputChannels =
+        numOutputChannelsOpt.value_or(inputFileReaders[0]->numChannels);
     layout.outputBuses.add(juce::AudioChannelSet::canonicalChannelSet(totalNumOutputChannels));
 
     // apply the channel layout
     if (!plugin->setBusesLayout(layout)) {
-        juce::ConsoleApplication::fail(
-            "Plugin does not support bus layout deduced from input files");
+        juce::ConsoleApplication::fail("Plugin does not support requested bus layout");
     }
 
     // TODO: is this needed?

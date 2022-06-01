@@ -29,9 +29,21 @@ void runCommandLine(const juce::String& commandLineParameters) {
     int blockSize = 1024;
     if (args.containsOption("--blockSize")) {
         blockSize = args.getValueForOption("--blockSize").getIntValue();
+        if (blockSize <= 0) {
+            juce::ConsoleApplication::fail("blockSize must be a positive number");
+        }
     }
 
-    plugalyze(pluginPath, inputFiles, outputFile, blockSize);
+    // parse optional output channel count option
+    std::optional<int> numOutputChannelsOpt;
+    if (args.containsOption("--outChannels")) {
+        numOutputChannelsOpt = args.getValueForOption("--outChannels").getIntValue();
+        if (*numOutputChannelsOpt <= 0) {
+            juce::ConsoleApplication::fail("outChannels must be a positive number");
+        }
+    }
+
+    plugalyze(pluginPath, inputFiles, outputFile, blockSize, numOutputChannelsOpt);
 }
 
 class PlugalyzerApplication : public juce::JUCEApplicationBase {
