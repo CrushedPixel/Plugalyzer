@@ -28,3 +28,8 @@ Each input file is provided to the plugin on a separate bus, each bus having the
 
 Plugalyzer only supports a single output bus, defaulting to the same amount of channels as the main input bus.
 This can be overridden using the `--outChannels` option.
+
+## Limitations
+- Plugalyzer does not support showing plugin GUIs of any kind. Since processing is not done in real-time, this wouldn't be too useful, either way.
+- There's currently no way to adjust any plugin parameters - audio is processed with the plugin's default parameters.
+- Only a single output bus is supported.
