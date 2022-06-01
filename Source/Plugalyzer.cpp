@@ -43,7 +43,8 @@ void printPluginInfo(const juce::AudioPluginInstance& plugin) {
 }
 
 void process(const juce::String& pluginPath, const std::vector<juce::File>& inputFiles,
-             const juce::File& outputFile, int blockSize, std::optional<int> numOutputChannelsOpt) {
+             const juce::File& outputFile, int blockSize, std::optional<int> numOutputChannelsOpt,
+             const std::vector<std::pair<juce::String, juce::String>>& params) {
     // parse the input files
     juce::AudioFormatManager audioFormatManager;
     audioFormatManager.registerBasicFormats();
@@ -94,6 +95,25 @@ void process(const juce::String& pluginPath, const std::vector<juce::File>& inpu
     // apply the channel layout
     if (!plugin->setBusesLayout(layout)) {
         juce::ConsoleApplication::fail("Plugin does not support requested bus layout");
+    }
+
+    // apply plugin parameters
+    for (auto& p : params) {
+        auto& paramId = p.first;
+
+        auto* paramIt =
+            std::find_if(plugin->getParameters().begin(), plugin->getParameters().end(),
+                         [paramId](juce::AudioProcessorParameter* parameter) {
+                             return parameter->getName(1024) == paramId ||
+                                    juce::String(parameter->getParameterIndex()) == paramId;
+                         });
+
+        if (paramIt == plugin->getParameters().end()) {
+            juce::ConsoleApplication::fail("Unknown parameter identifier " + paramId);
+        }
+
+        auto* param = *paramIt;
+        param->setValueNotifyingHost(param->getValueForText(p.second));
     }
 
     // TODO: is this needed?
@@ -171,7 +191,7 @@ void listParameters(const juce::String& pluginPath, double initialSampleRate,
 
         // print the parameter's values
         std::cout << indent << "Values:  ";
-        
+
         if (auto valueStrings = param->getAllValueStrings(); !valueStrings.isEmpty()) {
             // list all discrete values
             for (int i = 0; i < valueStrings.size(); i++) {

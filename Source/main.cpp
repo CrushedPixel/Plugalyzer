@@ -27,6 +27,31 @@ juce::File getOutputFileArgument(const juce::ArgumentList& args) {
     return outputFile;
 }
 
+std::vector<std::pair<juce::String, juce::String>>
+getParameterArguments(const juce::ArgumentList& _args) {
+    // create a copy to keep the original argument list unmodified
+    // when consuming the parameter options
+    juce::ArgumentList args = _args;
+
+    std::vector<std::pair<juce::String, juce::String>> params;
+
+    while (args.containsOption("--param")) {
+        // format: --param="Parameter Name":-12.0
+        // quotes are supported for both key and value
+        auto paramStr = args.removeValueForOption("--param");
+        juce::StringArray tokens;
+        tokens.addTokens(paramStr, ":", "\"'");
+
+        if (tokens.size() != 2) {
+            juce::ConsoleApplication::fail("Invalid parameter syntax: " + paramStr);
+        }
+
+        params.emplace_back(tokens[0], tokens[1]);
+    }
+
+    return params;
+}
+
 juce::String getPluginArgument(const juce::ArgumentList& args) {
     args.failIfOptionIsMissing("--plugin");
     return args.getValueForOption("--plugin");
@@ -84,7 +109,10 @@ void runProcessCommand(const juce::ArgumentList& args) {
     // parse optional output channel count option
     auto numOutputChannelsOpt = getOutputChannelCountArgument(args);
 
-    process(pluginPath, inputFiles, outputFile, blockSize, numOutputChannelsOpt);
+    // parse parameters to set
+    auto params = getParameterArguments(args);
+
+    process(pluginPath, inputFiles, outputFile, blockSize, numOutputChannelsOpt, params);
 }
 
 void runListParametersCommand(const juce::ArgumentList& args) {
