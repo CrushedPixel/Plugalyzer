@@ -1,9 +1,8 @@
 #include "Plugalyzer.h"
 
-void plugalyze(const juce::String& pluginPath, const std::vector<juce::File>& inputFiles,
-               const juce::File& outputFile, int blockSize,
-               std::optional<int> numOutputChannelsOpt) {
-
+std::unique_ptr<juce::AudioPluginInstance> createPluginInstance(const juce::String& pluginPath,
+                                                                double initialSampleRate,
+                                                                int initialBlockSize) {
     juce::AudioPluginFormatManager audioPluginFormatManager;
     audioPluginFormatManager.addDefaultFormats();
 
@@ -24,6 +23,28 @@ void plugalyze(const juce::String& pluginPath, const std::vector<juce::File>& in
         pluginDescription = *pluginDescriptions[0];
     }
 
+    // create plugin instance
+    std::unique_ptr<juce::AudioPluginInstance> plugin;
+    {
+        juce::String err;
+        plugin = audioPluginFormatManager.createPluginInstance(pluginDescription, initialSampleRate,
+                                                               initialBlockSize, err);
+
+        if (!plugin) {
+            juce::ConsoleApplication::fail("Error creating plugin instance: " + err);
+        }
+    }
+
+    return plugin;
+}
+
+void printPluginInfo(const juce::AudioPluginInstance& plugin) {
+    std::cout << "Loaded plugin \"" << plugin.getName() << "\"." << std::endl << std::endl;
+}
+
+void process(const juce::String& pluginPath, const std::vector<juce::File>& inputFiles,
+             const juce::File& outputFile, int blockSize, std::optional<int> numOutputChannelsOpt,
+             const std::vector<std::pair<juce::String, juce::String>>& params) {
     // parse the input files
     juce::AudioFormatManager audioFormatManager;
     audioFormatManager.registerBasicFormats();
@@ -52,18 +73,6 @@ void plugalyze(const juce::String& pluginPath, const std::vector<juce::File>& in
         maxInputLength = std::max(maxInputLength, inputFileReader->lengthInSamples);
     }
 
-    // create plugin instance
-    std::unique_ptr<juce::AudioPluginInstance> plugin;
-    {
-        juce::String err;
-        plugin = audioPluginFormatManager.createPluginInstance(pluginDescription, sampleRate,
-                                                               blockSize, err);
-
-        if (!plugin) {
-            juce::ConsoleApplication::fail("Error creating plugin instance: " + err);
-        }
-    }
-
     // create the plugin's bus layout with an input bus for each input file
     unsigned int totalNumInputChannels = 0;
     juce::AudioPluginInstance::BusesLayout layout;
@@ -79,9 +88,32 @@ void plugalyze(const juce::String& pluginPath, const std::vector<juce::File>& in
         numOutputChannelsOpt.value_or(inputFileReaders[0]->numChannels);
     layout.outputBuses.add(juce::AudioChannelSet::canonicalChannelSet(totalNumOutputChannels));
 
+    // create the plugin instance
+    auto plugin = createPluginInstance(pluginPath, sampleRate, blockSize);
+    printPluginInfo(*plugin);
+
     // apply the channel layout
     if (!plugin->setBusesLayout(layout)) {
         juce::ConsoleApplication::fail("Plugin does not support requested bus layout");
+    }
+
+    // apply plugin parameters
+    for (auto& p : params) {
+        auto& paramId = p.first;
+
+        auto* paramIt =
+            std::find_if(plugin->getParameters().begin(), plugin->getParameters().end(),
+                         [paramId](juce::AudioProcessorParameter* parameter) {
+                             return parameter->getName(1024) == paramId ||
+                                    juce::String(parameter->getParameterIndex()) == paramId;
+                         });
+
+        if (paramIt == plugin->getParameters().end()) {
+            juce::ConsoleApplication::fail("Unknown parameter identifier " + paramId);
+        }
+
+        auto* param = *paramIt;
+        param->setValueNotifyingHost(param->getValueForText(p.second));
     }
 
     // TODO: is this needed?
@@ -129,5 +161,55 @@ void plugalyze(const juce::String& pluginPath, const std::vector<juce::File>& in
         outWriter->writeFromAudioSampleBuffer(sampleBuffer, 0, blockSize);
 
         sampleIndex += blockSize;
+    }
+}
+
+void listParameters(const juce::String& pluginPath, double initialSampleRate,
+                    int initialBlockSize) {
+    auto plugin = createPluginInstance(pluginPath, initialSampleRate, initialBlockSize);
+    printPluginInfo(*plugin);
+
+    std::cout << "Plugin parameters: " << std::endl;
+
+    auto params = plugin->getParameters();
+
+    // calculate the amount of characters the maximum parameter index has
+    // for alignment purposes
+    auto maxIdxStrLength = juce::String(params.size() - 1).length();
+
+    for (auto* param : params) {
+        // calculate the indent of the index to align all entries nicely
+        auto idxStrLength = juce::String(param->getParameterIndex()).length();
+        std::string idxIndent(maxIdxStrLength - idxStrLength, ' ');
+
+        // index: name
+        std::cout << idxIndent << param->getParameterIndex() << ": " << param->getName(100)
+                  << std::endl;
+
+        // calculate the indent of entries for alignment
+        std::string indent(2 + maxIdxStrLength, ' ');
+
+        // print the parameter's values
+        std::cout << indent << "Values:  ";
+
+        if (auto valueStrings = param->getAllValueStrings(); !valueStrings.isEmpty()) {
+            // list all discrete values
+            for (int i = 0; i < valueStrings.size(); i++) {
+                std::cout << valueStrings[i];
+                if (i != valueStrings.size() - 1) {
+                    std::cout << ", ";
+                } else {
+                    std::cout << std::endl;
+                }
+            }
+        } else {
+            // print the range of values that is supported
+            std::cout << param->getText(0, 1024) << param->getLabel() << " to "
+                      << param->getText(1, 1024) << param->getLabel() << std::endl;
+        }
+
+        // print the default value
+        std::cout << indent << "Default: " << param->getText(param->getDefaultValue(), 1024)
+                  << param->getLabel() << std::endl;
     }
 }
