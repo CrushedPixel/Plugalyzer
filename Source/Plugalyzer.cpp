@@ -100,7 +100,6 @@ void process(const juce::String& pluginPath, const std::vector<juce::File>& audi
     // create an output bus with the desired amount of channels,
     // defaulting to the same amount of channels as the main input file if one exists,
     // or the plugin's default bus layout otherwise.
-    // TODO: test all these scenarios
     unsigned int totalNumOutputChannels = (numOutputChannelsOpt.value_or(
         audioInputFileReaders.isEmpty() ? plugin->getBusesLayout().getMainOutputChannels()
                                         : audioInputFileReaders[0]->numChannels));
