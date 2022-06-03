@@ -8,12 +8,20 @@ std::vector<juce::File> getInputFileArguments(const juce::ArgumentList& _args) {
     juce::ArgumentList args = _args;
 
     std::vector<juce::File> inputFiles;
-    args.failIfOptionIsMissing("--input");
     while (args.containsOption("--input")) {
         inputFiles.push_back(args.getExistingFileForOptionAndRemove("--input"));
     }
 
     return inputFiles;
+}
+
+std::optional<juce::File> getMidiInputFileArgument(const juce::ArgumentList& args) {
+    std::optional<juce::File> midiFile;
+    if (args.containsOption("--midiInput")) {
+        midiFile = args.getExistingFileForOption("--midiInput");
+    }
+
+    return midiFile;
 }
 
 juce::File getOutputFileArgument(const juce::ArgumentList& args) {
@@ -57,17 +65,30 @@ juce::String getPluginArgument(const juce::ArgumentList& args) {
     return args.getValueForOption("--plugin");
 }
 
-int getBlockSizeArgument(const juce::ArgumentList& args) {
+std::optional<double> getSampleRateArgument(const juce::ArgumentList& args) {
+    // parse optional sample rate option
+    std::optional<double> sampleRateOpt;
+    if (args.containsOption("--sampleRate")) {
+        sampleRateOpt = args.getValueForOption("--sampleRate").getDoubleValue();
+        if (*sampleRateOpt <= 0) {
+            juce::ConsoleApplication::fail("sampleRate must be a positive number");
+        }
+    }
+
+    return sampleRateOpt;
+}
+
+std::optional<int> getBlockSizeArgument(const juce::ArgumentList& args) {
     // parse optional block size option
-    int blockSize = 1024;
+    std::optional<int> blockSizeOpt;
     if (args.containsOption("--blockSize")) {
-        blockSize = args.getValueForOption("--blockSize").getIntValue();
-        if (blockSize <= 0) {
+        blockSizeOpt = args.getValueForOption("--blockSize").getIntValue();
+        if (*blockSizeOpt <= 0) {
             juce::ConsoleApplication::fail("blockSize must be a positive number");
         }
     }
 
-    return blockSize;
+    return blockSizeOpt;
 }
 
 std::optional<int> getOutputChannelCountArgument(const juce::ArgumentList& args) {
@@ -82,29 +103,29 @@ std::optional<int> getOutputChannelCountArgument(const juce::ArgumentList& args)
     return numOutputChannelsOpt;
 }
 
-double getSampleRateArgument(const juce::ArgumentList& args) {
-    // parse optional sample rate option
-    double sampleRate = 44100;
-    if (args.containsOption("--sampleRate")) {
-        sampleRate = args.getValueForOption("--sampleRate").getDoubleValue();
-        if (sampleRate <= 0) {
-            juce::ConsoleApplication::fail("sampleRate must be a positive number");
-        }
-    }
-
-    return sampleRate;
-}
-
 void runProcessCommand(const juce::ArgumentList& args) {
     // parse plugin option
     auto pluginPath = getPluginArgument(args);
 
     // parse input file option(s).
     // each input file will be sent to the plugin in a separate bus.
-    auto inputFiles = getInputFileArguments(args);
+    auto audioInputFiles = getInputFileArguments(args);
+    auto midiInputFileOpt = getMidiInputFileArgument(args);
+
+    if (audioInputFiles.empty() && !midiInputFileOpt) {
+        juce::ConsoleApplication::fail("Either audio or MIDI input must be provided.");
+    }
 
     auto outputFile = getOutputFileArgument(args);
-    auto blockSize = getBlockSizeArgument(args);
+
+    auto sampleRateOpt = getSampleRateArgument(args);
+    if (sampleRateOpt && !audioInputFiles.empty()) {
+        juce::ConsoleApplication::fail(
+            "The --sampleRate argument is not allowed in combination with the --input argument. "
+            "When audio input files are supplied, their sample rate is used.");
+    }
+
+    auto blockSizeOpt = getBlockSizeArgument(args);
 
     // parse optional output channel count option
     auto numOutputChannelsOpt = getOutputChannelCountArgument(args);
@@ -112,15 +133,17 @@ void runProcessCommand(const juce::ArgumentList& args) {
     // parse parameters to set
     auto params = getParameterArguments(args);
 
-    process(pluginPath, inputFiles, outputFile, blockSize, numOutputChannelsOpt, params);
+    process(pluginPath, audioInputFiles, midiInputFileOpt, outputFile,
+            sampleRateOpt.value_or(44100), blockSizeOpt.value_or(1024), numOutputChannelsOpt,
+            params);
 }
 
 void runListParametersCommand(const juce::ArgumentList& args) {
     auto pluginPath = getPluginArgument(args);
-    auto sampleRate = getSampleRateArgument(args);
-    auto blockSize = getBlockSizeArgument(args);
+    auto sampleRateOpt = getSampleRateArgument(args);
+    auto blockSizeOpt = getBlockSizeArgument(args);
 
-    listParameters(pluginPath, sampleRate, blockSize);
+    listParameters(pluginPath, sampleRateOpt.value_or(44100), blockSizeOpt.value_or(1024));
 }
 
 void runCommandLine(const juce::String& commandLineParameters) {

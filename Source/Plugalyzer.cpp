@@ -42,29 +42,40 @@ void printPluginInfo(const juce::AudioPluginInstance& plugin) {
     std::cout << "Loaded plugin \"" << plugin.getName() << "\"." << std::endl << std::endl;
 }
 
-void process(const juce::String& pluginPath, const std::vector<juce::File>& inputFiles,
-             const juce::File& outputFile, int blockSize, std::optional<int> numOutputChannelsOpt,
+/**
+ * Converts the given duration in seconds to samples given the sample rate.
+ */
+inline juce::int64 secondsToSamples(double sec, double sampleRate) {
+    return (juce::int64) (sec * sampleRate);
+}
+
+void process(const juce::String& pluginPath, const std::vector<juce::File>& audioInputFiles,
+             const std::optional<juce::File>& midiInputFileOpt, const juce::File& outputFile,
+             double fallbackSampleRate, int blockSize,
+             const std::optional<int>& numOutputChannelsOpt,
              const std::vector<std::pair<juce::String, juce::String>>& params) {
     // parse the input files
     juce::AudioFormatManager audioFormatManager;
     audioFormatManager.registerBasicFormats();
 
-    juce::OwnedArray<juce::AudioFormatReader> inputFileReaders;
+    juce::OwnedArray<juce::AudioFormatReader> audioInputFileReaders;
     juce::int64 maxInputLength = 0;
 
-    double sampleRate = 0;
+    double sampleRate = fallbackSampleRate;
 
-    for (auto& inputFile : inputFiles) {
+    for (size_t i = 0; i < audioInputFiles.size(); i++) {
+        auto& inputFile = audioInputFiles[i];
+
         auto inputFileReader = audioFormatManager.createReaderFor(inputFile);
         if (!inputFileReader) {
             juce::ConsoleApplication::fail("Could not read input file " +
                                            inputFile.getFullPathName());
         }
 
-        inputFileReaders.add(inputFileReader);
+        audioInputFileReaders.add(inputFileReader);
 
         // ensure the sample rate of all input files is the same
-        if (sampleRate == 0) {
+        if (i == 0) {
             sampleRate = inputFileReader->sampleRate;
         } else if (inputFileReader->sampleRate != sampleRate) {
             juce::ConsoleApplication::fail("Mismatched sample rate between input files");
@@ -73,24 +84,26 @@ void process(const juce::String& pluginPath, const std::vector<juce::File>& inpu
         maxInputLength = std::max(maxInputLength, inputFileReader->lengthInSamples);
     }
 
+    // create the plugin instance
+    auto plugin = createPluginInstance(pluginPath, sampleRate, blockSize);
+    printPluginInfo(*plugin);
+
     // create the plugin's bus layout with an input bus for each input file
     unsigned int totalNumInputChannels = 0;
     juce::AudioPluginInstance::BusesLayout layout;
-    for (auto* inputFileReader : inputFileReaders) {
+    for (auto* inputFileReader : audioInputFileReaders) {
         layout.inputBuses.add(
             juce::AudioChannelSet::canonicalChannelSet(inputFileReader->numChannels));
         totalNumInputChannels += inputFileReader->numChannels;
     }
 
     // create an output bus with the desired amount of channels,
-    // defaulting same amount of channels as the main input file
-    unsigned int totalNumOutputChannels =
-        numOutputChannelsOpt.value_or(inputFileReaders[0]->numChannels);
+    // defaulting to the same amount of channels as the main input file if one exists,
+    // or the plugin's default bus layout otherwise.
+    unsigned int totalNumOutputChannels = (numOutputChannelsOpt.value_or(
+        audioInputFileReaders.isEmpty() ? plugin->getBusesLayout().getMainOutputChannels()
+                                        : audioInputFileReaders[0]->numChannels));
     layout.outputBuses.add(juce::AudioChannelSet::canonicalChannelSet(totalNumOutputChannels));
-
-    // create the plugin instance
-    auto plugin = createPluginInstance(pluginPath, sampleRate, blockSize);
-    printPluginInfo(*plugin);
 
     // apply the channel layout
     if (!plugin->setBusesLayout(layout)) {
@@ -116,6 +129,29 @@ void process(const juce::String& pluginPath, const std::vector<juce::File>& inpu
         param->setValueNotifyingHost(param->getValueForText(p.second));
     }
 
+    // read MIDI input file
+    juce::MidiFile midiFile;
+    if (midiInputFileOpt) {
+        auto inputStream = midiInputFileOpt->createInputStream();
+        if (!midiFile.readFrom(*inputStream, true)) {
+            juce::ConsoleApplication::fail("Error reading MIDI input file");
+        }
+
+        // since MIDI tick length is defined in the file header,
+        // let JUCE take care of the conversion for us and work with timestamps in seconds
+        midiFile.convertTimestampTicksToSeconds();
+
+        // find the timestamp of the last MIDI event in the file
+        // to ensure we process until that MIDI event is reached
+        for (int i = 0; i < midiFile.getNumTracks(); i++) {
+            auto midiTrack = midiFile.getTrack(i);
+            for (auto& meh : *midiTrack) {
+                auto timestampSamples = secondsToSamples(meh->message.getTimeStamp(), sampleRate);
+                maxInputLength = std::max(maxInputLength, timestampSamples);
+            }
+        }
+    }
+
     // TODO: is this needed?
     plugin->prepareToPlay(sampleRate, blockSize);
 
@@ -139,12 +175,12 @@ void process(const juce::String& pluginPath, const std::vector<juce::File>& inpu
     juce::AudioBuffer<float> sampleBuffer(std::max(totalNumInputChannels, totalNumOutputChannels),
                                           blockSize);
 
-    juce::MidiBuffer midiBuffer; // TODO: add support for MIDI input files?
+    juce::MidiBuffer midiBuffer;
     juce::int64 sampleIndex = 0;
     while (sampleIndex < maxInputLength) {
-        // read next segment of input files into buffer
+        // read next segment of audio input files into buffer
         unsigned int targetChannel = 0;
-        for (auto* inputFileReader : inputFileReaders) {
+        for (auto* inputFileReader : audioInputFileReaders) {
             if (!inputFileReader->read(sampleBuffer.getArrayOfWritePointers() + targetChannel,
                                        inputFileReader->numChannels, sampleIndex, blockSize)) {
                 juce::ConsoleApplication::fail(
@@ -152,6 +188,23 @@ void process(const juce::String& pluginPath, const std::vector<juce::File>& inpu
             }
 
             targetChannel += inputFileReader->numChannels;
+        }
+
+        // populate MIDI buffer with the MIDI events
+        // falling into the current processing block.
+        // we simply take MIDI events from all tracks and supply them to the buffer -
+        // if the user only wants a single track of a multi-track MIDI file,
+        // they should extract that track into a separate MIDI file.
+        midiBuffer.clear();
+        for (int i = 0; i < midiFile.getNumTracks(); i++) {
+            auto midiTrack = midiFile.getTrack(i);
+
+            for (auto& meh : *midiTrack) {
+                auto timestampSamples = secondsToSamples(meh->message.getTimeStamp(), sampleRate);
+                if (timestampSamples >= sampleIndex && timestampSamples < sampleIndex + blockSize) {
+                    midiBuffer.addEvent(meh->message, (int) (timestampSamples - sampleIndex));
+                }
+            }
         }
 
         // process with plugin
