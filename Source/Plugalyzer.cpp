@@ -63,7 +63,9 @@ void process(const juce::String& pluginPath, const std::vector<juce::File>& audi
 
     double sampleRate = fallbackSampleRate;
 
-    for (auto& inputFile : audioInputFiles) {
+    for (size_t i = 0; i < audioInputFiles.size(); i++) {
+        auto& inputFile = audioInputFiles[i];
+
         auto inputFileReader = audioFormatManager.createReaderFor(inputFile);
         if (!inputFileReader) {
             juce::ConsoleApplication::fail("Could not read input file " +
@@ -73,7 +75,7 @@ void process(const juce::String& pluginPath, const std::vector<juce::File>& audi
         audioInputFileReaders.add(inputFileReader);
 
         // ensure the sample rate of all input files is the same
-        if (sampleRate == 0) {
+        if (i == 0) {
             sampleRate = inputFileReader->sampleRate;
         } else if (inputFileReader->sampleRate != sampleRate) {
             juce::ConsoleApplication::fail("Mismatched sample rate between input files");
