@@ -17,7 +17,6 @@ target_include_directories(Plugalyzer PRIVATE CLI11/include)
 target_sources(Plugalyzer
     PRIVATE
     Source/main.cpp
-    Source/Plugalyzer.cpp
     Source/Utils.cpp
     Source/ProcessCommand.cpp
     Source/ListParametersCommand.cpp
