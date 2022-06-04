@@ -7,14 +7,14 @@
  *
  * @param str The string to parse.
  * @return The parsed key-value pair.
- * @throws std::runtime_error If the input string is not formatted correctly.
+ * @throws CLIException If the input string is not formatted correctly.
  */
 std::pair<juce::String, juce::String> parsePluginParameterArgument(const std::string& str) {
     juce::StringArray tokens;
     tokens.addTokens(str, ":", "\"'");
 
     if (tokens.size() != 2) {
-        throw std::runtime_error("'" + str + "' is not a colon-separated key-value pair");
+        throw CLIException("\"" + str + "\" is not a colon-separated key-value pair");
     }
 
     return {tokens[0], tokens[1]};
@@ -82,8 +82,7 @@ void ProcessCommand::execute() {
 
         auto inputFileReader = audioFormatManager.createReaderFor(inputFile);
         if (!inputFileReader) {
-            juce::ConsoleApplication::fail("Could not read input file " +
-                                           inputFile.getFullPathName());
+            throw CLIException("Could not read input file " + inputFile.getFullPathName());
         }
 
         audioInputFileReaders.add(inputFileReader);
@@ -92,7 +91,7 @@ void ProcessCommand::execute() {
         if (i == 0) {
             sampleRate = inputFileReader->sampleRate;
         } else if (inputFileReader->sampleRate != sampleRate) {
-            juce::ConsoleApplication::fail("Mismatched sample rate between input files");
+            throw CLIException("Mismatched sample rate between input files");
         }
 
         maxInputLength = std::max(maxInputLength, inputFileReader->lengthInSamples);
@@ -120,7 +119,7 @@ void ProcessCommand::execute() {
 
     // apply the channel layout
     if (!plugin->setBusesLayout(layout)) {
-        juce::ConsoleApplication::fail("Plugin does not support requested bus layout");
+        throw CLIException("Plugin does not support requested bus layout");
     }
 
     // apply plugin parameters
@@ -138,7 +137,7 @@ void ProcessCommand::execute() {
                          });
 
         if (paramIt == plugin->getParameters().end()) {
-            juce::ConsoleApplication::fail("Unknown parameter identifier " + paramId);
+            throw CLIException("Unknown parameter identifier " + paramId);
         }
 
         auto* param = *paramIt;
@@ -150,7 +149,7 @@ void ProcessCommand::execute() {
     if (midiInputFileOpt) {
         auto inputStream = midiInputFileOpt->createInputStream();
         if (!midiFile.readFrom(*inputStream, true)) {
-            juce::ConsoleApplication::fail("Error reading MIDI input file");
+            throw CLIException("Error reading MIDI input file");
         }
 
         // since MIDI tick length is defined in the file header,
@@ -173,8 +172,7 @@ void ProcessCommand::execute() {
 
     // open output stream
     if (outputFilePath.exists() && !overwriteOutputFile) {
-        juce::ConsoleApplication::fail(
-            "Output file already exists! Use --overwrite to overwrite the file");
+        throw CLIException("Output file already exists! Use --overwrite to overwrite the file");
     }
 
     std::unique_ptr<juce::AudioFormatWriter> outWriter;
@@ -182,8 +180,8 @@ void ProcessCommand::execute() {
         outputFilePath.deleteFile();
         auto outputStream = outputFilePath.createOutputStream(blockSize);
         if (!outputStream) {
-            juce::ConsoleApplication::fail("Could not create output stream to write to file " +
-                                           outputFilePath.getFullPathName());
+            throw CLIException("Could not create output stream to write to file " +
+                               outputFilePath.getFullPathName());
         }
 
         juce::WavAudioFormat outFormat;
@@ -204,8 +202,7 @@ void ProcessCommand::execute() {
         for (auto* inputFileReader : audioInputFileReaders) {
             if (!inputFileReader->read(sampleBuffer.getArrayOfWritePointers() + targetChannel,
                                        inputFileReader->numChannels, sampleIndex, blockSize)) {
-                juce::ConsoleApplication::fail(
-                    "Error reading input file"); // TODO: more context, which file?
+                throw CLIException("Error reading input file"); // TODO: more context, which file?
             }
 
             targetChannel += inputFileReader->numChannels;

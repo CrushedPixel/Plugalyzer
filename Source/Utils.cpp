@@ -17,7 +17,7 @@ std::unique_ptr<juce::AudioPluginInstance> createPluginInstance(const juce::Stri
 
         // check if the requested plugin was found
         if (pluginDescriptions.isEmpty()) {
-            juce::ConsoleApplication::fail("Invalid plugin identifier: " + pluginPath);
+            throw CLIException("Invalid plugin identifier: " + pluginPath);
         }
 
         pluginDescription = *pluginDescriptions[0];
@@ -31,7 +31,7 @@ std::unique_ptr<juce::AudioPluginInstance> createPluginInstance(const juce::Stri
                                                                initialBlockSize, err);
 
         if (!plugin) {
-            juce::ConsoleApplication::fail("Error creating plugin instance: " + err);
+            throw CLIException("Error creating plugin instance: " + err);
         }
     }
 

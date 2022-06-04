@@ -2,13 +2,11 @@
 #include "ProcessCommand.h"
 #include <juce_events/juce_events.h>
 
-void registerSubcommand(CLI::App& app, CLICommand &subcommand) {
-    app.add_subcommand(subcommand.createApp())->callback([&subcommand]() {
-        subcommand.execute();
-    });
+void registerSubcommand(CLI::App& app, CLICommand& subcommand) {
+    app.add_subcommand(subcommand.createApp())->callback([&subcommand]() { subcommand.execute(); });
 }
 
-void runCommandLine(const std::string& commandLineParameters) {
+int runCommandLine(const std::string& commandLineParameters) {
     CLI::App app("Command-line audio plugin host");
 
     // set up subcommands
@@ -19,10 +17,21 @@ void runCommandLine(const std::string& commandLineParameters) {
     registerSubcommand(app, lpc);
 
     app.require_subcommand();
-    app.parse(commandLineParameters, false);
+
+    try {
+        app.parse(commandLineParameters, false);
+    } catch (const CLI::Error& error) {
+        return app.exit(error);
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        return 1;
+    }
+
+    return 0;
 }
 
 class PlugalyzerApplication : public juce::JUCEApplicationBase {
+  public:
     const juce::String getApplicationName() override { return JUCE_APPLICATION_NAME_STRING; }
     const juce::String getApplicationVersion() override { return JUCE_APPLICATION_VERSION_STRING; }
 
@@ -37,16 +46,11 @@ class PlugalyzerApplication : public juce::JUCEApplicationBase {
 
     void unhandledException(const std::exception* exception, const juce::String& sourceFilename,
                             int lineNumber) override {
-        // TODO
-        std::cerr << exception << std::endl;
+        // for some reason, this doesn't actually get called and the runtime just terminates...
     }
 
     void initialise(const juce::String& commandLineParameters) override {
-        auto exitCode =
-            juce::ConsoleApplication::invokeCatchingFailures([&commandLineParameters]() {
-                runCommandLine(commandLineParameters.toStdString());
-                return 0;
-            });
+        int exitCode = runCommandLine(commandLineParameters.toStdString());
 
         setApplicationReturnValue(exitCode);
         quit();
