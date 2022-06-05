@@ -1,6 +1,5 @@
 #include "ProcessCommand.h"
 #include "Utils.h"
-#include <juce_audio_formats/juce_audio_formats.h>
 
 /**
  * Parses a plugin parameter string in the format <key>:<value> into a key-value pair.
@@ -70,105 +69,39 @@ std::shared_ptr<CLI::App> ProcessCommand::createApp() {
 }
 
 void ProcessCommand::execute() {
-    // parse the input files
-    juce::AudioFormatManager audioFormatManager;
-    audioFormatManager.registerBasicFormats();
+    juce::int64 totalInputLength;
 
-    juce::OwnedArray<juce::AudioFormatReader> audioInputFileReaders;
-    juce::int64 maxInputLength = 0;
-
-    for (size_t i = 0; i < audioInputFiles.size(); i++) {
-        auto& inputFile = audioInputFiles[i];
-
-        auto inputFileReader = audioFormatManager.createReaderFor(inputFile);
-        if (!inputFileReader) {
-            throw CLIException("Could not read input file " + inputFile.getFullPathName());
-        }
-
-        audioInputFileReaders.add(inputFileReader);
-
-        // ensure the sample rate of all input files is the same
-        if (i == 0) {
-            sampleRate = inputFileReader->sampleRate;
-        } else if (inputFileReader->sampleRate != sampleRate) {
-            throw CLIException("Mismatched sample rate between input files");
-        }
-
-        maxInputLength = std::max(maxInputLength, inputFileReader->lengthInSamples);
-    }
-
-    // create the plugin instance
-    auto plugin = createPluginInstance(pluginPath, sampleRate, (int) blockSize);
-
-    // create the plugin's bus layout with an input bus for each input file
-    unsigned int totalNumInputChannels = 0;
-    juce::AudioPluginInstance::BusesLayout layout;
-    for (auto* inputFileReader : audioInputFileReaders) {
-        layout.inputBuses.add(
-            juce::AudioChannelSet::canonicalChannelSet(inputFileReader->numChannels));
-        totalNumInputChannels += inputFileReader->numChannels;
-    }
-
-    // create an output bus with the desired amount of channels,
-    // defaulting to the same amount of channels as the main input file if one exists,
-    // or the plugin's default bus layout otherwise.
-    unsigned int totalNumOutputChannels = (outputChannelCountOpt.value_or(
-        audioInputFileReaders.isEmpty() ? plugin->getBusesLayout().getMainOutputChannels()
-                                        : audioInputFileReaders[0]->numChannels));
-    layout.outputBuses.add(juce::AudioChannelSet::canonicalChannelSet(totalNumOutputChannels));
-
-    // apply the channel layout
-    if (!plugin->setBusesLayout(layout)) {
-        throw CLIException("Plugin does not support requested bus layout");
-    }
-
-    // apply plugin parameters
-    for (auto& arg : parameters) {
-        // can't use destructuring because the destructured value can't be captured in a lambda...
-        auto p = parsePluginParameterArgument(arg);
-        auto& paramId = p.first;
-        auto& value = p.second;
-
-        auto* paramIt =
-            std::find_if(plugin->getParameters().begin(), plugin->getParameters().end(),
-                         [paramId](juce::AudioProcessorParameter* parameter) {
-                             return parameter->getName(1024) == paramId ||
-                                    juce::String(parameter->getParameterIndex()) == paramId;
-                         });
-
-        if (paramIt == plugin->getParameters().end()) {
-            throw CLIException("Unknown parameter identifier " + paramId);
-        }
-
-        auto* param = *paramIt;
-        param->setValueNotifyingHost(param->getValueForText(value));
+    // create audio file readers
+    auto audioInputFileReaders = createAudioFileReaders(audioInputFiles, totalInputLength);
+    // use the sample rate of input audio files if provided
+    if (!audioInputFileReaders.isEmpty()) {
+        sampleRate = audioInputFileReaders[0]->sampleRate;
     }
 
     // read MIDI input file
     juce::MidiFile midiFile;
     if (midiInputFileOpt) {
-        auto inputStream = midiInputFileOpt->createInputStream();
-        if (!midiFile.readFrom(*inputStream, true)) {
-            throw CLIException("Error reading MIDI input file");
-        }
-
-        // since MIDI tick length is defined in the file header,
-        // let JUCE take care of the conversion for us and work with timestamps in seconds
-        midiFile.convertTimestampTicksToSeconds();
-
-        // find the timestamp of the last MIDI event in the file
-        // to ensure we process until that MIDI event is reached
-        for (int i = 0; i < midiFile.getNumTracks(); i++) {
-            auto midiTrack = midiFile.getTrack(i);
-            for (auto& meh : *midiTrack) {
-                auto timestampSamples = secondsToSamples(meh->message.getTimeStamp(), sampleRate);
-                maxInputLength = std::max(maxInputLength, timestampSamples);
-            }
-        }
+        juce::int64 midiLength;
+        midiFile = readMIDIFile(*midiInputFileOpt, sampleRate, midiLength);
+        totalInputLength = std::max(totalInputLength, midiLength);
     }
 
+    // create the plugin instance
+    auto plugin = createPluginInstance(pluginPath, sampleRate, (int) blockSize);
+
+    // create and apply the bus layout
+    unsigned int totalNumInputChannels, totalNumOutputChannels;
+    auto layout = createBusLayout(*plugin, audioInputFileReaders, outputChannelCountOpt,
+                                  totalNumInputChannels, totalNumOutputChannels);
+    if (!plugin->setBusesLayout(layout)) {
+        throw CLIException("Plugin does not support requested bus layout");
+    }
+
+    // apply plugin parameters
+    applyPluginParameters(*plugin, parameters);
+
     // TODO: is this needed?
-    plugin->prepareToPlay(sampleRate, blockSize);
+    plugin->prepareToPlay(sampleRate, (int) blockSize);
 
     // open output stream
     if (outputFilePath.exists() && !overwriteOutputFile) {
@@ -191,17 +124,18 @@ void ProcessCommand::execute() {
     }
 
     // process the input files with the plugin
-    juce::AudioBuffer<float> sampleBuffer(std::max(totalNumInputChannels, totalNumOutputChannels),
-                                          blockSize);
+    juce::AudioBuffer<float> sampleBuffer(
+        (int) std::max(totalNumInputChannels, totalNumOutputChannels), (int) blockSize);
 
     juce::MidiBuffer midiBuffer;
     juce::int64 sampleIndex = 0;
-    while (sampleIndex < maxInputLength) {
+    while (sampleIndex < totalInputLength) {
         // read next segment of audio input files into buffer
         unsigned int targetChannel = 0;
         for (auto* inputFileReader : audioInputFileReaders) {
             if (!inputFileReader->read(sampleBuffer.getArrayOfWritePointers() + targetChannel,
-                                       inputFileReader->numChannels, sampleIndex, blockSize)) {
+                                       (int) inputFileReader->numChannels, sampleIndex,
+                                       (int) blockSize)) {
                 throw CLIException("Error reading input file"); // TODO: more context, which file?
             }
 
@@ -229,8 +163,121 @@ void ProcessCommand::execute() {
         plugin->processBlock(sampleBuffer, midiBuffer);
 
         // write to output
-        outWriter->writeFromAudioSampleBuffer(sampleBuffer, 0, blockSize);
+        outWriter->writeFromAudioSampleBuffer(sampleBuffer, 0, (int) blockSize);
 
         sampleIndex += blockSize;
+    }
+}
+
+juce::OwnedArray<juce::AudioFormatReader>
+ProcessCommand::createAudioFileReaders(const std::vector<juce::File>& files,
+                                       juce::int64& maxLengthInSamplesOut) {
+    maxLengthInSamplesOut = 0;
+
+    // parse the input files
+    juce::AudioFormatManager audioFormatManager;
+    audioFormatManager.registerBasicFormats();
+
+    juce::OwnedArray<juce::AudioFormatReader> audioInputFileReaders;
+
+    double sampleRate;
+    for (size_t i = 0; i < files.size(); i++) {
+        auto& inputFile = files[i];
+
+        auto inputFileReader = audioFormatManager.createReaderFor(inputFile);
+        if (!inputFileReader) {
+            throw CLIException("Could not read input file " + inputFile.getFullPathName());
+        }
+
+        audioInputFileReaders.add(inputFileReader);
+
+        // ensure the sample rate of all input files is the same
+        if (i == 0) {
+            sampleRate = inputFileReader->sampleRate;
+        } else if (inputFileReader->sampleRate != sampleRate) {
+            throw CLIException("Mismatched sample rate between input files");
+        }
+
+        maxLengthInSamplesOut = std::max(maxLengthInSamplesOut, inputFileReader->lengthInSamples);
+    }
+
+    return audioInputFileReaders;
+}
+
+juce::MidiFile ProcessCommand::readMIDIFile(const juce::File& file, double sampleRate,
+                                            juce::int64& lengthInSamplesOut) {
+    juce::MidiFile midiFile;
+    lengthInSamplesOut = 0;
+
+    auto inputStream = file.createInputStream();
+    if (!midiFile.readFrom(*inputStream, true)) {
+        throw CLIException("Error reading MIDI input file");
+    }
+
+    // since MIDI tick length is defined in the file header,
+    // let JUCE take care of the conversion for us and work with timestamps in seconds
+    midiFile.convertTimestampTicksToSeconds();
+
+    // find the timestamp of the last MIDI event in the file
+    // to ensure we process until that MIDI event is reached
+    for (int i = 0; i < midiFile.getNumTracks(); i++) {
+        auto midiTrack = midiFile.getTrack(i);
+        for (auto& meh : *midiTrack) {
+            auto timestampSamples = secondsToSamples(meh->message.getTimeStamp(), sampleRate);
+            lengthInSamplesOut = std::max(lengthInSamplesOut, timestampSamples);
+        }
+    }
+
+    return midiFile;
+}
+
+juce::AudioPluginInstance::BusesLayout ProcessCommand::createBusLayout(
+    const juce::AudioPluginInstance& plugin,
+    const juce::OwnedArray<juce::AudioFormatReader>& audioInputFileReaders,
+    const std::optional<unsigned int>& outputChannelCountOpt,
+    unsigned int& totalNumInputChannelsOut, unsigned int& totalNumOutputChannelsOut) {
+
+    totalNumInputChannelsOut = 0;
+    juce::AudioPluginInstance::BusesLayout layout;
+    for (auto* inputFileReader : audioInputFileReaders) {
+        layout.inputBuses.add(
+            juce::AudioChannelSet::canonicalChannelSet((int) inputFileReader->numChannels));
+        totalNumInputChannelsOut += inputFileReader->numChannels;
+    }
+
+    // create an output bus with the desired amount of channels,
+    // defaulting to the same amount of channels as the main input file if one exists,
+    // or the plugin's default bus layout otherwise.
+    totalNumOutputChannelsOut = (outputChannelCountOpt.value_or(
+        audioInputFileReaders.isEmpty()
+            ? (unsigned int) plugin.getBusesLayout().getMainOutputChannels()
+            : audioInputFileReaders[0]->numChannels));
+    layout.outputBuses.add(
+        juce::AudioChannelSet::canonicalChannelSet((int) totalNumOutputChannelsOut));
+
+    return layout;
+}
+
+void ProcessCommand::applyPluginParameters(juce::AudioPluginInstance& plugin,
+                                           const std::vector<std::string>& parameters) {
+    for (auto& arg : parameters) {
+        // can't use destructuring because the destructured value can't be captured in a lambda...
+        auto p = parsePluginParameterArgument(arg);
+        auto& paramId = p.first;
+        auto& value = p.second;
+
+        auto* paramIt =
+            std::find_if(plugin.getParameters().begin(), plugin.getParameters().end(),
+                         [paramId](juce::AudioProcessorParameter* parameter) {
+                             return parameter->getName(1024) == paramId ||
+                                    juce::String(parameter->getParameterIndex()) == paramId;
+                         });
+
+        if (paramIt == plugin.getParameters().end()) {
+            throw CLIException("Unknown parameter identifier " + paramId);
+        }
+
+        auto* param = *paramIt;
+        param->setValueNotifyingHost(param->getValueForText(value));
     }
 }
