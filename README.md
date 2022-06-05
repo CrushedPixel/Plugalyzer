@@ -15,7 +15,7 @@ Plugins with multiple input buses (such as sidechains) are supported.
 
 # Usage
 The general usage of plugalyzer follows the pattern `plugalyzer [command] [options...]`.  
-Available commands and their options are described below.
+Using the `--help` flag, detailed usage information can be obtained for every command.
 
 ## Process audio files
 The `process` command processes the given audio and/or MIDI files using the given plugin in non-realtime,

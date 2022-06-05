@@ -6,15 +6,20 @@ set(CMAKE_CXX_STANDARD 20)
 
 # include JUCE from submodule
 add_subdirectory(JUCE)
-
 juce_add_console_app(Plugalyzer
     COMPANY_NAME CrushedPixel
     )
 
+# include CLI11 from submodule
+add_subdirectory(CLI11)
+target_include_directories(Plugalyzer PRIVATE CLI11/include)
+
 target_sources(Plugalyzer
     PRIVATE
     Source/main.cpp
-    Source/Plugalyzer.cpp
+    Source/Utils.cpp
+    Source/ProcessCommand.cpp
+    Source/ListParametersCommand.cpp
     )
 
 target_compile_definitions(Plugalyzer
@@ -38,6 +43,8 @@ target_link_libraries(Plugalyzer
     juce::juce_audio_formats
     juce::juce_audio_devices
     juce::juce_audio_utils
+
+    CLI11::CLI11
 
     PUBLIC
     juce::juce_recommended_config_flags
