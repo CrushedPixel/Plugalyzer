@@ -51,6 +51,15 @@ class Automation {
     static void applyParameters(juce::AudioPluginInstance& plugin,
                                 const ParameterAutomation& automation, size_t sampleIndex);
 
+    /**
+     * Tests whether calling the given parameter's <code>textToValue</code> function
+     * with a string obtained using <code>getText</code> returns the original normalized value.
+     *
+     * @param param The parameter to test.
+     * @return Whether the parameter supports the text-to-value conversion.
+     */
+    static bool parameterSupportsTextToValueConversion(const juce::AudioProcessorParameter* param);
+
   private:
     /**
      * Converts a keyframe time string into samples.

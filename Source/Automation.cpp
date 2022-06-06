@@ -120,3 +120,23 @@ void Automation::applyParameters(juce::AudioPluginInstance& plugin,
         param->setValue(value);
     }
 }
+
+float epsilon = std::powf(10, -4);
+
+bool Automation::parameterSupportsTextToValueConversion(
+        const juce::AudioProcessorParameter* param) {
+    int numValuesToTry = std::min(100, param->getNumSteps());
+
+    for (int i = 0; i < numValuesToTry; i++) {
+        float normalizedValue = (float) i / (float) (numValuesToTry - 1);
+
+        auto text = param->getText(normalizedValue, 1024);
+        float normalizedValueFromText = param->getValueForText(text);
+
+        if (std::abs(normalizedValue - normalizedValueFromText) >= epsilon) {
+            return false;
+        }
+    }
+
+    return true;
+}

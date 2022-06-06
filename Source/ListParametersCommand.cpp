@@ -1,4 +1,5 @@
 #include "ListParametersCommand.h"
+#include "Automation.h"
 #include "Utils.h"
 
 std::shared_ptr<CLI::App> ListParametersCommand::createApp() {
@@ -60,5 +61,10 @@ void ListParametersCommand::execute() {
         // print the default value
         std::cout << indent << "Default: " << param->getText(param->getDefaultValue(), 1024)
                   << param->getLabel() << std::endl;
+
+        // print symmetry of parameter's string <-> normalized value conversion
+        std::cout << std::boolalpha; // print bools as true/false
+        std::cout << indent << "Supports text values: "
+                  << Automation::parameterSupportsTextToValueConversion(param) << std::endl;
     }
 }
