@@ -132,6 +132,8 @@ void ProcessCommand::execute() {
     juce::MidiBuffer midiBuffer;
     size_t sampleIndex = 0;
     while (sampleIndex < totalInputLength) {
+        sampleBuffer.clear();
+
         // read next segment of audio input files into buffer
         unsigned int targetChannel = 0;
         for (auto* inputFileReader : audioInputFileReaders) {
@@ -203,7 +205,8 @@ ProcessCommand::createAudioFileReaders(const std::vector<juce::File>& files,
             throw CLIException("Mismatched sample rate between input files");
         }
 
-        maxLengthInSamplesOut = std::max(maxLengthInSamplesOut, (size_t) inputFileReader->lengthInSamples);
+        maxLengthInSamplesOut =
+            std::max(maxLengthInSamplesOut, (size_t) inputFileReader->lengthInSamples);
     }
 
     return audioInputFileReaders;
@@ -244,10 +247,20 @@ juce::AudioPluginInstance::BusesLayout ProcessCommand::createBusLayout(
 
     totalNumInputChannelsOut = 0;
     juce::AudioPluginInstance::BusesLayout layout;
-    for (auto* inputFileReader : audioInputFileReaders) {
-        layout.inputBuses.add(
-            juce::AudioChannelSet::canonicalChannelSet((int) inputFileReader->numChannels));
-        totalNumInputChannelsOut += inputFileReader->numChannels;
+    if (audioInputFileReaders.isEmpty()) {
+        // if no input files are provided, use the plugin's default input bus layout
+        // to maximize compatibility with synths that expect an input
+        layout.inputBuses = plugin.getBusesLayout().inputBuses;
+        for (auto& cs : layout.inputBuses) {
+            totalNumInputChannelsOut += (unsigned int) cs.size();
+        }
+
+    } else {
+        for (auto* inputFileReader : audioInputFileReaders) {
+            layout.inputBuses.add(
+                juce::AudioChannelSet::canonicalChannelSet((int) inputFileReader->numChannels));
+            totalNumInputChannelsOut += inputFileReader->numChannels;
+        }
     }
 
     // create an output bus with the desired amount of channels,
