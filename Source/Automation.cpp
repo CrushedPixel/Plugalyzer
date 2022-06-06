@@ -165,19 +165,29 @@ void Automation::applyParameters(juce::AudioPluginInstance& plugin,
     }
 }
 
-float epsilon = std::powf(10, -4);
-
 bool Automation::parameterSupportsTextToValueConversion(
     const juce::AudioProcessorParameter* param) {
     int numValuesToTry = std::min(100, param->getNumSteps());
 
     for (int i = 0; i < numValuesToTry; i++) {
+        // pick an arbitrary normalized value to test for
         float normalizedValue = (float) i / (float) (numValuesToTry - 1);
 
+        // convert the value to text
         auto text = param->getText(normalizedValue, 1024);
+        // get the normalized value that text corresponds to
         float normalizedValueFromText = param->getValueForText(text);
 
-        if (std::abs(normalizedValue - normalizedValueFromText) >= epsilon) {
+        // test if converting that normalized value back gives the same text,
+        // and the conversion is therefore consistent in both directions.
+        // a non-compliant plugin whose getValueForText function returns a
+        // normalized value that doesn't actually correspond to the text fails this check.
+
+        // the reason we don't compare normalizedValueFromText to the original normalizedValue
+        // is that text conversion might introduce some clamping, which slightly changes the
+        // resulting value.
+        auto text2 = param->getText(normalizedValueFromText, 1024);
+        if (text != text2) {
             return false;
         }
     }
