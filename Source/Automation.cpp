@@ -77,10 +77,10 @@ size_t Automation::parseKeyframeTime(juce::String timeStr, double sampleRate,
         timeStr = timeStr.substring(0, timeStr.length() - 1).trim();
 
         // parse the floating-point number
-        double time;
+        float time;
         try {
-            time = std::stod(timeStr.toStdString());
-        } catch (std::invalid_argument& ia) {
+            time = parseFloatStrict(timeStr.toStdString());
+        } catch (const std::invalid_argument& ia) {
             throw std::runtime_error("Invalid floating-point number '" + timeStr.toStdString() +
                                      "'");
         }
@@ -95,7 +95,7 @@ size_t Automation::parseKeyframeTime(juce::String timeStr, double sampleRate,
     // no known suffix was detected - parse as an integer sample value
     size_t time;
     try {
-        time = std::stoul(timeStr.toStdString());
+        time = parseULongStrict(timeStr.toStdString());
     } catch (std::invalid_argument& ia) {
         throw std::runtime_error("Invalid sample index '" + timeStr.toStdString() + "'");
     }

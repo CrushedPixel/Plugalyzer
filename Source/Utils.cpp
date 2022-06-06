@@ -2,6 +2,23 @@
 
 size_t secondsToSamples(double sec, double sampleRate) { return (size_t) (sec * sampleRate); }
 
+#define PARSE_STRICT(funName)                                         \
+    size_t endPtr;                                                    \
+    auto num = (funName)(str, &endPtr);                               \
+    if (endPtr != str.size()) {                                       \
+        throw std::invalid_argument("Invalid number: '" + str + "'"); \
+    }                                                                 \
+    return num
+
+
+float parseFloatStrict(const std::string &str) {
+    PARSE_STRICT(std::stof);
+}
+
+unsigned long parseULongStrict(const std::string &str) {
+    PARSE_STRICT(std::stoul);
+}
+
 std::unique_ptr<juce::AudioPluginInstance>
 PluginUtils::createPluginInstance(const juce::String& pluginPath, double initialSampleRate,
                                   int initialBlockSize) {

@@ -19,6 +19,28 @@ struct CLIException : std::runtime_error {
  */
 size_t secondsToSamples(double sec, double sampleRate);
 
+/**
+ * Parses a string into a floating-point number.
+ * If not the entire string is a number, an error is thrown,
+ * unlike <code>std::stof</code> which only returns the leading number in such a case.
+ *
+ * @param str The string to parse.
+ * @return The parsed number.
+ * @throws std::invalid_argument If the input is not a valid number.
+ */
+float parseFloatStrict(const std::string& str);
+
+/**
+ * Parses a string into an unsigned long number.
+ * If not the entire string is a number, an error is thrown,
+ * unlike <code>std::stoul</code> which only returns the leading number in such a case.
+ *
+ * @param str The string to parse.
+ * @return The parsed number.
+ * @throws std::invalid_argument If the input is not a valid number.
+ */
+unsigned long parseULongStrict(const std::string& str);
+
 class PluginUtils {
   public:
     /**

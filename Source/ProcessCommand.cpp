@@ -1,22 +1,65 @@
 #include "ProcessCommand.h"
 #include "Utils.h"
 
+struct ParameterCLIArgument {
+    std::string parameterName;
+
+    // I'd use a union for this, but compiler says no
+    // https://stackoverflow.com/a/70428826
+    std::string textValue;
+    float normalizedValue;
+
+    bool isNormalizedValue;
+};
+
 /**
- * Parses a plugin parameter string in the format <key>:<value> into a key-value pair.
+ * Parses a plugin parameter string in the format <key>:<value>[:n].
  *
  * @param str The string to parse.
- * @return The parsed key-value pair.
+ * @return The parsed parameter argument.
  * @throws CLIException If the input string is not formatted correctly.
  */
-std::pair<std::string, std::string> parsePluginParameterArgument(const std::string& str) {
+ParameterCLIArgument parsePluginParameterArgument(const std::string& str) {
     juce::StringArray tokens;
     tokens.addTokens(str, ":", "\"'");
 
-    if (tokens.size() != 2) {
-        throw CLIException("\"" + str + "\" is not a colon-separated key-value pair");
+    bool isNormalizedValue = tokens.size() == 3;
+
+    if (isNormalizedValue && tokens[2] != "n") {
+        throw CLIException("Invalid parameter modifier: '" + tokens[2] + "'. Only 'n' is allowed");
     }
 
-    return {tokens[0].toStdString(), tokens[1].toStdString()};
+    if (tokens.size() != 2 && tokens.size() != 3) {
+        throw CLIException("'" + str + "' is not a colon-separated key-value pair");
+    }
+
+    std::string valueStr = tokens[1].toStdString();
+    if (isNormalizedValue) {
+        float normalizedValue;
+        try {
+            normalizedValue = parseFloatStrict(valueStr);
+        } catch (const std::invalid_argument& ia) {
+            throw CLIException("Normalized parameter value must be a number, but is '" + valueStr +
+                               "'");
+        }
+
+        if (normalizedValue < 0 || normalizedValue > 1) {
+            throw CLIException("Normalized parameter value must be between 0 and 1, but is " +
+                               std::to_string(normalizedValue));
+        }
+
+        return {
+            .parameterName = tokens[0].toStdString(),
+            .normalizedValue = normalizedValue,
+            .isNormalizedValue = true,
+        };
+    }
+
+    return {
+        .parameterName = tokens[0].toStdString(),
+        .textValue = valueStr,
+        .isNormalizedValue = false,
+    };
 }
 
 /**
@@ -292,16 +335,21 @@ ProcessCommand::parseParameters(const juce::AudioPluginInstance& plugin, double 
 
     // parse command-line supplied parameters
     for (auto& arg : cliParameters) {
-        auto [paramName, valueStr] = parsePluginParameterArgument(arg);
+        auto [paramName, textValue, normalizedValue, isNormalizedValue] =
+            parsePluginParameterArgument(arg);
 
         // convert parameter value from text representation to a single keyframe,
         // which causes the same value to be applied over the entire duration
         auto* param = PluginUtils::getPluginParameterByName(plugin, paramName);
 
-        if (!Automation::parameterSupportsTextToValueConversion(param)) {
-            throw CLIException("Parameter '" + paramName +
-                               "' does not support text values. Use --paramFile instead to supply "
-                               "a normalized value");
+        if (!isNormalizedValue) {
+            if (!Automation::parameterSupportsTextToValueConversion(param)) {
+                throw CLIException("Parameter '" + paramName +
+                                   "' does not support text values. Use :n suffix to supply "
+                                   "a normalized value instead");
+            }
+
+            normalizedValue = param->getValueForText(textValue);
         }
 
         // warn the user if the parameter overrides a parameter specified in the file
@@ -312,7 +360,7 @@ ProcessCommand::parseParameters(const juce::AudioPluginInstance& plugin, double 
                       << std::endl;
         }
 
-        automation[paramName] = AutomationKeyframes({{0, param->getValueForText(valueStr)}});
+        automation[paramName] = AutomationKeyframes({{0, normalizedValue}});
     }
 
     return automation;
