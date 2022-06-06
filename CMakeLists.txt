@@ -14,12 +14,19 @@ juce_add_console_app(Plugalyzer
 add_subdirectory(CLI11)
 target_include_directories(Plugalyzer PRIVATE CLI11/include)
 
+#include nlohmann/json from submodule
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+set(JSON_Install OFF CACHE INTERNAL "")
+add_subdirectory(json)
+target_include_directories(Plugalyzer PRIVATE json/include)
+
 target_sources(Plugalyzer
     PRIVATE
     Source/main.cpp
     Source/Utils.cpp
     Source/ProcessCommand.cpp
     Source/ListParametersCommand.cpp
+    Source/Automation.cpp
     )
 
 target_compile_definitions(Plugalyzer
@@ -45,6 +52,7 @@ target_link_libraries(Plugalyzer
     juce::juce_audio_utils
 
     CLI11::CLI11
+    nlohmann_json::nlohmann_json
 
     PUBLIC
     juce::juce_recommended_config_flags

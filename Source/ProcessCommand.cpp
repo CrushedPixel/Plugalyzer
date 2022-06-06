@@ -8,7 +8,7 @@
  * @return The parsed key-value pair.
  * @throws CLIException If the input string is not formatted correctly.
  */
-std::pair<juce::String, juce::String> parsePluginParameterArgument(const std::string& str) {
+std::pair<std::string, std::string> parsePluginParameterArgument(const std::string& str) {
     juce::StringArray tokens;
     tokens.addTokens(str, ":", "\"'");
 
@@ -16,7 +16,7 @@ std::pair<juce::String, juce::String> parsePluginParameterArgument(const std::st
         throw CLIException("\"" + str + "\" is not a colon-separated key-value pair");
     }
 
-    return {tokens[0], tokens[1]};
+    return {tokens[0].toStdString(), tokens[1].toStdString()};
 }
 
 /**
@@ -62,14 +62,16 @@ std::shared_ptr<CLI::App> ProcessCommand::createApp() {
 
     app->add_option("-b,--blockSize", blockSize, "The buffer size to use when processing audio");
     app->add_option("-c,--outChannels", outputChannelCountOpt, "The amount of channels to use for the plugin's output bus");
-    app->add_option("--param", parameters, "Plugin parameters to set")->check(PluginParameter);
+
+    app->add_option("--paramFile", paramsFileOpt, "Path to JSON file to read plugin parameters and automation data from")->check(CLI::ExistingFile);
+    app->add_option("--param", params, "Plugin parameters to set. Explicitly specified parameters take precedence over parameters read from file")->check(PluginParameter);
 
     return app;
     // clang-format on
 }
 
 void ProcessCommand::execute() {
-    juce::int64 totalInputLength;
+    size_t totalInputLength;
 
     // create audio file readers
     auto audioInputFileReaders = createAudioFileReaders(audioInputFiles, totalInputLength);
@@ -81,13 +83,13 @@ void ProcessCommand::execute() {
     // read MIDI input file
     juce::MidiFile midiFile;
     if (midiInputFileOpt) {
-        juce::int64 midiLength;
+        size_t midiLength;
         midiFile = readMIDIFile(*midiInputFileOpt, sampleRate, midiLength);
         totalInputLength = std::max(totalInputLength, midiLength);
     }
 
     // create the plugin instance
-    auto plugin = createPluginInstance(pluginPath, sampleRate, (int) blockSize);
+    auto plugin = PluginUtils::createPluginInstance(pluginPath, sampleRate, (int) blockSize);
 
     // create and apply the bus layout
     unsigned int totalNumInputChannels, totalNumOutputChannels;
@@ -97,8 +99,8 @@ void ProcessCommand::execute() {
         throw CLIException("Plugin does not support requested bus layout");
     }
 
-    // apply plugin parameters
-    applyPluginParameters(*plugin, parameters);
+    // parse plugin parameters
+    auto automation = parseParameters(*plugin, sampleRate, totalInputLength, paramsFileOpt, params);
 
     // TODO: is this needed?
     plugin->prepareToPlay(sampleRate, (int) blockSize);
@@ -128,7 +130,7 @@ void ProcessCommand::execute() {
         (int) std::max(totalNumInputChannels, totalNumOutputChannels), (int) blockSize);
 
     juce::MidiBuffer midiBuffer;
-    juce::int64 sampleIndex = 0;
+    size_t sampleIndex = 0;
     while (sampleIndex < totalInputLength) {
         // read next segment of audio input files into buffer
         unsigned int targetChannel = 0;
@@ -159,6 +161,9 @@ void ProcessCommand::execute() {
             }
         }
 
+        // apply automation
+        Automation::applyParameters(*plugin, automation, sampleIndex);
+
         // process with plugin
         plugin->processBlock(sampleBuffer, midiBuffer);
 
@@ -171,7 +176,7 @@ void ProcessCommand::execute() {
 
 juce::OwnedArray<juce::AudioFormatReader>
 ProcessCommand::createAudioFileReaders(const std::vector<juce::File>& files,
-                                       juce::int64& maxLengthInSamplesOut) {
+                                       size_t& maxLengthInSamplesOut) {
     maxLengthInSamplesOut = 0;
 
     // parse the input files
@@ -198,14 +203,14 @@ ProcessCommand::createAudioFileReaders(const std::vector<juce::File>& files,
             throw CLIException("Mismatched sample rate between input files");
         }
 
-        maxLengthInSamplesOut = std::max(maxLengthInSamplesOut, inputFileReader->lengthInSamples);
+        maxLengthInSamplesOut = std::max(maxLengthInSamplesOut, (size_t) inputFileReader->lengthInSamples);
     }
 
     return audioInputFileReaders;
 }
 
 juce::MidiFile ProcessCommand::readMIDIFile(const juce::File& file, double sampleRate,
-                                            juce::int64& lengthInSamplesOut) {
+                                            size_t& lengthInSamplesOut) {
     juce::MidiFile midiFile;
     lengthInSamplesOut = 0;
 
@@ -258,26 +263,38 @@ juce::AudioPluginInstance::BusesLayout ProcessCommand::createBusLayout(
     return layout;
 }
 
-void ProcessCommand::applyPluginParameters(juce::AudioPluginInstance& plugin,
-                                           const std::vector<std::string>& parameters) {
-    for (auto& arg : parameters) {
-        // can't use destructuring because the destructured value can't be captured in a lambda...
-        auto p = parsePluginParameterArgument(arg);
-        auto& paramId = p.first;
-        auto& value = p.second;
+ParameterAutomation
+ProcessCommand::parseParameters(const juce::AudioPluginInstance& plugin, double sampleRate,
+                                size_t inputLengthInSamples,
+                                const std::optional<juce::File>& parameterFileOpt,
+                                const std::vector<std::string>& cliParameters) {
+    ParameterAutomation automation;
 
-        auto* paramIt =
-            std::find_if(plugin.getParameters().begin(), plugin.getParameters().end(),
-                         [paramId](juce::AudioProcessorParameter* parameter) {
-                             return parameter->getName(1024) == paramId ||
-                                    juce::String(parameter->getParameterIndex()) == paramId;
-                         });
+    // read automation from file
+    if (parameterFileOpt) {
+        automation = Automation::parseAutomationDefinition(
+            parameterFileOpt->loadFileAsString().toStdString(), plugin, sampleRate,
+            inputLengthInSamples);
+    }
 
-        if (paramIt == plugin.getParameters().end()) {
-            throw CLIException("Unknown parameter identifier " + paramId);
+    // parse command-line supplied parameters
+    for (auto& arg : cliParameters) {
+        auto [paramName, valueStr] = parsePluginParameterArgument(arg);
+
+        // warn the user if the parameter overrides a parameter specified in the file
+        if (automation.contains(paramName)) {
+            std::cout << "Plugin parameter '" << paramName
+                      << "' is specified in the parameter file and overridden by a command-line "
+                         "parameter."
+                      << std::endl;
         }
 
-        auto* param = *paramIt;
-        param->setValueNotifyingHost(param->getValueForText(value));
+        // convert parameter value to a single keyframe,
+        // which causes the same value to be applied over the entire duration
+        auto* param = PluginUtils::getPluginParameterByName(plugin, paramName);
+
+        automation[paramName] = AutomationKeyframes({{0, param->getValueForText(valueStr)}});
     }
+
+    return automation;
 }

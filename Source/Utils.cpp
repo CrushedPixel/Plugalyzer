@@ -1,8 +1,10 @@
 #include "Utils.h"
 
-std::unique_ptr<juce::AudioPluginInstance> createPluginInstance(const juce::String& pluginPath,
-                                                                double initialSampleRate,
-                                                                int initialBlockSize) {
+size_t secondsToSamples(double sec, double sampleRate) { return (size_t) (sec * sampleRate); }
+
+std::unique_ptr<juce::AudioPluginInstance>
+PluginUtils::createPluginInstance(const juce::String& pluginPath, double initialSampleRate,
+                                  int initialBlockSize) {
     juce::AudioPluginFormatManager audioPluginFormatManager;
     audioPluginFormatManager.addDefaultFormats();
 
@@ -38,6 +40,18 @@ std::unique_ptr<juce::AudioPluginInstance> createPluginInstance(const juce::Stri
     return plugin;
 }
 
-juce::int64 secondsToSamples(double sec, double sampleRate) {
-    return (juce::int64) (sec * sampleRate);
+juce::AudioProcessorParameter*
+PluginUtils::getPluginParameterByName(const juce::AudioPluginInstance& plugin,
+                                      const std::string& parameterName) {
+
+    auto* paramIt = std::find_if(plugin.getParameters().begin(), plugin.getParameters().end(),
+                                 [&parameterName](juce::AudioProcessorParameter* parameter) {
+                                     return parameter->getName(1024).toStdString() == parameterName;
+                                 });
+
+    if (paramIt == plugin.getParameters().end()) {
+        throw std::runtime_error("Unknown parameter identifier '" + parameterName + "'");
+    }
+
+    return *paramIt;
 }

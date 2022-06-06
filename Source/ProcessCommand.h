@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Automation.h"
 #include "CLICommand.h"
 #include <juce_audio_formats/juce_audio_formats.h>
 #include <juce_audio_processors/juce_audio_processors.h>
@@ -19,7 +20,8 @@ class ProcessCommand : public CLICommand {
     double sampleRate = 44100;
     unsigned int blockSize = 1024;
     std::optional<unsigned int> outputChannelCountOpt;
-    std::vector<std::string> parameters;
+    std::optional<juce::File> paramsFileOpt;
+    std::vector<std::string> params;
 
     /**
      * Creates readers for the given audio files, verifying that their sample rate matches.
@@ -30,8 +32,7 @@ class ProcessCommand : public CLICommand {
      * @return The audio file readers.
      */
     static juce::OwnedArray<juce::AudioFormatReader>
-    createAudioFileReaders(const std::vector<juce::File>& files,
-                           juce::int64& maxLengthInSamplesOut);
+    createAudioFileReaders(const std::vector<juce::File>& files, size_t& maxLengthInSamplesOut);
 
     /**
      * Parses the given MIDI file, with timestamps being converted seconds.
@@ -43,7 +44,7 @@ class ProcessCommand : public CLICommand {
      * @return The parsed MIDI file.
      */
     static juce::MidiFile readMIDIFile(const juce::File& file, double sampleRate,
-                                       juce::int64& lengthInSamplesOut);
+                                       size_t& lengthInSamplesOut);
 
     /**
      * Creates a bus layout with one input bus for each input file.
@@ -67,11 +68,19 @@ class ProcessCommand : public CLICommand {
                     unsigned int& totalNumOutputChannelsOut);
 
     /**
-     * Parses the given list of plugin parameters and applies the
+     * Parses and validates plugin parameters supplied via file and CLI.
      *
-     * @param plugin The plugin to apply the parameters to.
-     * @param parameters The list of parameters, each in the format <key>:<value>
+     * @param plugin The plugin to validate the parameters against.
+     * @param sampleRate The sample rate to use for time conversion purposes.
+     * @param inputLengthInSamples The total length of the input that will be supplied to the
+     * plugin, in samples. Used to warn the user about keyframes that lie outside of the range of
+     * input audio.
+     * @param parameterFileOpt The parameter file, if supplied.
+     * @param cliParameters The parameters supplied via CLI.
+     * @return The parsed plugin parameters.
      */
-    static void applyPluginParameters(juce::AudioPluginInstance& plugin,
-                                      const std::vector<std::string>& parameters);
+    static ParameterAutomation parseParameters(const juce::AudioPluginInstance& plugin,
+                                               double sampleRate, size_t inputLengthInSamples,
+                                               const std::optional<juce::File>& parameterFileOpt,
+                                               const std::vector<std::string>& cliParameters);
 };

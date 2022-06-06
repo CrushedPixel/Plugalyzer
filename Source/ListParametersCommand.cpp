@@ -16,7 +16,7 @@ std::shared_ptr<CLI::App> ListParametersCommand::createApp() {
 
 void ListParametersCommand::execute() {
     // load the plugin
-    auto plugin = createPluginInstance(pluginPath, sampleRate, (int) blockSize);
+    auto plugin = PluginUtils::createPluginInstance(pluginPath, sampleRate, (int) blockSize);
 
     std::cout << "Plugin parameters: " << std::endl;
 
