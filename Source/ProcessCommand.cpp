@@ -294,6 +294,16 @@ ProcessCommand::parseParameters(const juce::AudioPluginInstance& plugin, double 
     for (auto& arg : cliParameters) {
         auto [paramName, valueStr] = parsePluginParameterArgument(arg);
 
+        // convert parameter value from text representation to a single keyframe,
+        // which causes the same value to be applied over the entire duration
+        auto* param = PluginUtils::getPluginParameterByName(plugin, paramName);
+
+        if (!Automation::parameterSupportsTextToValueConversion(param)) {
+            throw CLIException("Parameter '" + paramName +
+                               "' does not support text values. Use --paramFile instead to supply "
+                               "a normalized value");
+        }
+
         // warn the user if the parameter overrides a parameter specified in the file
         if (automation.contains(paramName)) {
             std::cout << "Plugin parameter '" << paramName
@@ -301,10 +311,6 @@ ProcessCommand::parseParameters(const juce::AudioPluginInstance& plugin, double 
                          "parameter."
                       << std::endl;
         }
-
-        // convert parameter value to a single keyframe,
-        // which causes the same value to be applied over the entire duration
-        auto* param = PluginUtils::getPluginParameterByName(plugin, paramName);
 
         automation[paramName] = AutomationKeyframes({{0, param->getValueForText(valueStr)}});
     }
