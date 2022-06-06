@@ -1,6 +1,5 @@
 #include "Automation.h"
 #include "Utils.h"
-#include <nlohmann/json.hpp>
 
 ParameterAutomation Automation::parseAutomationDefinition(const std::string& jsonStr,
                                                           const juce::AudioPluginInstance& plugin,
@@ -8,32 +7,58 @@ ParameterAutomation Automation::parseAutomationDefinition(const std::string& jso
                                                           size_t inputLengthInSamples) {
     auto json = nlohmann::json::parse(jsonStr);
     // parse JSON into a map of parameter names to automation definitions
-    auto def = json.get<std::map<std::string, std::map<std::string, std::string>>>();
+
+    auto def = json.get<std::map<std::string, nlohmann::json>>();
 
     // convert automation definition into ParameterAutomation instance
-    // by converting keyframe times from string format to samples
+    // by converting keyframe times from string format to samples,
+    // and text values into normalized float values
     ParameterAutomation automation;
     for (const auto& [paramName, automationDefinition] : def) {
         auto* param = PluginUtils::getPluginParameterByName(plugin, paramName);
 
         AutomationKeyframes keyframes;
 
-        for (const auto& [timeStr, valueStr] : automationDefinition) {
-            // convert keyframe time to samples
-            auto timeSamples = parseKeyframeTime(timeStr, sampleRate, inputLengthInSamples);
+        bool usedTextFormat = false;
 
-            if (keyframes.contains(timeSamples)) {
-                // TODO: give context on the origin of the first occurrence?
-                //  requires us to keep track of all timeStr -> time mappings
-                throw std::runtime_error("Duplicate keyframe time: " + std::to_string(timeSamples) +
-                                         " (obtained from input string " + timeStr + ")");
+        if (automationDefinition.is_primitive()) {
+            // the entry is a single value to use the entire time
+            auto value = getParameterValueFromJSONPrimitive(param, automationDefinition);
+            keyframes[0] = value;
+
+            usedTextFormat = automationDefinition.is_string();
+
+        } else {
+            // the entry is an automation object
+            auto automationObject =
+                automationDefinition.get<std::map<std::string, nlohmann::json>>();
+
+            for (const auto& [timeStr, val] : automationObject) {
+                // convert keyframe time to samples
+                auto timeSamples = parseKeyframeTime(timeStr, sampleRate, inputLengthInSamples);
+
+                if (keyframes.contains(timeSamples)) {
+                    // TODO: give context on the origin of the first occurrence?
+                    //  requires us to keep track of all timeStr -> time mappings
+                    throw std::runtime_error(
+                        "Duplicate keyframe time: " + std::to_string(timeSamples) +
+                        " (obtained from input string " + timeStr + ")");
+                }
+
+                // get the internal float representation of the value provided
+                auto value = getParameterValueFromJSONPrimitive(param, val);
+                keyframes[timeSamples] = value;
+
+                usedTextFormat |= val.is_string();
             }
-
-            // get the internal float representation of the value string provided
-            keyframes[timeSamples] = param->getValueForText(valueStr);
         }
 
         automation[paramName] = keyframes;
+
+        if (usedTextFormat && !parameterSupportsTextToValueConversion(param)) {
+            throw std::runtime_error("Text value used for parameter '" + paramName +
+                                     "', but parameter only supports normalized values");
+        }
     }
 
     return automation;
@@ -76,6 +101,25 @@ size_t Automation::parseKeyframeTime(juce::String timeStr, double sampleRate,
     }
 
     return time;
+}
+
+float Automation::getParameterValueFromJSONPrimitive(const juce::AudioProcessorParameter* param,
+                                                     const nlohmann::json& primitive) {
+    if (primitive.is_number()) {
+        float val = primitive.get<float>();
+        if (val < 0 || val > 1) {
+            throw std::out_of_range("Normalized parameter value must be between 0 and 1, but is " +
+                                    std::to_string(val));
+        }
+
+        return val;
+    }
+
+    if (primitive.is_string()) {
+        return param->getValueForText(primitive.get<std::string>());
+    }
+
+    throw std::invalid_argument("Invalid parameter value type. Must be a number or string");
 }
 
 void Automation::applyParameters(juce::AudioPluginInstance& plugin,
@@ -124,7 +168,7 @@ void Automation::applyParameters(juce::AudioPluginInstance& plugin,
 float epsilon = std::powf(10, -4);
 
 bool Automation::parameterSupportsTextToValueConversion(
-        const juce::AudioProcessorParameter* param) {
+    const juce::AudioProcessorParameter* param) {
     int numValuesToTry = std::min(100, param->getNumSteps());
 
     for (int i = 0; i < numValuesToTry; i++) {

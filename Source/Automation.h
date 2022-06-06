@@ -3,6 +3,7 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_core/juce_core.h>
 #include <map>
+#include <nlohmann/json.hpp>
 
 /**
  * Automation keyframes, with keys representing the timestamp of the keyframe in samples,
@@ -30,9 +31,10 @@ class Automation {
      * @param inputLengthInSamples The input's total length to use for conversion of percentage
      * values.
      * @return The parsed parameter automation data.
-     * @throws std::runtime_error If automation definition contains invalid keyframe times;
-     * If it contains multiple keyframe times that resolve to the same value in samples;
-     * If it contains a parameter name unknown to the plugin.
+     * @throws std::runtime_error If automation definition contains invalid keyframe times.
+     * @throws std::runtime_error If it contains multiple keyframe times that resolve to the same value in samples.
+     * @throws std::runtime_error If it contains a parameter name unknown to the plugin.
+     * @throws std::runtime_error If a text parameter is used for a parameter that doesn't support it.
      */
     static ParameterAutomation parseAutomationDefinition(const std::string& jsonStr,
                                                          const juce::AudioPluginInstance& plugin,
@@ -80,4 +82,19 @@ class Automation {
     // TODO: unit tests
     static size_t parseKeyframeTime(juce::String timeStr, double sampleRate,
                                     size_t inputLengthInSamples);
+
+    /**
+     * Parses the given JSON primitive into a normalized parameter value.
+     * String values are converted to normalized values using the parameter's
+     * <code>textToValue</code> function.
+     * Number values are treated as the normalized value, and must fall in the range [0, 1].
+     *
+     * @param param The parameter the value is for.
+     * @param primitive A JSON primitive. Must be either a string or a number.
+     * @return The normalized parameter value.
+     * @throws std::out_of_range If the JSON value is a number outside of the range [0, 1].
+     * @throws std::invalid_argument If the JSON value is not a string or number primitive.
+     */
+    static float getParameterValueFromJSONPrimitive(const juce::AudioProcessorParameter* param,
+                                                    const nlohmann::json& primitive);
 };
