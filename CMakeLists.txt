@@ -39,11 +39,11 @@ target_compile_definitions(Plugalyzer
     JUCE_PLUGINHOST_VST3=1
     JUCE_PLUGINHOST_AU=1
     JUCE_PLUGINHOST_LADSPA=1
+    JUCE_PLUGINHOST_LV2=1
     )
 
 target_link_libraries(Plugalyzer
     PRIVATE
-    # GuiAppData            # If we'd created a binary data target, we'd link to it here
     juce::juce_core
     juce::juce_audio_basics
     juce::juce_audio_processors
