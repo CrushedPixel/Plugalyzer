@@ -1,5 +1,5 @@
 # Plugalyzer
-A command-line VST3, AU and LADSPA host meant to ease debugging of audio plugins and instruments by making it possible to run them in non-realtime outside of a conventional DAW.
+A command-line VST3, AU, LADSPA and LV2 host meant to ease debugging of audio plugins and instruments by making it possible to run them in non-realtime outside of a conventional DAW.
 
 It processes audio and MIDI from input files using the desired plugin, writing the result to an output file.  
 Plugins with multiple input buses (such as sidechains) are supported.
