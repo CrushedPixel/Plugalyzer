@@ -1,6 +1,5 @@
 #pragma once
 
-#include <juce_audio_formats/juce_audio_formats.h>
 #include <juce_audio_processors/juce_audio_processors.h>
 
 struct CLIException : std::runtime_error {
