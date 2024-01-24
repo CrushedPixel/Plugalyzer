@@ -13,9 +13,13 @@ class ProcessCommand : public CLICommand {
 
   private:
     juce::String pluginPath;
+
     std::vector<juce::File> audioInputFiles;
     std::optional<juce::File> midiInputFileOpt;
-    juce::File outputFilePath;
+
+    std::optional<juce::File> outputFilePath;
+    std::optional<juce::File> midiOutputFilePath;
+
     bool overwriteOutputFile;
     double sampleRate = 44100;
     unsigned int blockSize = 1024;

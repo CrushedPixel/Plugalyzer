@@ -96,8 +96,13 @@ std::shared_ptr<CLI::App> ProcessCommand::createApp() {
     // require at least one input of either kind
     inputGroup->require_option();
 
-    app->add_option("-o,--output", outputFilePath, "Output audio file path")->required();
-    app->add_flag("-y,--overwrite", overwriteOutputFile, "Overwrite the output file if it exists");
+    auto* outputGroup = app->add_option_group("input");
+    outputGroup->add_option("-o,--output", outputFilePath, "Audio output file path");
+    outputGroup->add_option("-n,--midiOutput", midiOutputFilePath, "MIDI output file path");
+    // require at least one output of either kind
+    outputGroup->require_option();
+
+    app->add_flag("-y,--overwrite", overwriteOutputFile, "Overwrite output files if they exist");
 
     auto* sampleRateOption = app->add_option("-s,--sampleRate", sampleRate, "The sample rate to use for processing when no audio file is supplied");
     // sample rate is dictated by input audio files if they're provided
@@ -124,10 +129,10 @@ void ProcessCommand::execute() {
     }
 
     // read MIDI input file
-    juce::MidiFile midiFile;
+    juce::MidiFile midiFileIn;
     if (midiInputFileOpt) {
         size_t midiLength;
-        midiFile = readMIDIFile(*midiInputFileOpt, sampleRate, midiLength);
+        midiFileIn = readMIDIFile(*midiInputFileOpt, sampleRate, midiLength);
         totalInputLength = std::max(totalInputLength, midiLength);
     }
 
@@ -148,18 +153,26 @@ void ProcessCommand::execute() {
     // TODO: is this needed?
     plugin->prepareToPlay(sampleRate, (int) blockSize);
 
-    // open output stream
-    if (outputFilePath.exists() && !overwriteOutputFile) {
-        throw CLIException("Output file already exists! Use --overwrite to overwrite the file");
+    if (midiOutputFilePath) {
+        if (!overwriteOutputFile && midiOutputFilePath->exists()) {
+            throw CLIException(
+                "MIDI output file already exists! Use --overwrite to overwrite the file");
+        }
     }
 
     std::unique_ptr<juce::AudioFormatWriter> outWriter;
-    {
-        outputFilePath.deleteFile();
-        auto outputStream = outputFilePath.createOutputStream(blockSize);
+    if (outputFilePath) {
+        // open audio output stream
+        if (!overwriteOutputFile && outputFilePath->exists()) {
+            throw CLIException(
+                "Audio output file already exists! Use --overwrite to overwrite the file");
+        }
+        outputFilePath->deleteFile();
+
+        auto outputStream = outputFilePath->createOutputStream(blockSize);
         if (!outputStream) {
             throw CLIException("Could not create output stream to write to file " +
-                               outputFilePath.getFullPathName());
+                               outputFilePath->getFullPathName());
         }
 
         juce::WavAudioFormat outFormat;
@@ -172,6 +185,7 @@ void ProcessCommand::execute() {
     juce::AudioBuffer<float> sampleBuffer(
         (int) std::max(totalNumInputChannels, totalNumOutputChannels), (int) blockSize);
 
+    juce::MidiMessageSequence midiOutSequence;
     juce::MidiBuffer midiBuffer;
     size_t sampleIndex = 0;
     while (sampleIndex < totalInputLength) {
@@ -195,8 +209,8 @@ void ProcessCommand::execute() {
         // if the user only wants a single track of a multi-track MIDI file,
         // they should extract that track into a separate MIDI file.
         midiBuffer.clear();
-        for (int i = 0; i < midiFile.getNumTracks(); i++) {
-            auto midiTrack = midiFile.getTrack(i);
+        for (int i = 0; i < midiFileIn.getNumTracks(); i++) {
+            auto* midiTrack = midiFileIn.getTrack(i);
 
             for (auto& meh : *midiTrack) {
                 auto timestampSamples = secondsToSamples(meh->message.getTimeStamp(), sampleRate);
@@ -209,13 +223,41 @@ void ProcessCommand::execute() {
         // apply automation
         Automation::applyParameters(*plugin, automation, sampleIndex);
 
+        for (const auto& message : midiBuffer) {
+            std::cout << "MIDI IN\n";
+        }
+
         // process with plugin
         plugin->processBlock(sampleBuffer, midiBuffer);
 
-        // write to output
-        outWriter->writeFromAudioSampleBuffer(sampleBuffer, 0, (int) blockSize);
+        // add processed MIDI to output sequence
+        for (const auto& message : midiBuffer) {
+            std::cout << "WRITING MESSAGE " << message.getMessage().getTimeStamp() + sampleIndex
+                      << "\n";
+            midiOutSequence.addEvent(message.getMessage(), sampleIndex);
+        }
+
+        // write audio output
+        if (outWriter) {
+            outWriter->writeFromAudioSampleBuffer(sampleBuffer, 0, (int) blockSize);
+        }
 
         sampleIndex += blockSize;
+    }
+
+    // write MIDI output
+    if (midiOutputFilePath) {
+        midiOutputFilePath->deleteFile();
+
+        auto outputStream = midiOutputFilePath->createOutputStream();
+        if (!outputStream) {
+            throw CLIException("Could not create output stream to write to file " +
+                               midiOutputFilePath->getFullPathName());
+        }
+
+        juce::MidiFile midiFileOut;
+        midiFileOut.addTrack(midiOutSequence);
+        midiFileOut.writeTo(*outputStream);
     }
 }
 
