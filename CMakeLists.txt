@@ -24,6 +24,7 @@ target_sources(Plugalyzer
     PRIVATE
     Source/main.cpp
     Source/Utils.cpp
+    Source/PresetLoadingExtensionsVisitor.cpp
     Source/ProcessCommand.cpp
     Source/ListParametersCommand.cpp
     Source/Automation.cpp

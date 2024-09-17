@@ -1,4 +1,6 @@
 #include "ProcessCommand.h"
+
+#include "PresetLoadingExtensionsVisitor.h"
 #include "Utils.h"
 
 struct ParameterCLIArgument {
@@ -96,6 +98,8 @@ std::shared_ptr<CLI::App> ProcessCommand::createApp() {
     // require at least one input of either kind
     inputGroup->require_option();
 
+    app->add_option("--preset", presetFileOpt, "Preset file path. Currently only .vstpreset files for VST3 are supported.")->check(CLI::ExistingFile);
+
     app->add_option("-o,--output", outputFilePath, "Output audio file path")->required();
     app->add_flag("-y,--overwrite", overwriteOutputFile, "Overwrite the output file if it exists");
 
@@ -133,6 +137,18 @@ void ProcessCommand::execute() {
 
     // create the plugin instance
     auto plugin = PluginUtils::createPluginInstance(pluginPath, sampleRate, (int) blockSize);
+
+    if (presetFileOpt) {
+        // read preset file into memory block
+        juce::MemoryBlock presetData;
+        const auto presetInputStream = presetFileOpt->createInputStream();
+        presetInputStream->readIntoMemoryBlock(presetData);
+        // TODO: how to handle errors?
+
+        // apply preset
+        PresetLoadingExtensionsVisitor presetLoader(presetData);
+        plugin->getExtensions(presetLoader);
+    }
 
     // create and apply the bus layout
     unsigned int totalNumInputChannels, totalNumOutputChannels;
