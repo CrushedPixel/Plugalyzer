@@ -64,6 +64,7 @@ ParameterCLIArgument parsePluginParameterArgument(const std::string& str) {
     };
 }
 
+namespace Validator {
 /**
  * Validates the format of a plugin parameter passed via CLI to be "<key>:<value>".
  * This does not validate if the parameter exists on a plugin.
@@ -84,6 +85,26 @@ struct PluginParameterValidator : public CLI::Validator {
 };
 
 const static PluginParameterValidator PluginParameter;
+
+struct BitDepthValidator : public CLI::Validator {
+    BitDepthValidator() {
+        name_ = "BIT_DEPTH";
+        func_ = [](const std::string& str) {
+            try {
+                int value = std::stoi(str);
+                if (value != 8 && value != 16 && value != 24 && value != 32) {
+                    return std::string("Bit depth must be 8, 16, 24, or 32");
+                }
+            } catch (const std::exception& e) {
+                return std::string("Bit depth must be a valid integer");
+            }
+            return std::string();
+        };
+    }
+};
+
+const static BitDepthValidator BitDepth;
+} // namespace Validator
 
 std::shared_ptr<CLI::App> ProcessCommand::createApp() {
     // don't break these lines, please
@@ -108,10 +129,11 @@ std::shared_ptr<CLI::App> ProcessCommand::createApp() {
     audioInputOption->excludes(sampleRateOption);
 
     app->add_option("-b,--blockSize", blockSize, "The buffer size to use when processing audio");
+    app->add_option("-d,--bitDepth", outputBitDepthOpt, "The output file's bit depth. Defaults to the input file's bit depth if present, or 16 bits if no input file is provided.")->check(Validator::BitDepth);
     app->add_option("-c,--outChannels", outputChannelCountOpt, "The amount of channels to use for the plugin's output bus");
 
     app->add_option("--paramFile", paramsFileOpt, "Path to JSON file to read plugin parameters and automation data from")->check(CLI::ExistingFile);
-    app->add_option("--param", params, "Plugin parameters to set. Explicitly specified parameters take precedence over parameters read from file")->check(PluginParameter);
+    app->add_option("--param", params, "Plugin parameters to set. Explicitly specified parameters take precedence over parameters read from file")->check(Validator::PluginParameter);
 
     return app;
     // clang-format on
@@ -120,11 +142,18 @@ std::shared_ptr<CLI::App> ProcessCommand::createApp() {
 void ProcessCommand::execute() {
     size_t totalInputLength;
 
+    unsigned int bitDepth = 16;
+
     // create audio file readers
     auto audioInputFileReaders = createAudioFileReaders(audioInputFiles, totalInputLength);
     // use the sample rate of input audio files if provided
     if (!audioInputFileReaders.isEmpty()) {
         sampleRate = audioInputFileReaders[0]->sampleRate;
+        bitDepth = audioInputFileReaders[0]->bitsPerSample;
+    }
+
+    if (outputBitDepthOpt) {
+        bitDepth = *outputBitDepthOpt;
     }
 
     // read MIDI input file
@@ -181,7 +210,7 @@ void ProcessCommand::execute() {
         juce::WavAudioFormat outFormat;
         outWriter.reset(outFormat.createWriterFor(
             outputStream.release() /* stream is now managed by writer */, sampleRate,
-            totalNumOutputChannels, 16, juce::StringPairArray(), 0));
+            totalNumOutputChannels, bitDepth, juce::StringPairArray(), 0));
     }
 
     // process the input files with the plugin
