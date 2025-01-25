@@ -190,8 +190,8 @@ void ProcessCommand::execute() {
     // parse plugin parameters
     auto automation = parseParameters(*plugin, sampleRate, totalInputLength, paramsFileOpt, params);
 
-    // TODO: is this needed?
     plugin->prepareToPlay(sampleRate, (int) blockSize);
+    const auto latency = plugin->getLatencySamples();
 
     // open output stream
     if (outputFilePath.exists() && !overwriteOutputFile) {
@@ -219,7 +219,8 @@ void ProcessCommand::execute() {
 
     juce::MidiBuffer midiBuffer;
     size_t sampleIndex = 0;
-    while (sampleIndex < totalInputLength) {
+    int samplesSkipped = 0;
+    while (sampleIndex < totalInputLength + latency) {
         sampleBuffer.clear();
 
         // read next segment of audio input files into buffer
@@ -257,8 +258,18 @@ void ProcessCommand::execute() {
         // process with plugin
         plugin->processBlock(sampleBuffer, midiBuffer);
 
+        // skip the first samples that are just empty because of the plugin's latency
+        int startSample = 0;
+        if (samplesSkipped < latency) {
+            startSample = std::min<int>(latency - samplesSkipped, blockSize);
+            samplesSkipped += startSample;
+        }
+
         // write to output
-        outWriter->writeFromAudioSampleBuffer(sampleBuffer, 0, (int) blockSize);
+        if (startSample < blockSize) {
+            outWriter->writeFromAudioSampleBuffer(sampleBuffer, startSample,
+                                                  (int) blockSize - startSample);
+        }
 
         sampleIndex += blockSize;
     }
