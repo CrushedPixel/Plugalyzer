@@ -28,6 +28,8 @@ target_sources(Plugalyzer
     Source/ProcessCommand.cpp
     Source/ListParametersCommand.cpp
     Source/Automation.cpp
+    Source/AudioDiff.cpp
+    Source/AudioDiffCommand.cpp
     )
 
 target_compile_definitions(Plugalyzer

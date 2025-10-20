@@ -1,3 +1,4 @@
+#include "AudioDiffCommand.h"
 #include "ListParametersCommand.h"
 #include "ProcessCommand.h"
 #include <juce_events/juce_events.h>
@@ -15,6 +16,9 @@ int runCommandLine(const std::string& commandLineParameters) {
 
     ListParametersCommand lpc;
     registerSubcommand(app, lpc);
+
+    AudioDiffCommand adc;
+    registerSubcommand(app, adc);
 
     app.require_subcommand();
 
