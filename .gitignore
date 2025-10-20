@@ -18,6 +18,9 @@ Testing
 
 # IDE config
 .idea
+.vscode
+.vs
 
 # clion cmake builds
 cmake-build-*
+build
