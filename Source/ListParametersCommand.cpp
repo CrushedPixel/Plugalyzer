@@ -41,8 +41,8 @@ void ListParametersCommand::execute() {
 
         // print the parameter's values
         std::cout << indent << "Values:  ";
-
-        if (auto valueStrings = param->getAllValueStrings(); !valueStrings.isEmpty()) {
+        auto valueStrings = param->getNumSteps() < 50 ? param->getAllValueStrings() : juce::StringArray();
+        if (!valueStrings.isEmpty()) {
             // list all discrete values
             for (int i = 0; i < valueStrings.size(); i++) {
                 std::cout << valueStrings[i];
