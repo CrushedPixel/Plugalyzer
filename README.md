@@ -124,6 +124,7 @@ The `listParameters` command lists all available plugin parameters and their val
 | `--plugin=<path>`       | Path to, or identifier of the plugin to use.                                                                                                                                | Yes      |
 | `--blockSize=<number>`  | The processing block size to initialize the plugin with. This is only needed when a plugin doesn't support initialization with the default block size.<br>Defaults to 1024. | No       |
 | `--sampleRate=<number>` | The sample rate to initialize the plugin with. This is only needed when a plugin doesn't support initialization with the default sample rate.<br>Defaults to 44100.         | No       |
+| `--format=<text\|json>` | The format in which to output the parameter list. Default text.                                                                                                             | No       |
 
 Example usage:
 ```shell
