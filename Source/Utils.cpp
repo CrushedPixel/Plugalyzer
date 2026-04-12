@@ -23,7 +23,7 @@ std::unique_ptr<juce::AudioPluginInstance>
 PluginUtils::createPluginInstance(const juce::String& pluginPath, double initialSampleRate,
                                   int initialBlockSize) {
     juce::AudioPluginFormatManager audioPluginFormatManager;
-    audioPluginFormatManager.addDefaultFormats();
+    addDefaultFormatsToManager(audioPluginFormatManager);
 
     // parse the plugin path into a PluginDescription instance
     juce::PluginDescription pluginDescription;
