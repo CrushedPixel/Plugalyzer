@@ -20,66 +20,94 @@ std::shared_ptr<CLI::App> ListParametersCommand::createApp() {
     // clang-format on
 }
 
+static size_t numDigits(size_t value) {
+    char buffer[20];
+    auto [ptr, ec] = std::to_chars(buffer, buffer + sizeof(buffer), value);
+    return static_cast<size_t>(ptr - buffer);
+}
+
+static juce::StringArray getDiscreteValueStrings(const juce::AudioProcessorParameter& param) {
+    if (!param.isDiscrete()) return {};
+
+    juce::StringArray result;
+
+    const auto maxIndex = param.getNumSteps() - 1;
+
+    for (int i = 0; i < param.getNumSteps(); ++i)
+        result.add(param.getText((float) i / (float) maxIndex, 1024));
+
+    return result;
+}
+
 void ListParametersCommand::execute() {
     auto outFmt = parseOutputFormat(outputFormat.getCharPointer());
 
     auto plugin = PluginUtils::createPluginInstance(pluginPath, sampleRate, (int) blockSize);
     auto params = plugin->getParameters();
+    auto paramJson = getParametersAsJson(params);
+
     std::string outputText{};
 
     if (outFmt == OutputFormat::text) {
-        outputText = getParametersAsString(params);
+        outputText = getParametersAsString(paramJson);
     } else if (outFmt == OutputFormat::json) {
-        outputText = getParametersAsJson(params);
+        outputText = paramJson.dump();
     }
     std::cout << outputText;
 }
 
-std::string ListParametersCommand::getParametersAsString(
-    const juce::Array<juce::AudioProcessorParameter*>& params) {
+std::string ListParametersCommand::getParametersAsString(const nlohmann::json& params) {
     // calculate the amount of characters the maximum parameter index has
     // for alignment purposes
-    auto maxIdxStrLength = juce::String(params.size() - 1).length();
+    auto maxIdxStrLength = numDigits(params.size() - 1);
 
     std::stringstream ss;
 
     ss << "Plugin parameters: \n";
 
-    for (auto* param : params) {
-        auto idxStrLength = juce::String(param->getParameterIndex()).length();
+    for (auto& param : params) {
+        jassert(param.contains("index"));
+        jassert(param.contains("name"));
+        jassert(param.contains("discrete"));
+        jassert((param.contains("values") && param["discrete"]) ||
+                (param.contains("minValue") && param.contains("maxValue")));
+
+        auto idxStrLength = numDigits(param["index"]);
         std::string idxIndent(maxIdxStrLength - idxStrLength, ' ');
-
-        ss << idxIndent << param->getParameterIndex() << ": " << param->getName(100) << "\n";
-
         std::string indent(2 + maxIdxStrLength, ' ');
 
-        ss << indent << "Values:  ";
+        ss << idxIndent << param["index"] << ": " << param["name"].get<std::string>() << "\n";
 
-        if (auto valueStrings = param->getAllValueStrings(); !valueStrings.isEmpty()) {
-            for (int i = 0; i < valueStrings.size(); i++) {
-                ss << valueStrings[i];
-                if (i != valueStrings.size() - 1) {
+        ss << indent << "values: ";
+        if (param["discrete"]) {
+            // List values separated by commas
+            for (auto i = 0uz; i < param["values"].size(); i++) {
+                ss << param["values"][i].get<std::string>();
+                if (i != param["values"].size() - 1) {
                     ss << ", ";
                 } else {
                     ss << "\n";
                 }
             }
         } else {
-            ss << param->getText(0, 1024) << param->getLabel() << " to " << param->getText(1, 1024)
-               << param->getLabel() << "\n";
+            // Show range of values
+            ss << param["minValue"].get<std::string>() << " to " << param["maxValue"].get<std::string>() << "\n";
         }
 
-        ss << indent << "Default: " << param->getText(param->getDefaultValue(), 1024)
-           << param->getLabel() << "\n";
+        for (auto& [key, value] : param.items()) {
+            if (key == "index" || key == "name" || key == "minValue" || key == "maxValue" ||
+                key == "values") {
+                continue;
+            }
 
-        ss << indent << "Supports text values: " << std::boolalpha
-           << Automation::parameterSupportsTextToValueConversion(param) << "\n";
+            ss << indent << key << ": " << value << "\n";
+        }
     }
 
     return ss.str();
 }
 
-std::string ListParametersCommand::getParametersAsJson(
+nlohmann::json ListParametersCommand::getParametersAsJson(
     const juce::Array<juce::AudioProcessorParameter*>& params) {
     nlohmann::json json;
 
@@ -91,7 +119,13 @@ std::string ListParametersCommand::getParametersAsJson(
         paramJson["defaultValue"] = param->getText(param->getDefaultValue(), 1024).toStdString();
         paramJson["supportsTextValues"] = Automation::parameterSupportsTextToValueConversion(param);
 
-        if (auto valueStrings = param->getAllValueStrings(); !valueStrings.isEmpty()) {
+        if (param->isDiscrete()) {
+            auto valueStrings = param->getAllValueStrings();
+            // getAllValueStrings returns empty array for VST3
+            if (valueStrings.isEmpty()) {
+                valueStrings = getDiscreteValueStrings(*param);
+            }
+            jassert(!valueStrings.isEmpty());
             nlohmann::json values = nlohmann::json::array();
             for (int i = 0; i < valueStrings.size(); i++) {
                 values.push_back(valueStrings[i].toStdString());
@@ -105,5 +139,5 @@ std::string ListParametersCommand::getParametersAsJson(
         json.push_back(paramJson);
     }
 
-    return json.dump();
+    return json;
 }

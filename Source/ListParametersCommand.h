@@ -12,8 +12,8 @@ class ListParametersCommand : public CLICommand {
     void execute() override;
 
   private:
-    std::string getParametersAsJson(const juce::Array<juce::AudioProcessorParameter*>& params);
-    std::string getParametersAsString(const juce::Array<juce::AudioProcessorParameter*>& params);
+    nlohmann::json getParametersAsJson(const juce::Array<juce::AudioProcessorParameter*>& params);
+    std::string getParametersAsString(const nlohmann::json& params);
 
     juce::String pluginPath;
     double sampleRate = 44100;
