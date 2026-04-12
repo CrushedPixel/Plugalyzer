@@ -1,5 +1,20 @@
 #include "Utils.h"
 
+OutputFormat parseOutputFormat(const char* formatName) {
+    jassert(formatName != nullptr);
+    
+    static const std::unordered_map<std::string, OutputFormat> formatMap {
+        { "text", OutputFormat::text },
+        { "json", OutputFormat::json }
+    };
+    
+    if (formatMap.contains(formatName)) {
+        return formatMap.at(formatName);
+    } else {
+        return OutputFormat::text;
+    }
+}
+
 size_t secondsToSamples(double sec, double sampleRate) { return (size_t) (sec * sampleRate); }
 
 #define PARSE_STRICT(funName)                                         \

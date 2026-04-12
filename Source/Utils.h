@@ -2,6 +2,13 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 
+enum class OutputFormat {
+    text,
+    json
+};
+
+OutputFormat parseOutputFormat(const char* formatName);
+
 struct CLIException : std::runtime_error {
     explicit CLIException(const std::string& message) : std::runtime_error(message) {}
     explicit CLIException(const char* message) : std::runtime_error(message) {}
