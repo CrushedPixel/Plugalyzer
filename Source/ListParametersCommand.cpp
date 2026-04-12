@@ -117,6 +117,12 @@ nlohmann::json ListParametersCommand::getParametersAsJson(
         paramJson["name"] = param->getName(100).toStdString();
         paramJson["label"] = param->getLabel().toStdString();
         paramJson["defaultValue"] = param->getText(param->getDefaultValue(), 1024).toStdString();
+        paramJson["numSteps"] = param->getNumSteps();
+        paramJson["discrete"] = param->isDiscrete();
+        paramJson["boolean"] = param->isBoolean();
+        paramJson["automatable"] = param->isAutomatable();
+        paramJson["metaParameter"] = param->isMetaParameter();
+        paramJson["versionHint"] = param->getVersionHint();
         paramJson["supportsTextValues"] = Automation::parameterSupportsTextToValueConversion(param);
 
         if (param->isDiscrete()) {
