@@ -200,7 +200,7 @@ void ProcessCommand::execute() {
 
     std::unique_ptr<juce::AudioFormatWriter> outWriter;
     outputFilePath.deleteFile();
-    if (std::unique_ptr<juce::OutputStream> outputStream{ outputFilePath.createOutputStream(blockSize) }) {
+    if (std::unique_ptr<juce::OutputStream> outputStream{ outputFilePath.createOutputStream(static_cast<size_t>(blockSize)) }) {
         juce::WavAudioFormat outFormat;
         outWriter = outFormat.createWriterFor(
             outputStream, // stream is now managed by writer
@@ -221,14 +221,14 @@ void ProcessCommand::execute() {
     juce::MidiBuffer midiBuffer;
     size_t sampleIndex = 0;
     int samplesSkipped = 0;
-    while (sampleIndex < totalInputLength + latency) {
+    while (sampleIndex < totalInputLength + static_cast<size_t>(latency)) {
         sampleBuffer.clear();
 
         // read next segment of audio input files into buffer
         unsigned int targetChannel = 0;
         for (auto* inputFileReader : audioInputFileReaders) {
             if (!inputFileReader->read(sampleBuffer.getArrayOfWritePointers() + targetChannel,
-                                       (int) inputFileReader->numChannels, sampleIndex,
+                                       (int) inputFileReader->numChannels, static_cast<juce::int64>(sampleIndex),
                                        (int) blockSize)) {
                 throw CLIException("Error reading input file"); // TODO: more context, which file?
             }
@@ -247,7 +247,7 @@ void ProcessCommand::execute() {
 
             for (auto& meh : *midiTrack) {
                 auto timestampSamples = secondsToSamples(meh->message.getTimeStamp(), sampleRate);
-                if (timestampSamples >= sampleIndex && timestampSamples < sampleIndex + blockSize) {
+                if (timestampSamples >= sampleIndex && timestampSamples < sampleIndex + static_cast<size_t>(blockSize)) {
                     midiBuffer.addEvent(meh->message, (int) (timestampSamples - sampleIndex));
                 }
             }
@@ -272,7 +272,7 @@ void ProcessCommand::execute() {
                                                   (int) blockSize - startSample);
         }
 
-        sampleIndex += blockSize;
+        sampleIndex += static_cast<size_t>(blockSize);
     }
 }
 

@@ -19,7 +19,7 @@ class ProcessCommand : public CLICommand {
     juce::File outputFilePath;
     bool overwriteOutputFile;
     double sampleRate = 44100;
-    unsigned int blockSize = 1024;
+    int blockSize = 1024;
     std::optional<unsigned int> outputChannelCountOpt;
     std::optional<unsigned int> outputBitDepthOpt;
     std::optional<juce::File> paramsFileOpt;
