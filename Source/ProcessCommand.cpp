@@ -287,7 +287,7 @@ ProcessCommand::createAudioFileReaders(const std::vector<juce::File>& files,
 
     juce::OwnedArray<juce::AudioFormatReader> audioInputFileReaders;
 
-    double sampleRate;
+    double sampleRate{ 0.0 };
     for (size_t i = 0; i < files.size(); i++) {
         auto& inputFile = files[i];
 
