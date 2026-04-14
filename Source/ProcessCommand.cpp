@@ -199,18 +199,19 @@ void ProcessCommand::execute() {
     }
 
     std::unique_ptr<juce::AudioFormatWriter> outWriter;
-    {
-        outputFilePath.deleteFile();
-        auto outputStream = outputFilePath.createOutputStream(blockSize);
-        if (!outputStream) {
-            throw CLIException("Could not create output stream to write to file " +
-                               outputFilePath.getFullPathName());
-        }
-
+    outputFilePath.deleteFile();
+    if (std::unique_ptr<juce::OutputStream> outputStream{ outputFilePath.createOutputStream(blockSize) }) {
         juce::WavAudioFormat outFormat;
-        outWriter.reset(outFormat.createWriterFor(
-            outputStream.release() /* stream is now managed by writer */, sampleRate,
-            totalNumOutputChannels, bitDepth, juce::StringPairArray(), 0));
+        outWriter = outFormat.createWriterFor(
+            outputStream, // stream is now managed by writer
+            juce::AudioFormatWriterOptions{}
+                .withSampleRate(sampleRate)
+                .withNumChannels(static_cast<int>(totalNumOutputChannels))
+                .withBitsPerSample(static_cast<int>(bitDepth))
+        );
+    } else {
+        throw CLIException("Could not create output stream to write to file " +
+                           outputFilePath.getFullPathName());
     }
 
     // process the input files with the plugin
