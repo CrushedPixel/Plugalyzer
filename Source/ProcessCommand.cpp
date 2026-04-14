@@ -301,7 +301,7 @@ ProcessCommand::createAudioFileReaders(const std::vector<juce::File>& files,
         // ensure the sample rate of all input files is the same
         if (i == 0) {
             sampleRate = inputFileReader->sampleRate;
-        } else if (inputFileReader->sampleRate != sampleRate) {
+        } else if (!juce::exactlyEqual(inputFileReader->sampleRate, sampleRate)) {
             throw CLIException("Mismatched sample rate between input files");
         }
 
