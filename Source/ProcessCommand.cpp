@@ -21,7 +21,7 @@ struct ParameterCLIArgument {
  * @return The parsed parameter argument.
  * @throws CLIException If the input string is not formatted correctly.
  */
-ParameterCLIArgument parsePluginParameterArgument(const std::string& str) {
+static ParameterCLIArgument parsePluginParameterArgument(const std::string& str) {
     juce::StringArray tokens;
     tokens.addTokens(str, ":", "\"'");
 
