@@ -3,12 +3,20 @@
 #include "ProcessCommand.h"
 #include <juce_events/juce_events.h>
 
+#include <print>
+
 void registerSubcommand(CLI::App& app, CLICommand& subcommand) {
     app.add_subcommand(subcommand.createApp())->callback([&subcommand]() { subcommand.execute(); });
 }
 
 int runCommandLine(const std::string& commandLineParameters) {
     CLI::App app("Command-line audio plugin host");
+
+    app.add_flag_callback(
+        "-v,--version",
+        [](){ std::println("Plugalyzer version {}", JUCE_APPLICATION_VERSION_STRING); },
+        "Show version information"
+    );
 
     // set up subcommands
     ProcessCommand pc;
@@ -19,8 +27,6 @@ int runCommandLine(const std::string& commandLineParameters) {
 
     AudioDiffCommand adc;
     registerSubcommand(app, adc);
-
-    app.require_subcommand();
 
     try {
         app.parse(commandLineParameters, false);
