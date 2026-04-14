@@ -10,6 +10,7 @@ Plugins with multiple input buses (such as sidechains) are supported.
     - [Bus layouts](#bus-layouts) 
     - [Parameter automation](#parameter-automation)
     - [Processing limitations](#processing-limitations)
+  - [Compare audio files](#compare-audio-files)
   - [List plugin parameters](#list-plugin-parameters)
     - [Limitations](#limitations)
 - [Installation](#installation)
@@ -115,6 +116,15 @@ If no audio input is provided (e.g. when testing MIDI instruments), the plugin's
 ### Processing limitations
 - Plugalyzer does not support showing plugin GUIs of any kind. Since processing is not done in real-time, this wouldn't be too useful, either way.
 - Only a single output bus is supported.
+
+## Compare audio files
+The `audioDiff` command takes two input files, compares the values of each sample and returns the RMS of the difference. It can be used to compare the output of two plugins, or two versions of the same plugin for regression testing.
+
+| Option                | Description                                                                                   | Required |
+|-----------------------|-----------------------------------------------------------------------------------------------|----------|
+| `--test <path>`       | Path to an audio file to compare - the output being tested.                                   | Yes      |
+| `--reference <path>`  | Path to an audio file to compare - the reference audio against which the output is compared.  | Yes      |
+
 
 ## List plugin parameters
 The `listParameters` command lists all available plugin parameters and their value range, as well as whether they support parameter values in text form.
