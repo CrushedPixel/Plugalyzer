@@ -230,8 +230,3 @@ Example output:
     }
 }
 ```
-
-# Installation
-There are currently no pre-built binaries available for download, primarily because I do not have machines with all major operating systems available.  
-To compile this project yourself, clone it and build it via CMake.  
-I recommend JetBrain's CLion for its excellent CMake support.
