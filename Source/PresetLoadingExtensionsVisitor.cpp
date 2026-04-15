@@ -1,7 +1,7 @@
 #include "PresetLoadingExtensionsVisitor.h"
 
-PresetLoadingExtensionsVisitor::PresetLoadingExtensionsVisitor(const juce::MemoryBlock& presetData)
-    : presetData(presetData) {}
+PresetLoadingExtensionsVisitor::PresetLoadingExtensionsVisitor(const juce::MemoryBlock& presetDataToUse)
+    : presetData(presetDataToUse) {}
 
 void PresetLoadingExtensionsVisitor::visitUnknown(const Unknown&) {
     throw CLIException("Unknown plugin format for preset loading");

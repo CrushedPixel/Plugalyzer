@@ -5,11 +5,11 @@
 
 #include <print>
 
-void registerSubcommand(CLI::App& app, CLICommand& subcommand) {
+static void registerSubcommand(CLI::App& app, CLICommand& subcommand) {
     app.add_subcommand(subcommand.createApp())->callback([&subcommand]() { subcommand.execute(); });
 }
 
-int runCommandLine(const std::string& commandLineParameters) {
+static int runCommandLine(const std::string& commandLineParameters) {
     CLI::App app("Command-line audio plugin host");
 
     app.add_flag_callback(
@@ -47,15 +47,15 @@ class PlugalyzerApplication : public juce::JUCEApplicationBase {
 
     bool moreThanOneInstanceAllowed() override { return true; }
 
-    void anotherInstanceStarted(const juce::String& commandLine) override {}
+    void anotherInstanceStarted(const juce::String& /* commandLine */) override {}
     void suspended() override {}
     void resumed() override {}
     void shutdown() override {}
 
     void systemRequestedQuit() override { quit(); }
 
-    void unhandledException(const std::exception* exception, const juce::String& sourceFilename,
-                            int lineNumber) override {
+    void unhandledException(const std::exception* /* exception */, const juce::String& /* sourceFilename */,
+                            int /* lineNumber */) override {
         // for some reason, this doesn't actually get called and the runtime just terminates...
     }
 
