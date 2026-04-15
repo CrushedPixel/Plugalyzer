@@ -1,0 +1,101 @@
+name: Build and Test
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+
+env:
+  BINARY_NAME: Plugalyzer
+  BUILD_TYPE: Debug
+  BUILD_DIR: build
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  build:
+    name: Plugalyzer Build
+    strategy:
+      matrix:
+        include:
+          - name: Linux
+            os: ubuntu-24.04
+          - name: macOS
+            os: macos-latest
+          - name: Windows
+            os: windows-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Cache JUCE
+        uses: actions/cache@v4
+        with:
+          path: JUCE
+          key: juce-${{ hashFiles('.gitmodules') }}
+          restore-keys: |
+            juce-
+
+      - name: Install JUCE dependencies (Ubuntu)
+        if: ${{ matrix.name == 'Linux' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libasound2-dev \
+            libjack-jackd2-dev \
+            ladspa-sdk \
+            libcurl4-openssl-dev  \
+            libfreetype-dev \
+            libfontconfig1-dev \
+            libx11-dev \
+            libxcomposite-dev \
+            libxcursor-dev \
+            libxext-dev \
+            libxinerama-dev \
+            libxrandr-dev \
+            libxrender-dev \
+            libwebkit2gtk-4.1-dev \
+            libglu1-mesa-dev \
+            mesa-common-dev
+      
+      - name: Setup Environment Variables
+        shell: bash
+        run: |
+          echo "APP_DIR=${{ env.BUILD_DIR }}/${{ env.BINARY_NAME }}_artefacts/${{ env.BUILD_TYPE }}" >> $GITHUB_ENV
+          echo "ZIP_FILE_NAME=${{ env.BINARY_NAME }}_${{ matrix.name }}.zip" >> $GITHUB_ENV
+
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: v3-${{ matrix.name }}-${{ env.BUILD_TYPE }}
+
+      - name: Configure CMake (Windows)
+        if: runner.os == 'Windows'
+        run: cmake -B ${{ env.BUILD_DIR }} -G "Visual Studio 17 2022" -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER_LAUNCHER=ccache
+
+      - name: Configure CMake (Mac)
+        if: runner.os == 'macOS'
+        run: cmake -B ${{ env.BUILD_DIR }} -G Xcode -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+            
+      - name: Configure CMake (Linux)
+        if: runner.os == 'Linux'
+        run: cmake -B ${{ env.BUILD_DIR }} -G "Ninja Multi-Config" -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER=g++-14
+
+      - name: Build
+        run: cmake --build ${{ env.BUILD_DIR }} --config ${{ env.BUILD_TYPE }}
+
+      - name: Run Plugalyzer Tests (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          ${{ env.APP_DIR }}\${{ env.BINARY_NAME }}.exe -h
+
+      - name: Run Plugalyzer Tests (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          ${{ env.APP_DIR }}/${{ env.BINARY_NAME }} -h
+
+      - name: Run Plugalyzer Tests (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          ${{ env.APP_DIR }}/${{ env.BINARY_NAME }} -h
