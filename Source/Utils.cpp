@@ -87,3 +87,19 @@ PluginUtils::getPluginParameterByName(const juce::AudioPluginInstance& plugin,
 
     return *paramIt;
 }
+
+juce::StringArray getDiscreteValueStrings(const juce::AudioProcessorParameter& param) {
+    if (!param.isDiscrete()) return {};
+
+    auto valueStrings = param.getAllValueStrings();
+    // getAllValueStrings returns empty array for VST3
+    if (valueStrings.isEmpty()) {
+        const auto maxIndex = param.getNumSteps() - 1;
+        for (int i = 0; i < param.getNumSteps(); ++i)
+            valueStrings.add(param.getText((float) i / (float) maxIndex, 1024));
+    }
+
+    jassert(!valueStrings.isEmpty());
+
+    return valueStrings;
+}

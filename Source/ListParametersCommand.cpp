@@ -26,19 +26,6 @@ static size_t numDigits(size_t value) {
     return static_cast<size_t>(ptr - buffer);
 }
 
-static juce::StringArray getDiscreteValueStrings(const juce::AudioProcessorParameter& param) {
-    if (!param.isDiscrete()) return {};
-
-    juce::StringArray result;
-
-    const auto maxIndex = param.getNumSteps() - 1;
-
-    for (int i = 0; i < param.getNumSteps(); ++i)
-        result.add(param.getText((float) i / (float) maxIndex, 1024));
-
-    return result;
-}
-
 void ListParametersCommand::execute() {
     auto outFmt = parseOutputFormat(outputFormat.getCharPointer());
 

@@ -73,3 +73,11 @@ class PluginUtils {
     getPluginParameterByName(const juce::AudioPluginInstance& plugin,
                              const std::string& parameterName);
 };
+
+/**
+ * Get the possible values of a discrete parameter (choice, bool).
+ *
+ * @param param The plugin parameter for which to get the values
+ * @return Array of values, empty if the parameter is not discrete
+ */
+juce::StringArray getDiscreteValueStrings(const juce::AudioProcessorParameter& param);
