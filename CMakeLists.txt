@@ -8,7 +8,9 @@ set(CMAKE_CXX_STANDARD 23)
 add_subdirectory(JUCE)
 juce_add_console_app(Plugalyzer
     COMPANY_NAME CrushedPixel
-    )
+)
+set(JUCE_ENABLE_MODULE_SOURCE_GROUPS ON)
+set_property(GLOBAL PROPERTY USE_FOLDERS YES)
 
 # include CLI11 from submodule
 add_subdirectory(CLI11)
@@ -20,17 +22,21 @@ set(JSON_Install OFF CACHE INTERNAL "")
 add_subdirectory(json)
 target_include_directories(Plugalyzer PRIVATE json/include)
 
+file(GLOB header_files LIST_DIRECTORIES FALSE "Source/*.h")
+file(GLOB cpp_files LIST_DIRECTORIES FALSE "Source/*.cpp")
+
 target_sources(Plugalyzer
     PRIVATE
-    Source/main.cpp
-    Source/Utils.cpp
-    Source/PresetLoadingExtensionsVisitor.cpp
-    Source/ProcessCommand.cpp
-    Source/ListParametersCommand.cpp
-    Source/Automation.cpp
-    Source/AudioDiff.cpp
-    Source/AudioDiffCommand.cpp
-    )
+    ${cpp_files}
+    ${header_files}
+)
+
+# Do not compile the header files
+set_source_files_properties(
+    ${header_files}
+    PROPERTIES
+    HEADER_FILE_ONLY TRUE
+)
 
 target_compile_definitions(Plugalyzer
     PRIVATE
@@ -43,7 +49,7 @@ target_compile_definitions(Plugalyzer
     JUCE_PLUGINHOST_AU=1
     JUCE_PLUGINHOST_LADSPA=1
     JUCE_PLUGINHOST_LV2=1
-    )
+)
 
 target_link_libraries(Plugalyzer
     PRIVATE
@@ -59,4 +65,12 @@ target_link_libraries(Plugalyzer
 
     PUBLIC
     juce::juce_recommended_config_flags
-    juce::juce_recommended_warning_flags)
+    juce::juce_recommended_warning_flags
+)
+
+if(APPLE)
+    set_target_properties(Plugalyzer
+        PROPERTIES 
+        XCODE_GENERATE_SCHEME TRUE
+    )
+endif()
