@@ -9,3 +9,8 @@ AllowShortIfStatementsOnASingleLine: WithoutElse
 
 AlwaysBreakTemplateDeclarations: Yes
 SpaceAfterTemplateKeyword: false
+
+BreakAfterOpenBracketFunction: true
+BreakBeforeCloseBracketFunction: true
+
+Cpp11BracedListStyle: false

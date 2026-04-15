@@ -171,6 +171,66 @@ Plugin parameters:
   will not list all valid values. This issue arises, for example, when a JUCE plugin uses the deprecated
   `juce::AudioProcessorValueTreeState::Parameter` class where `juce::AudioParameterChoice` would be a better fit.
 
+## Generate plugin automation
+The `generateAutomation` command creates a json string you can pass to the `process` command to process with automation. You can modify the output if you want to test certain parameters.
+
+| Option                  | Description                                                                                                                                                                 | Required |
+|-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
+| `--plugin=<path>`       | Path to the plugin to use.                                                                                                                                                  | Yes      |
+| `--output=<path>`       | Path to output the automation.<br>If not supplied, will be output to stdout.                                                                                                | No       |
+| `--overwrite`           | Overwrite the output file if it exists.<br>If this option is not set and the file exists, a new file with a different name (eg. 'outputfile2.json') will be created.        | No       |
+
+Example usage:
+```shell
+plugalyzer \
+  generateAutomation \
+  --plugin=/path/to/my/plugin.vst3 \
+  --output=/path/to/my/automation_file.json \
+  --overwrite
+```
+
+Bypass parameters and non-automatable parameters will not be given automation, just a static value.
+Example output:
+```json
+{
+    "Attack": {
+        "0%": "0.01",
+        "100%": "1000.00"
+    },
+    "Bypass": 0.0,
+    "Cabinet": {
+        "0": "Off",
+        "50": "On"
+    },
+    "DL Type": {
+        "0": "None",
+        "25": "Linear",
+        "50": "Lagrange",
+        "75": "Thiran"
+    },
+    "Frequency": {
+        "0%": "10.00",
+        "100%": "22000.00"
+    },
+    "Oversampling": {
+        "0": "2X",
+        "17": "4X",
+        "33": "8X",
+        "50": "2X compensated",
+        "67": "4X compensated",
+        "83": "8X compensated"
+    },
+    "Panning": {
+        "0%": "100%L",
+        "100%": "100%R"
+    },
+    "Waveshaper": {
+        "0": "std::tanh",
+        "50": "Approx. tanh"
+    }
+}
+```
+
 # Installation
 There are currently no pre-built binaries available for download, primarily because I do not have machines with all major operating systems available.  
 To compile this project yourself, clone it and build it via CMake.  

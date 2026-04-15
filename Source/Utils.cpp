@@ -15,6 +15,22 @@ OutputFormat parseOutputFormat(const char* formatName) {
     }
 }
 
+juce::File stringToFile(const std::string& filePath) {
+    if (juce::File::isAbsolutePath(filePath)) {
+        return juce::File(filePath);
+    } else {
+        return juce::File::getCurrentWorkingDirectory().getChildFile(filePath);
+    }
+}
+
+std::string validateOutputPath(const std::string& arg) {
+    juce::File file(arg);
+    if (!file.getParentDirectory().exists()) {
+        return "Output parent directory does not exist";
+    }
+    return std::string();
+}
+
 size_t secondsToSamples(double sec, double sampleRate) { return (size_t) (sec * sampleRate); }
 
 #define PARSE_STRICT(funName)                                         \

@@ -9,6 +9,27 @@ enum class OutputFormat {
 
 OutputFormat parseOutputFormat(const char* formatName);
 
+/**
+ * Converts a string file path to a juce::File object.
+ * Useful for accepting relatve file path CLI arguments and 
+ * making a juce Path without getting an assertion.
+ * 
+ * @param filePath The file path as a string. Can be absolute or relative.
+ * @return juce::File A juce::File object representing the file path.
+ *                    If the path is absolute, it's used directly.
+ *                    If the path is relative, it's resolved relative to the current working directory.
+ */
+juce::File stringToFile(const std::string& filePath);
+
+/**
+ * Validates that the parent directory of an output file path exists.
+ * You can use this as a non-mutating validator for the CLI option->check() function
+ * 
+ * @param arg The file path to validate
+ * @return std::string An empty string if valid, or an error message if the parent directory does not exist
+ */
+std::string validateOutputPath(const std::string& arg);
+
 struct CLIException : std::runtime_error {
     explicit CLIException(const std::string& message) : std::runtime_error(message) {}
     explicit CLIException(const char* message) : std::runtime_error(message) {}
