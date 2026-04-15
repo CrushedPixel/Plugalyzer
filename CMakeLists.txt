@@ -49,6 +49,7 @@ target_compile_definitions(Plugalyzer
     JUCE_PLUGINHOST_AU=1
     JUCE_PLUGINHOST_LADSPA=1
     JUCE_PLUGINHOST_LV2=1
+    JUCE_DISABLE_JUCE_VERSION_PRINTING=1
 )
 
 target_link_libraries(Plugalyzer
