@@ -98,7 +98,7 @@ void GenerateAutomationCommand::execute() {
         if (overwriteOutputFile) {
             outputFilePath.replaceWithText(paramJson.dump(4));
         } else {
-            outputFilePath.getNonexistentSibling(false).replaceWithText(paramJson.dump());
+            outputFilePath.getNonexistentSibling(false).replaceWithText(paramJson.dump(4));
         }
     }
 }
