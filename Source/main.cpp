@@ -1,4 +1,5 @@
 #include "AudioDiffCommand.h"
+#include "BusLayoutsCommand.h"
 #include "GenerateAutomationCommand.h"
 #include "ListParametersCommand.h"
 #include "ProcessCommand.h"
@@ -15,7 +16,7 @@ static int runCommandLine(const std::string& commandLineParameters) {
 
     app.add_flag_callback(
         "-v,--version",
-        [](){ std::println("Plugalyzer version {}", JUCE_APPLICATION_VERSION_STRING); },
+        []() { std::println("Plugalyzer version {}", JUCE_APPLICATION_VERSION_STRING); },
         "Show version information"
     );
 
@@ -28,6 +29,9 @@ static int runCommandLine(const std::string& commandLineParameters) {
 
     GenerateAutomationCommand gac;
     registerSubcommand(app, gac);
+
+    BusLayoutsCommand blc;
+    registerSubcommand(app, blc);
 
     AudioDiffCommand adc;
     registerSubcommand(app, adc);
@@ -58,8 +62,10 @@ class PlugalyzerApplication : public juce::JUCEApplicationBase {
 
     void systemRequestedQuit() override { quit(); }
 
-    void unhandledException(const std::exception* /* exception */, const juce::String& /* sourceFilename */,
-                            int /* lineNumber */) override {
+    void unhandledException(
+        const std::exception* /* exception */, const juce::String& /* sourceFilename */,
+        int /* lineNumber */
+    ) override {
         // for some reason, this doesn't actually get called and the runtime just terminates...
     }
 

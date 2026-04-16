@@ -1,13 +1,28 @@
 #include "Utils.h"
 
+#include <format>
+#include <iostream>
+#include <nlohmann/json.hpp>
+
 OutputFormat parseOutputFormat(const char* formatName) {
     jassert(formatName != nullptr);
-    
-    static const std::unordered_map<std::string, OutputFormat> formatMap {
-        { "text", OutputFormat::text },
-        { "json", OutputFormat::json }
+
+    static const std::unordered_map<std::string, OutputFormat> formatMap{
+        { "text", OutputFormat::text }, { "json", OutputFormat::json }
     };
-    
+
+    if (formatMap.contains(formatName)) {
+        return formatMap.at(formatName);
+    } else {
+        return OutputFormat::text;
+    }
+}
+
+OutputFormat parseOutputFormat(const std::string& formatName) {
+    static const std::unordered_map<std::string, OutputFormat> formatMap{
+        { "text", OutputFormat::text }, { "json", OutputFormat::json }
+    };
+
     if (formatMap.contains(formatName)) {
         return formatMap.at(formatName);
     } else {
@@ -118,4 +133,111 @@ juce::StringArray getDiscreteValueStrings(const juce::AudioProcessorParameter& p
     jassert(!valueStrings.isEmpty());
 
     return valueStrings;
+}
+
+juce::Array<juce::AudioChannelSet> allChannelSets() {
+    juce::Array<juce::AudioChannelSet> layouts;
+
+    layouts.add(juce::AudioChannelSet::disabled());
+    layouts.add(juce::AudioChannelSet::mono());
+    layouts.add(juce::AudioChannelSet::stereo());
+    layouts.add(juce::AudioChannelSet::createLCR());
+    layouts.add(juce::AudioChannelSet::createLRS());
+    layouts.add(juce::AudioChannelSet::createLCRS());
+    layouts.add(juce::AudioChannelSet::create5point0());
+    layouts.add(juce::AudioChannelSet::create5point1());
+    layouts.add(juce::AudioChannelSet::create6point0());
+    layouts.add(juce::AudioChannelSet::create6point1());
+    layouts.add(juce::AudioChannelSet::create6point0Music());
+    layouts.add(juce::AudioChannelSet::create6point1Music());
+    layouts.add(juce::AudioChannelSet::create7point0());
+    layouts.add(juce::AudioChannelSet::create7point0SDDS());
+    layouts.add(juce::AudioChannelSet::create7point1());
+    layouts.add(juce::AudioChannelSet::create7point1SDDS());
+    layouts.add(juce::AudioChannelSet::quadraphonic());
+    layouts.add(juce::AudioChannelSet::pentagonal());
+    layouts.add(juce::AudioChannelSet::hexagonal());
+    layouts.add(juce::AudioChannelSet::octagonal());
+    layouts.add(juce::AudioChannelSet::create5point0point2());
+    layouts.add(juce::AudioChannelSet::create5point1point2());
+    layouts.add(juce::AudioChannelSet::create5point0point4());
+    layouts.add(juce::AudioChannelSet::create5point1point4());
+    layouts.add(juce::AudioChannelSet::create7point0point2());
+    layouts.add(juce::AudioChannelSet::create7point1point2());
+    layouts.add(juce::AudioChannelSet::create7point0point4());
+    layouts.add(juce::AudioChannelSet::create7point1point4());
+    layouts.add(juce::AudioChannelSet::create7point0point6());
+    layouts.add(juce::AudioChannelSet::create7point1point6());
+    layouts.add(juce::AudioChannelSet::create9point0point4());
+    layouts.add(juce::AudioChannelSet::create9point1point4());
+    layouts.add(juce::AudioChannelSet::create9point0point6());
+    layouts.add(juce::AudioChannelSet::create9point1point6());
+    layouts.add(juce::AudioChannelSet::create9point0point4ITU());
+    layouts.add(juce::AudioChannelSet::create9point1point4ITU());
+    layouts.add(juce::AudioChannelSet::create9point0point6ITU());
+    layouts.add(juce::AudioChannelSet::create9point1point6ITU());
+
+    for (int order = 0; order < 8; ++order) {
+        layouts.add(juce::AudioChannelSet::ambisonic(order));
+    }
+
+    for (int channels = 1; channels <= 64; ++channels) {
+        layouts.add(juce::AudioChannelSet::discreteChannels(channels));
+    }
+
+    return layouts;
+}
+
+nlohmann::json getBusLayoutJson(const juce::AudioProcessor::BusesLayout& layout) {
+    nlohmann::json json;
+
+    for (auto [i, channelSet] : juce::enumerate(layout.inputBuses)) {
+        json["inputBuses"][static_cast<size_t>(i)]["description"] =
+            channelSet.getDescription().toStdString();
+        json["inputBuses"][static_cast<size_t>(i)]["channels"] = channelSet.size();
+    }
+
+    for (auto [i, channelSet] : juce::enumerate(layout.outputBuses)) {
+        json["outputBuses"][static_cast<size_t>(i)]["description"] =
+            channelSet.getDescription().toStdString();
+        json["outputBuses"][static_cast<size_t>(i)]["channels"] = channelSet.size();
+    }
+
+    return json;
+}
+
+std::string getBusLayoutHumanReadable(const nlohmann::json& layoutJson) {
+    // Input is a list of objects of lists of objects
+
+    std::string result;
+
+    for (const auto& busLayout : layoutJson) {
+        // Iterate through list
+        for (const auto& [inOrOut, channelSets] : busLayout.items()) {
+            // Open each object to get its list of channel sets
+            for (const auto& [i, cs] : juce::enumerate(channelSets)) {
+                // Print each channel set of each bus
+                auto direction = inOrOut == "inputBuses" ? "In" : "Out";
+                result += std::format(
+                    "{} {}: {}ch {:24} ", direction, i + 1, cs["channels"].get<int>(),
+                    cs["description"].get<std::string>()
+                );
+            }
+        }
+        result += "\n";
+    }
+
+    return result;
+}
+
+void outputResult(const std::string& text, juce::File outPath, bool overwrite) {
+    if (outPath == juce::File{}) {
+        std::cout << text;
+    } else {
+        if (overwrite) {
+            outPath.replaceWithText(text);
+        } else {
+            outPath.getNonexistentSibling(false).replaceWithText(text);
+        }
+    }
 }
