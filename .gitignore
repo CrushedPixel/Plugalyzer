@@ -24,3 +24,5 @@ Testing
 # clion cmake builds
 cmake-build-*
 build
+
+juce_build
