@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CLICommand.h"
+
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <nlohmann/json.hpp>
 
@@ -18,5 +19,5 @@ class GenerateAutomationCommand : public CLICommand {
 
     juce::File pluginPath;
     juce::File outputFilePath;
-    bool overwriteOutputFile;
+    bool overwriteOutputFile{ false };
 };

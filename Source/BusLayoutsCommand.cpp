@@ -10,43 +10,32 @@ static nlohmann::json checkPossibleBusLayouts(const juce::AudioPluginInstance& p
 
     nlohmann::json result{};
 
-    auto checkLayout = [&](const blo& layout){
+    auto checkLayout = [&](const blo& layout) {
         if (plugin.checkBusesLayoutSupported(layout)) {
             result.push_back(getBusLayoutJson(layout));
         }
     };
 
     const auto channelSets = allChannelSets();
-    
+
     // 0x input, 0x output
     checkLayout(blo{});
-    
+
     // 0x input, 1x output
     for (const auto& cs : channelSets) {
-        checkLayout(
-            blo{
-                .outputBuses = juce::Array{ cs }
-            }
-        );
+        checkLayout(blo{ .outputBuses = juce::Array{ cs } });
     }
 
     // 1x input, 0x output
     for (const auto& cs : channelSets) {
-        checkLayout(
-            blo{
-                .inputBuses = juce::Array{ cs }
-            }
-        );
+        checkLayout(blo{ .inputBuses = juce::Array{ cs } });
     }
 
     // 1x input, 1x output
     for (const auto& cs_outer : channelSets) {
         for (const auto& cs_inner : channelSets) {
             checkLayout(
-                blo{
-                    .inputBuses = juce::Array{ cs_outer },
-                    .outputBuses = juce::Array{ cs_inner }
-                }
+                blo{ .inputBuses = juce::Array{ cs_outer }, .outputBuses = juce::Array{ cs_inner } }
             );
         }
     }
@@ -61,7 +50,7 @@ static nlohmann::json checkPossibleBusLayouts(const juce::AudioPluginInstance& p
             );
         }
     }
-    
+
     // 2x input, 1x output
     for (const auto& cs_outer : channelSets) {
         for (const auto& cs_inner : channelSets) {
@@ -80,9 +69,8 @@ static nlohmann::json checkPossibleBusLayouts(const juce::AudioPluginInstance& p
 }
 
 std::shared_ptr<CLI::App> BusLayoutsCommand::createApp() {
-    std::shared_ptr<CLI::App> app = std::make_shared<CLI::App>(
-        "Outputs bus layouts supported by the plugin", "busLayouts"
-    );
+    std::shared_ptr<CLI::App> app =
+        std::make_shared<CLI::App>("Outputs bus layouts supported by the plugin", "busLayouts");
 
     // don't break these lines, please
     // clang-format off

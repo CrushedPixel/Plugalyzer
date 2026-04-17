@@ -1,24 +1,10 @@
 #include "ListParametersCommand.h"
+
 #include "Automation.h"
 #include "Utils.h"
 
 #include <nlohmann/json.hpp>
-
 #include <sstream>
-
-std::shared_ptr<CLI::App> ListParametersCommand::createApp() {
-    // don't break these lines, please
-    // clang-format off
-    std::shared_ptr<CLI::App> app = std::make_shared<CLI::App>("Lists a plugin's parameters", "listParameters");
-
-    app->add_option("-p,--plugin", pluginPath, "Plugin path")->required()->check(CLI::ExistingPath); // not ExistingFile because on macOS, these bundles are directories
-    app->add_option("-s,--sampleRate", sampleRate, "The sample rate to initialize the plugin with");
-    app->add_option("-b,--blockSize", blockSize, "The buffer size to initialize the plugin with");
-    app->add_option("-f,--format", outputFormat, "The output format (text, json)");
-
-    return app;
-    // clang-format on
-}
 
 static size_t numDigits(size_t value) {
     char buffer[20];
@@ -26,24 +12,7 @@ static size_t numDigits(size_t value) {
     return static_cast<size_t>(ptr - buffer);
 }
 
-void ListParametersCommand::execute() {
-    auto outFmt = parseOutputFormat(outputFormat.getCharPointer());
-
-    auto plugin = PluginUtils::createPluginInstance(pluginPath, sampleRate, (int) blockSize);
-    auto params = plugin->getParameters();
-    auto paramJson = getParametersAsJson(params);
-
-    std::string outputText{};
-
-    if (outFmt == OutputFormat::text) {
-        outputText = getParametersAsString(paramJson);
-    } else if (outFmt == OutputFormat::json) {
-        outputText = paramJson.dump();
-    }
-    std::cout << outputText;
-}
-
-std::string ListParametersCommand::getParametersAsString(const nlohmann::json& params) {
+static std::string getParametersAsString(const nlohmann::json& params) {
     // calculate the amount of characters the maximum parameter index has
     // for alignment purposes
     auto maxIdxStrLength = numDigits(params.size() - 1);
@@ -56,8 +25,10 @@ std::string ListParametersCommand::getParametersAsString(const nlohmann::json& p
         jassert(param.contains("index"));
         jassert(param.contains("name"));
         jassert(param.contains("discrete"));
-        jassert((param.contains("values") && param["discrete"]) ||
-                (param.contains("minValue") && param.contains("maxValue")));
+        jassert(
+            (param.contains("values") && param["discrete"]) ||
+            (param.contains("minValue") && param.contains("maxValue"))
+        );
 
         auto idxStrLength = numDigits(param["index"]);
         std::string idxIndent(maxIdxStrLength - idxStrLength, ' ');
@@ -78,7 +49,8 @@ std::string ListParametersCommand::getParametersAsString(const nlohmann::json& p
             }
         } else {
             // Show range of values
-            ss << param["minValue"].get<std::string>() << " to " << param["maxValue"].get<std::string>() << "\n";
+            ss << param["minValue"].get<std::string>() << " to "
+               << param["maxValue"].get<std::string>() << "\n";
         }
 
         for (auto& [key, value] : param.items()) {
@@ -94,8 +66,9 @@ std::string ListParametersCommand::getParametersAsString(const nlohmann::json& p
     return ss.str();
 }
 
-nlohmann::json ListParametersCommand::getParametersAsJson(
-    const juce::Array<juce::AudioProcessorParameter*>& params) {
+using ParamArray = juce::Array<juce::AudioProcessorParameter*>;
+
+static nlohmann::json getParametersAsJson(const ParamArray& params) {
     nlohmann::json json;
 
     for (auto* param : params) {
@@ -133,4 +106,42 @@ nlohmann::json ListParametersCommand::getParametersAsJson(
     }
 
     return json;
+}
+
+std::shared_ptr<CLI::App> ListParametersCommand::createApp() {
+    std::shared_ptr<CLI::App> app =
+        std::make_shared<CLI::App>("Lists a plugin's parameters", "listParameters");
+
+    // don't break these lines, please
+    // clang-format off
+    app->add_option("-p,--plugin", argPluginPath, "Plugin path")
+        ->required()
+        ->check(CLI::ExistingPath)
+        ->each([&](std::string arg){ pluginPath = stringToFile(arg); });
+    app->add_option("-o,--output", argOutPath, "Output automation file path (json). Will output to stdout if not supplied.")
+        ->check(validateOutputPath)
+        ->each([&](std::string arg) { outputFilePath = stringToFile(arg); });
+    app->add_option("-f,--format", argOutFormat, "The output format (text, json)")
+        ->each([&](std::string arg) { outputFormat = parseOutputFormat(arg); });
+    app->add_flag("-y,--overwrite", overwriteOutputFile, "Overwrite the output file if it exists");
+
+    // clang-format on
+    return app;
+}
+
+void ListParametersCommand::execute() {
+    const double dummySampleRate{ 48000.0 };
+    const int dummyBlockSize{ 1024 };
+    const auto plugin = PluginUtils::createPluginInstance(
+        pluginPath.getFullPathName(), dummySampleRate, dummyBlockSize
+    );
+    auto params = plugin->getParameters();
+    auto paramJson = getParametersAsJson(params);
+
+    if (outputFormat == OutputFormat::text) {
+        const auto paramsText = getParametersAsString(paramJson);
+        outputResult(paramsText, outputFilePath, overwriteOutputFile);
+    } else if (outputFormat == OutputFormat::json) {
+        outputResult(paramJson, outputFilePath, overwriteOutputFile);
+    }
 }
