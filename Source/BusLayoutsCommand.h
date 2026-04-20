@@ -22,6 +22,6 @@ class BusLayoutsCommand : public CLICommand {
 
     juce::File pluginPath;
     juce::File outputFilePath;
-    OutputFormat outputFormat;
+    OutputFormat outputFormat{ OutputFormat::text };
     bool overwriteOutputFile{ false };
 };

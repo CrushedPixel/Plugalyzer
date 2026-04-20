@@ -92,13 +92,5 @@ void GenerateAutomationCommand::execute() {
     const auto params = plugin->getParameters();
     const auto paramJson = getParameterAutomation(params);
 
-    if (argOutPath.empty()) {
-        std::cout << paramJson.dump();
-    } else {
-        if (overwriteOutputFile) {
-            outputFilePath.replaceWithText(paramJson.dump(4));
-        } else {
-            outputFilePath.getNonexistentSibling(false).replaceWithText(paramJson.dump(4));
-        }
-    }
+    outputResult(paramJson.dump(4), outputFilePath, overwriteOutputFile);
 }
