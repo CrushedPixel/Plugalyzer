@@ -20,6 +20,8 @@ static int runCommandLine(const std::string& commandLineParameters) {
         "Show version information"
     );
 
+    app.footer("Use 'plugalyzer <subcommand> --help' to see options for each subcommand.");
+
     // set up subcommands
     ProcessCommand pc;
     registerSubcommand(app, pc);
