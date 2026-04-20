@@ -13,11 +13,15 @@ class ListParametersCommand : public CLICommand {
     void execute() override;
 
   private:
-    nlohmann::json getParametersAsJson(const juce::Array<juce::AudioProcessorParameter*>& params);
-    std::string getParametersAsString(const nlohmann::json& params);
+    // String from CLI to be parsed into a File object
+    std::string argPluginPath;
+    // String from CLI to be parsed into a File object
+    std::string argOutPath;
+    // String from CLI to be parsed into an outputFormat
+    std::string argOutFormat;
 
-    juce::String pluginPath;
-    double sampleRate = 44100;
-    unsigned int blockSize = 1024;
-    juce::String outputFormat;
+    juce::File pluginPath;
+    juce::File outputFilePath;
+    OutputFormat outputFormat{ OutputFormat::text };
+    bool overwriteOutputFile{ false };
 };

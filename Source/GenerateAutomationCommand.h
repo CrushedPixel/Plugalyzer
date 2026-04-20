@@ -19,5 +19,5 @@ class GenerateAutomationCommand : public CLICommand {
 
     juce::File pluginPath;
     juce::File outputFilePath;
-    bool overwriteOutputFile;
+    bool overwriteOutputFile{ false };
 };

@@ -17,10 +17,10 @@ static nlohmann::json checkPossibleBusLayouts(const juce::AudioPluginInstance& p
     };
 
     const auto channelSets = allChannelSets();
-    
+
     // 0x input, 0x output
     checkLayout(blo{});
-    
+
     // 0x input, 1x output
     for (const auto& cs : channelSets) {
         checkLayout(blo{ .inputBuses = {}, .outputBuses = juce::Array{ cs } });
@@ -46,7 +46,7 @@ static nlohmann::json checkPossibleBusLayouts(const juce::AudioPluginInstance& p
             checkLayout(blo{ .inputBuses = juce::Array{ cs_outer, cs_inner }, .outputBuses = {} });
         }
     }
-    
+
     // 2x input, 1x output
     for (const auto& cs_outer : channelSets) {
         for (const auto& cs_inner : channelSets) {
@@ -97,6 +97,6 @@ void BusLayoutsCommand::execute() {
         const auto busLayoutsText = getBusLayoutHumanReadable(busLayoutsJson);
         outputResult(busLayoutsText, outputFilePath, overwriteOutputFile);
     } else if (outputFormat == OutputFormat::json) {
-        outputResult(busLayoutsJson, outputFilePath, overwriteOutputFile);
+        outputResult(busLayoutsJson.dump(4), outputFilePath, overwriteOutputFile);
     }
 }
