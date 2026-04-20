@@ -56,8 +56,10 @@ std::string ListParametersCommand::getParametersAsString(const nlohmann::json& p
         jassert(param.contains("index"));
         jassert(param.contains("name"));
         jassert(param.contains("discrete"));
-        jassert((param.contains("values") && param["discrete"]) ||
-                (param.contains("minValue") && param.contains("maxValue")));
+        jassert(
+            (param.contains("values") && param["discrete"]) ||
+            (param.contains("minValue") && param.contains("maxValue"))
+        );
 
         auto idxStrLength = numDigits(param["index"]);
         std::string idxIndent(maxIdxStrLength - idxStrLength, ' ');
@@ -78,7 +80,8 @@ std::string ListParametersCommand::getParametersAsString(const nlohmann::json& p
             }
         } else {
             // Show range of values
-            ss << param["minValue"].get<std::string>() << " to " << param["maxValue"].get<std::string>() << "\n";
+            ss << param["minValue"].get<std::string>() << " to "
+               << param["maxValue"].get<std::string>() << "\n";
         }
 
         for (auto& [key, value] : param.items()) {
@@ -94,8 +97,9 @@ std::string ListParametersCommand::getParametersAsString(const nlohmann::json& p
     return ss.str();
 }
 
-nlohmann::json ListParametersCommand::getParametersAsJson(
-    const juce::Array<juce::AudioProcessorParameter*>& params) {
+using ParamArray = juce::Array<juce::AudioProcessorParameter*>;
+
+static nlohmann::json getParametersAsJson(const ParamArray& params) {
     nlohmann::json json;
 
     for (auto* param : params) {
