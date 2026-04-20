@@ -39,7 +39,7 @@ juce::File stringToFile(const std::string& filePath) {
 }
 
 std::string validateOutputPath(const std::string& arg) {
-    juce::File file(arg);
+    auto file = stringToFile(arg);
     if (!file.getParentDirectory().exists()) {
         return "Output parent directory does not exist";
     }
