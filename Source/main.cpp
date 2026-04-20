@@ -3,8 +3,8 @@
 #include "GenerateAutomationCommand.h"
 #include "ListParametersCommand.h"
 #include "ProcessCommand.h"
-#include <juce_events/juce_events.h>
 
+#include <juce_events/juce_events.h>
 #include <print>
 
 static void registerSubcommand(CLI::App& app, CLICommand& subcommand) {
