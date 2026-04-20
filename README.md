@@ -7,13 +7,15 @@ Plugins with multiple input buses (such as sidechains) are supported.
 # Table of Contents
 - [Usage](#usage)
   - [Process audio files](#process-audio-files)
-    - [Bus layouts](#bus-layouts) 
     - [Parameter automation](#parameter-automation)
+    - [Bus layouts](#bus-layouts)
     - [Processing limitations](#processing-limitations)
   - [Compare audio files](#compare-audio-files)
   - [List plugin parameters](#list-plugin-parameters)
     - [Limitations](#limitations)
-- [Installation](#installation)
+  - [View Supported Bus Layouts](#view-supported-bus-layouts)
+  - [Generate plugin automation](#generate-plugin-automation)
+
 
 # Usage
 The general usage of plugalyzer follows the pattern `plugalyzer [command] [options...]`.  
@@ -131,9 +133,9 @@ The `listParameters` command lists all available plugin parameters and their val
 
 | Option                  | Description                                                                                                                                                                 | Required |
 |-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
-| `--plugin=<path>`       | Path to, or identifier of the plugin to use.                                                                                                                                | Yes      |
-| `--blockSize=<number>`  | The processing block size to initialize the plugin with. This is only needed when a plugin doesn't support initialization with the default block size.<br>Defaults to 1024. | No       |
-| `--sampleRate=<number>` | The sample rate to initialize the plugin with. This is only needed when a plugin doesn't support initialization with the default sample rate.<br>Defaults to 44100.         | No       |
+| `--plugin=<path>`       | Path to the plugin to use.                                                                                                                                                  | Yes      |
+| `--output=<path>`       | Path to output the automation.<br>If not supplied, will be output to stdout.                                                                                                | No       |
+| `--overwrite`           | Overwrite the output file if it exists.<br>If this option is not set and the file exists, a new file with a different name (eg. 'outputfile2.json') will be created.        | No       |
 | `--format=<text\|json>` | The format in which to output the parameter list. Default text.                                                                                                             | No       |
 
 Example usage:
@@ -161,15 +163,38 @@ Plugin parameters:
 3: Saturation
    Values:  0 % to 100 %
    Default: 50 %
-  Supports text values: true
-
-[...]
+   Supports text values: true
 ```
 
 ### Limitations
 - Plugin parameters with a set of discrete values (i.e. not a floating-point range) that aren't correctly marked as such
   will not list all valid values. This issue arises, for example, when a JUCE plugin uses the deprecated
   `juce::AudioProcessorValueTreeState::Parameter` class where `juce::AudioParameterChoice` would be a better fit.
+
+## View Supported Bus Layouts
+
+The `busLayouts` command outputs all of the plugin's supported bus layouts. This can be useful in development to make sure you won't be provided bus layouts you cannot handle, and are being provided the bus layouts you intend to handle.
+
+| Option                  | Description                                                                                                                                                          | Required |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| `--plugin=<path>`       | Path to the plugin to use.                                                                                                                                           | Yes      |
+| `--output=<path>`       | Path to output the bus layouts.<br>If not supplied, will be output to stdout.                                                                                        | No       |
+| `--overwrite`           | Overwrite the output file if it exists.<br>If this option is not set and the file exists, a new file with a different name (eg. 'outputfile2.json') will be created. | No       |
+| `--format=<text\|json>` | The format in which to output the parameter list. Default text.                                                                                                      | No       |
+
+Example usage:
+
+```shell
+plugalyzer busLayouts --plugin=/path/to/my/plugin.vst3
+```
+
+Example output:
+```
+In 1: 0ch Discrete #0              Out 1: 0ch Discrete #0              
+In 1: 0ch Discrete #0              Out 1: 2ch Stereo                   
+In 1: 2ch Stereo                   Out 1: 0ch Discrete #0              
+In 1: 2ch Stereo                   Out 1: 2ch Stereo
+```
 
 ## Generate plugin automation
 The `generateAutomation` command creates a json string you can pass to the `process` command to process with automation. You can modify the output if you want to test certain parameters.
@@ -199,34 +224,34 @@ Example output:
     },
     "Bypass": 0.0,
     "Cabinet": {
-        "0": "Off",
-        "50": "On"
+        "0%": "Off",
+        "50%": "On"
     },
     "DL Type": {
-        "0": "None",
-        "25": "Linear",
-        "50": "Lagrange",
-        "75": "Thiran"
+        "0%": "None",
+        "25%": "Linear",
+        "50%": "Lagrange",
+        "75%": "Thiran"
     },
     "Frequency": {
         "0%": "10.00",
         "100%": "22000.00"
     },
     "Oversampling": {
-        "0": "2X",
-        "17": "4X",
-        "33": "8X",
-        "50": "2X compensated",
-        "67": "4X compensated",
-        "83": "8X compensated"
+        "0%": "2X",
+        "17%": "4X",
+        "33%": "8X",
+        "50%": "2X compensated",
+        "67%": "4X compensated",
+        "83%": "8X compensated"
     },
     "Panning": {
         "0%": "100%L",
         "100%": "100%R"
     },
     "Waveshaper": {
-        "0": "std::tanh",
-        "50": "Approx. tanh"
+        "0%": "std::tanh",
+        "50%": "Approx. tanh"
     }
 }
 ```
