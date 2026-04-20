@@ -1,9 +1,9 @@
 #include "ListParametersCommand.h"
+
 #include "Automation.h"
 #include "Utils.h"
 
 #include <nlohmann/json.hpp>
-
 #include <sstream>
 
 std::shared_ptr<CLI::App> ListParametersCommand::createApp() {

@@ -14,3 +14,17 @@ BreakAfterOpenBracketFunction: true
 BreakBeforeCloseBracketFunction: true
 
 Cpp11BracedListStyle: false
+
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^".*"'
+    Priority: 1
+  - Regex: '^<.*>'
+    Priority: 3
+  - Regex: '.*'
+    Priority: 2
+SortIncludes:
+  Enabled: true
+  IgnoreCase: true
+  IgnoreExtension: false
+
