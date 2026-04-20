@@ -4,23 +4,12 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 
-OutputFormat parseOutputFormat(const char* formatName) {
-    jassert(formatName != nullptr);
-
-    static const std::unordered_map<std::string, OutputFormat> formatMap{
-        { "text", OutputFormat::text }, { "json", OutputFormat::json }
-    };
-
-    if (formatMap.contains(formatName)) {
-        return formatMap.at(formatName);
-    } else {
-        return OutputFormat::text;
-    }
-}
-
 OutputFormat parseOutputFormat(const std::string& formatName) {
     static const std::unordered_map<std::string, OutputFormat> formatMap{
-        { "text", OutputFormat::text }, { "json", OutputFormat::json }
+        { "text", OutputFormat::text },
+        { "json", OutputFormat::json },
+        { "binary", OutputFormat::binary },
+        { "xml", OutputFormat::xml },
     };
 
     if (formatMap.contains(formatName)) {
@@ -38,6 +27,13 @@ juce::File stringToFile(const std::string& filePath) {
     }
 }
 
+std::string validateBinaryOrXml(const std::string& arg) {
+    if (arg == "binary" || arg == "xml") {
+        return std::string();
+    } else {
+        return "Output format must be 'binary' or 'xml'";
+    }
+}
 std::string validateOutputPath(const std::string& arg) {
     auto file = stringToFile(arg);
     if (!file.getParentDirectory().exists()) {
@@ -48,26 +44,21 @@ std::string validateOutputPath(const std::string& arg) {
 
 size_t secondsToSamples(double sec, double sampleRate) { return (size_t) (sec * sampleRate); }
 
-#define PARSE_STRICT(funName)                                         \
-    size_t endPtr;                                                    \
-    auto num = (funName)(str, &endPtr);                               \
-    if (endPtr != str.size()) {                                       \
-        throw std::invalid_argument("Invalid number: '" + str + "'"); \
-    }                                                                 \
+#define PARSE_STRICT(funName)                                                                      \
+    size_t endPtr;                                                                                 \
+    auto num = (funName) (str, &endPtr);                                                           \
+    if (endPtr != str.size()) {                                                                    \
+        throw std::invalid_argument("Invalid number: '" + str + "'");                              \
+    }                                                                                              \
     return num
 
+float parseFloatStrict(const std::string& str) { PARSE_STRICT(std::stof); }
 
-float parseFloatStrict(const std::string &str) {
-    PARSE_STRICT(std::stof);
-}
+unsigned long parseULongStrict(const std::string& str) { PARSE_STRICT(std::stoul); }
 
-unsigned long parseULongStrict(const std::string &str) {
-    PARSE_STRICT(std::stoul);
-}
-
-std::unique_ptr<juce::AudioPluginInstance>
-PluginUtils::createPluginInstance(const juce::String& pluginPath, double initialSampleRate,
-                                  int initialBlockSize) {
+std::unique_ptr<juce::AudioPluginInstance> PluginUtils::createPluginInstance(
+    const juce::String& pluginPath, double initialSampleRate, int initialBlockSize
+) {
     juce::AudioPluginFormatManager audioPluginFormatManager;
     addDefaultFormatsToManager(audioPluginFormatManager);
 
@@ -77,8 +68,9 @@ PluginUtils::createPluginInstance(const juce::String& pluginPath, double initial
         juce::OwnedArray<juce::PluginDescription> pluginDescriptions;
 
         juce::KnownPluginList kpl;
-        kpl.scanAndAddDragAndDroppedFiles(audioPluginFormatManager, juce::StringArray(pluginPath),
-                                          pluginDescriptions);
+        kpl.scanAndAddDragAndDroppedFiles(
+            audioPluginFormatManager, juce::StringArray(pluginPath), pluginDescriptions
+        );
 
         // check if the requested plugin was found
         if (pluginDescriptions.isEmpty()) {
@@ -92,8 +84,9 @@ PluginUtils::createPluginInstance(const juce::String& pluginPath, double initial
     std::unique_ptr<juce::AudioPluginInstance> plugin;
     {
         juce::String err;
-        plugin = audioPluginFormatManager.createPluginInstance(pluginDescription, initialSampleRate,
-                                                               initialBlockSize, err);
+        plugin = audioPluginFormatManager.createPluginInstance(
+            pluginDescription, initialSampleRate, initialBlockSize, err
+        );
 
         if (!plugin) {
             throw CLIException("Error creating plugin instance: " + err);
@@ -103,14 +96,16 @@ PluginUtils::createPluginInstance(const juce::String& pluginPath, double initial
     return plugin;
 }
 
-juce::AudioProcessorParameter*
-PluginUtils::getPluginParameterByName(const juce::AudioPluginInstance& plugin,
-                                      const std::string& parameterName) {
+juce::AudioProcessorParameter* PluginUtils::getPluginParameterByName(
+    const juce::AudioPluginInstance& plugin, const std::string& parameterName
+) {
 
-    auto* paramIt = std::find_if(plugin.getParameters().begin(), plugin.getParameters().end(),
-                                 [&parameterName](juce::AudioProcessorParameter* parameter) {
-                                     return parameter->getName(1024).toStdString() == parameterName;
-                                 });
+    auto* paramIt = std::find_if(
+        plugin.getParameters().begin(), plugin.getParameters().end(),
+        [&parameterName](juce::AudioProcessorParameter* parameter) {
+            return parameter->getName(1024).toStdString() == parameterName;
+        }
+    );
 
     if (paramIt == plugin.getParameters().end()) {
         throw std::runtime_error("Unknown parameter identifier '" + parameterName + "'");
@@ -238,6 +233,20 @@ void outputResult(const std::string& text, juce::File outPath, bool overwrite) {
             outPath.replaceWithText(text);
         } else {
             outPath.getNonexistentSibling(false).replaceWithText(text);
+        }
+    }
+}
+
+void outputResult(const juce::MemoryBlock& data, juce::File outPath, bool overwrite) {
+    if (outPath == juce::File{}) {
+        std::cout.write(
+            static_cast<const char*>(data.getData()), static_cast<std::streamsize>(data.getSize())
+        );
+    } else {
+        if (overwrite) {
+            outPath.replaceWithData(data.getData(), data.getSize());
+        } else {
+            outPath.getNonexistentSibling(false).replaceWithData(data.getData(), data.getSize());
         }
     }
 }

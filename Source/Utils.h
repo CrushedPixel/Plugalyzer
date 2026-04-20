@@ -3,7 +3,7 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <nlohmann/json.hpp>
 
-enum class OutputFormat { text, json };
+enum class OutputFormat { text, json, binary, xml };
 
 OutputFormat parseOutputFormat(const char* formatName);
 OutputFormat parseOutputFormat(const std::string& formatName);
@@ -30,6 +30,15 @@ juce::File stringToFile(const std::string& filePath);
  *         not exist
  */
 std::string validateOutputPath(const std::string& arg);
+
+/**
+ * Validates that the passed argument is either 'binary' or 'xml'.
+ * You can use this as a non-mutating validator for the CLI option->check() function
+ *
+ * @param arg The argument
+ * @return Empty string if valid, or an error message
+ */
+std::string validateBinaryOrXml(const std::string& arg);
 
 struct CLIException : std::runtime_error {
     explicit CLIException(const std::string& message) : std::runtime_error(message) {}
@@ -79,9 +88,9 @@ class PluginUtils {
      * @param initialBlockSize The buffer size to initialize the plugin with.
      * @return The initialized plugin.
      */
-    static std::unique_ptr<juce::AudioPluginInstance>
-    createPluginInstance(const juce::String& pluginPath, double initialSampleRate,
-                         int initialBlockSize);
+    static std::unique_ptr<juce::AudioPluginInstance> createPluginInstance(
+        const juce::String& pluginPath, double initialSampleRate, int initialBlockSize
+    );
 
     /**
      * Finds the plugin's parameter with the given name.
@@ -91,9 +100,9 @@ class PluginUtils {
      * @return The parameter.
      * @throws std::runtime_error If the plugin has no parameter with the given name.
      */
-    static juce::AudioProcessorParameter*
-    getPluginParameterByName(const juce::AudioPluginInstance& plugin,
-                             const std::string& parameterName);
+    static juce::AudioProcessorParameter* getPluginParameterByName(
+        const juce::AudioPluginInstance& plugin, const std::string& parameterName
+    );
 };
 
 /**
@@ -139,3 +148,14 @@ std::string getBusLayoutHumanReadable(const nlohmann::json& layoutJson);
  *                  unique name
  */
 void outputResult(const std::string& text, juce::File outPath = {}, bool overwrite = true);
+
+/**
+ * Outputs binary data either to stdout or to a file.
+ * Used for outputting the final result of a command according to the options set by the user.
+ *
+ * @param data The binary data to output
+ * @param outPath The output file path. If not supplied, outputs to stdout instead
+ * @param overwrite If true, overwrites the file if it exists. If false, creates a new file with a
+ *                  unique name
+ */
+void outputResult(const juce::MemoryBlock& data, juce::File outPath = {}, bool overwrite = true);

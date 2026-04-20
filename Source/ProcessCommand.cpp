@@ -140,6 +140,19 @@ std::shared_ptr<CLI::App> ProcessCommand::createApp() {
 }
 
 void ProcessCommand::execute() {
+
+    // if (inputFilePath != juce::File{}) {
+    //     // Read state from file
+    //     if (inputFilePath.loadFileAsData(state)) {
+    //         plugin->setStateInformation(state.getData(), state.getSize());
+    //     } else {
+    //         throw FileLoadError{
+    //             std::format(
+    //                 "Couldn't read file: {}", inputFilePath.getFullPathName().toStdString()
+    //             ),
+    //             150};
+    //     }
+    // }
     size_t totalInputLength;
 
     unsigned int bitDepth = 16;

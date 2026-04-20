@@ -13,6 +13,9 @@ SpaceAfterTemplateKeyword: false
 BreakAfterOpenBracketFunction: true
 BreakBeforeCloseBracketFunction: true
 
+AlignAfterOpenBracket: DontAlign
+AlignOperands: DontAlign
+
 Cpp11BracedListStyle: false
 
 IncludeBlocks: Regroup
