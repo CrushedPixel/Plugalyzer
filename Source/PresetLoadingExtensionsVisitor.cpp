@@ -1,5 +1,7 @@
 #include "PresetLoadingExtensionsVisitor.h"
 
+#include "Errors.h"
+
 PresetLoadingExtensionsVisitor::PresetLoadingExtensionsVisitor(const juce::MemoryBlock& presetDataToUse)
     : presetData(presetDataToUse) {}
 

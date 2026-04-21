@@ -1,7 +1,9 @@
 #include "GenerateAutomationCommand.h"
 
 #include "Automation.h"
+#include "Parsers.h"
 #include "Utils.h"
+#include "Validators.h"
 
 #include <format>
 #include <nlohmann/json.hpp>
@@ -73,10 +75,10 @@ std::shared_ptr<CLI::App> GenerateAutomationCommand::createApp() {
     app->add_option("-p,--plugin", argPluginPath, "Plugin path")
         ->required()
         ->check(CLI::ExistingPath)
-        ->each([&](std::string arg){ pluginPath = stringToFile(arg); });
+        ->each([&](std::string arg){ pluginPath = parse::stringToFile(arg); });
     app->add_option("-o,--output", argOutPath, "Output automation file path (json). Will output to stdout if not supplied.")
-        ->check(validateOutputPath)
-        ->each([&](std::string arg) { outputFilePath = stringToFile(arg); });
+        ->check(validate::outputPath)
+        ->each([&](std::string arg) { outputFilePath = parse::stringToFile(arg); });
     app->add_flag("-y,--overwrite", overwriteOutputFile, "Overwrite the output file if it exists");
 
     // clang-format on

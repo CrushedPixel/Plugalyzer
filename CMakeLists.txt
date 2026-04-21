@@ -22,8 +22,9 @@ set(JSON_Install OFF CACHE INTERNAL "")
 add_subdirectory(json)
 target_include_directories(Plugalyzer PRIVATE json/include)
 
-file(GLOB header_files LIST_DIRECTORIES FALSE "Source/*.h")
-file(GLOB cpp_files LIST_DIRECTORIES FALSE "Source/*.cpp")
+file(GLOB_RECURSE header_files LIST_DIRECTORIES FALSE "Source/*.h")
+file(GLOB_RECURSE cpp_files LIST_DIRECTORIES FALSE "Source/*.cpp")
+target_include_directories(Plugalyzer PRIVATE "Source")
 
 target_sources(Plugalyzer
     PRIVATE

@@ -1,8 +1,8 @@
-#include "AudioDiffCommand.h"
-#include "BusLayoutsCommand.h"
-#include "GenerateAutomationCommand.h"
-#include "ListParametersCommand.h"
-#include "ProcessCommand.h"
+#include "commands/AudioDiffCommand.h"
+#include "commands/BusLayoutsCommand.h"
+#include "commands/GenerateAutomationCommand.h"
+#include "commands/ListParametersCommand.h"
+#include "commands/ProcessCommand.h"
 
 #include <juce_events/juce_events.h>
 #include <print>
@@ -26,6 +26,9 @@ static int runCommandLine(const std::string& commandLineParameters) {
     ProcessCommand pc;
     registerSubcommand(app, pc);
 
+    AudioDiffCommand adc;
+    registerSubcommand(app, adc);
+
     ListParametersCommand lpc;
     registerSubcommand(app, lpc);
 
@@ -34,9 +37,6 @@ static int runCommandLine(const std::string& commandLineParameters) {
 
     BusLayoutsCommand blc;
     registerSubcommand(app, blc);
-
-    AudioDiffCommand adc;
-    registerSubcommand(app, adc);
 
     try {
         app.parse(commandLineParameters, false);
