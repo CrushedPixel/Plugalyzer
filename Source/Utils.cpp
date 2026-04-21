@@ -1,73 +1,15 @@
+#include "Errors.h"
 #include "Utils.h"
 
 #include <format>
 #include <iostream>
 #include <nlohmann/json.hpp>
 
-OutputFormat parseOutputFormat(const char* formatName) {
-    jassert(formatName != nullptr);
-
-    static const std::unordered_map<std::string, OutputFormat> formatMap{
-        { "text", OutputFormat::text }, { "json", OutputFormat::json }
-    };
-
-    if (formatMap.contains(formatName)) {
-        return formatMap.at(formatName);
-    } else {
-        return OutputFormat::text;
-    }
-}
-
-OutputFormat parseOutputFormat(const std::string& formatName) {
-    static const std::unordered_map<std::string, OutputFormat> formatMap{
-        { "text", OutputFormat::text }, { "json", OutputFormat::json }
-    };
-
-    if (formatMap.contains(formatName)) {
-        return formatMap.at(formatName);
-    } else {
-        return OutputFormat::text;
-    }
-}
-
-juce::File stringToFile(const std::string& filePath) {
-    if (juce::File::isAbsolutePath(filePath)) {
-        return juce::File(filePath);
-    } else {
-        return juce::File::getCurrentWorkingDirectory().getChildFile(filePath);
-    }
-}
-
-std::string validateOutputPath(const std::string& arg) {
-    auto file = stringToFile(arg);
-    if (!file.getParentDirectory().exists()) {
-        return "Output parent directory does not exist";
-    }
-    return std::string();
-}
-
 size_t secondsToSamples(double sec, double sampleRate) { return (size_t) (sec * sampleRate); }
 
-#define PARSE_STRICT(funName)                                         \
-    size_t endPtr;                                                    \
-    auto num = (funName)(str, &endPtr);                               \
-    if (endPtr != str.size()) {                                       \
-        throw std::invalid_argument("Invalid number: '" + str + "'"); \
-    }                                                                 \
-    return num
-
-
-float parseFloatStrict(const std::string &str) {
-    PARSE_STRICT(std::stof);
-}
-
-unsigned long parseULongStrict(const std::string &str) {
-    PARSE_STRICT(std::stoul);
-}
-
-std::unique_ptr<juce::AudioPluginInstance>
-PluginUtils::createPluginInstance(const juce::String& pluginPath, double initialSampleRate,
-                                  int initialBlockSize) {
+std::unique_ptr<juce::AudioPluginInstance> PluginUtils::createPluginInstance(
+    const juce::String& pluginPath, double initialSampleRate, int initialBlockSize
+) {
     juce::AudioPluginFormatManager audioPluginFormatManager;
     addDefaultFormatsToManager(audioPluginFormatManager);
 
@@ -77,8 +19,9 @@ PluginUtils::createPluginInstance(const juce::String& pluginPath, double initial
         juce::OwnedArray<juce::PluginDescription> pluginDescriptions;
 
         juce::KnownPluginList kpl;
-        kpl.scanAndAddDragAndDroppedFiles(audioPluginFormatManager, juce::StringArray(pluginPath),
-                                          pluginDescriptions);
+        kpl.scanAndAddDragAndDroppedFiles(
+            audioPluginFormatManager, juce::StringArray(pluginPath), pluginDescriptions
+        );
 
         // check if the requested plugin was found
         if (pluginDescriptions.isEmpty()) {
@@ -92,8 +35,9 @@ PluginUtils::createPluginInstance(const juce::String& pluginPath, double initial
     std::unique_ptr<juce::AudioPluginInstance> plugin;
     {
         juce::String err;
-        plugin = audioPluginFormatManager.createPluginInstance(pluginDescription, initialSampleRate,
-                                                               initialBlockSize, err);
+        plugin = audioPluginFormatManager.createPluginInstance(
+            pluginDescription, initialSampleRate, initialBlockSize, err
+        );
 
         if (!plugin) {
             throw CLIException("Error creating plugin instance: " + err);
@@ -103,14 +47,16 @@ PluginUtils::createPluginInstance(const juce::String& pluginPath, double initial
     return plugin;
 }
 
-juce::AudioProcessorParameter*
-PluginUtils::getPluginParameterByName(const juce::AudioPluginInstance& plugin,
-                                      const std::string& parameterName) {
+juce::AudioProcessorParameter* PluginUtils::getPluginParameterByName(
+    const juce::AudioPluginInstance& plugin, const std::string& parameterName
+) {
 
-    auto* paramIt = std::find_if(plugin.getParameters().begin(), plugin.getParameters().end(),
-                                 [&parameterName](juce::AudioProcessorParameter* parameter) {
-                                     return parameter->getName(1024).toStdString() == parameterName;
-                                 });
+    auto* paramIt = std::find_if(
+        plugin.getParameters().begin(), plugin.getParameters().end(),
+        [&parameterName](juce::AudioProcessorParameter* parameter) {
+            return parameter->getName(1024).toStdString() == parameterName;
+        }
+    );
 
     if (paramIt == plugin.getParameters().end()) {
         throw std::runtime_error("Unknown parameter identifier '" + parameterName + "'");

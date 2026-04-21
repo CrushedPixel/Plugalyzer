@@ -1,4 +1,5 @@
 #include "Automation.h"
+#include "Parsers.h"
 #include "Utils.h"
 
 ParameterAutomation Automation::parseAutomationDefinition(const std::string& jsonStr,
@@ -79,7 +80,7 @@ size_t Automation::parseKeyframeTime(juce::String timeStr, double sampleRate,
         // parse the floating-point number
         float time;
         try {
-            time = parseFloatStrict(timeStr.toStdString());
+            time = parse::floatStrict(timeStr.toStdString());
         } catch (const std::invalid_argument& ia) {
             throw std::runtime_error("Invalid floating-point number '" + timeStr.toStdString() +
                                      "'");
@@ -95,7 +96,7 @@ size_t Automation::parseKeyframeTime(juce::String timeStr, double sampleRate,
     // no known suffix was detected - parse as an integer sample value
     size_t time;
     try {
-        time = parseULongStrict(timeStr.toStdString());
+        time = parse::uLongStrict(timeStr.toStdString());
     } catch (std::invalid_argument& ia) {
         throw std::runtime_error("Invalid sample index '" + timeStr.toStdString() + "'");
     }
