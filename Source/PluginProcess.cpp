@@ -139,7 +139,7 @@ ParameterAutomation parseParameters(
 
         // warn the user if the parameter overrides a parameter specified in the file
         if (automation.contains(paramName)) {
-            std::cout << "Plugin parameter '" << paramName
+            std::cerr << "Plugin parameter '" << paramName
                       << "' is specified in the parameter file and overridden by a command-line "
                          "parameter."
                       << std::endl;
