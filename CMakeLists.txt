@@ -51,6 +51,8 @@ target_compile_definitions(Plugalyzer
     JUCE_PLUGINHOST_LADSPA=1
     JUCE_PLUGINHOST_LV2=1
     JUCE_DISABLE_JUCE_VERSION_PRINTING=1
+    JUCE_LOG_ASSERTIONS=1
+    JUCE_DISABLE_CAUTIOUS_PARAMETER_ID_CHECKING=1  # LV2 Param IDs are incompatible with AAX, which we are not hosting
 )
 
 target_link_libraries(Plugalyzer
