@@ -1,6 +1,7 @@
 #include "Parsers.h"
 
 #include "Errors.h"
+#include "Utils.h"
 
 #define PARSE_STRICT(funName)                                                                      \
     size_t endPtr;                                                                                 \
@@ -14,13 +15,6 @@
 namespace parse
 {
 OutputFormat outputFormat(const std::string& formatName) {
-    static const std::unordered_map<std::string, OutputFormat> formatMap{
-        { "text", OutputFormat::text },
-        { "json", OutputFormat::json },
-        { "binary", OutputFormat::binary },
-        { "xml", OutputFormat::xml },
-    };
-
     if (formatMap.contains(formatName)) {
         return formatMap.at(formatName);
     } else {

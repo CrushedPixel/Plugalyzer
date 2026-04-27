@@ -5,6 +5,14 @@
 
 enum class OutputFormat { text, json, binary, xml };
 
+inline const std::unordered_map<std::string, OutputFormat> formatMap{
+    { "text", OutputFormat::text },
+    { "json", OutputFormat::json },
+    { "binary", OutputFormat::binary },
+    { "xml", OutputFormat::xml },
+};
+
+
 struct ParameterCLIArgument {
     std::string parameterName;
 
