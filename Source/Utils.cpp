@@ -65,6 +65,21 @@ juce::AudioProcessorParameter* PluginUtils::getPluginParameterByName(
     return *paramIt;
 }
 
+void loadPluginStateFromFile(juce::AudioPluginInstance& plugin, const juce::File& statePath, juce::MemoryBlock& state) {
+    if (statePath != juce::File{}) {
+        if (statePath.loadFileAsData(state)) {
+            plugin.setStateInformation(state.getData(), state.getSize());
+        } else {
+            throw FileLoadError{
+                std::format(
+                    "Couldn't read file: {}", statePath.getFullPathName().toStdString()
+                ),
+                150
+            };
+        }
+    }
+}
+
 juce::StringArray getDiscreteValueStrings(const juce::AudioProcessorParameter& param) {
     if (!param.isDiscrete()) return {};
 
@@ -184,6 +199,20 @@ void outputResult(const std::string& text, juce::File outPath, bool overwrite) {
             outPath.replaceWithText(text);
         } else {
             outPath.getNonexistentSibling(false).replaceWithText(text);
+        }
+    }
+}
+
+void outputResult(const juce::MemoryBlock& data, juce::File outPath, bool overwrite) {
+    if (outPath == juce::File{}) {
+        std::cout.write(
+            static_cast<const char*>(data.getData()), static_cast<std::streamsize>(data.getSize())
+        );
+    } else {
+        if (overwrite) {
+            outPath.replaceWithData(data.getData(), data.getSize());
+        } else {
+            outPath.getNonexistentSibling(false).replaceWithData(data.getData(), data.getSize());
         }
     }
 }

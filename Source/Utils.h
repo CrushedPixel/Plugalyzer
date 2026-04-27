@@ -62,6 +62,18 @@ class PluginUtils {
 };
 
 /**
+* Loads a saved plugin state from file and applies it to the plugin.
+* The state should have been saved as binary using the manage state command.
+* Will throw if the file couldn't be opened, but has no idea if the plugin accepted/understood the binary blob it was given.
+*
+* @param plugin The plugin.
+* @param statePath The path to the binary state
+* @param state Memory into which to write the state
+* @throws FileLoadError If the state file couldn't be opened. 
+*/
+void loadPluginStateFromFile(juce::AudioPluginInstance& plugin, const juce::File& statePath, juce::MemoryBlock& state);
+
+/**
  * Get the possible values of a discrete parameter (choice, bool).
  *
  * @param param The plugin parameter for which to get the values
@@ -104,3 +116,14 @@ std::string getBusLayoutHumanReadable(const nlohmann::json& layoutJson);
  *                  unique name
  */
 void outputResult(const std::string& text, juce::File outPath = {}, bool overwrite = true);
+
+/**
+ * Outputs binary data either to stdout or to a file.
+ * Used for outputting the final result of a command according to the options set by the user.
+ *
+ * @param data The binary data to output
+ * @param outPath The output file path. If not supplied, outputs to stdout instead
+ * @param overwrite If true, overwrites the file if it exists. If false, creates a new file with a
+ *                  unique name
+ */
+void outputResult(const juce::MemoryBlock& data, juce::File outPath = {}, bool overwrite = true);
