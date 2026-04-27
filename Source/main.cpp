@@ -2,6 +2,7 @@
 #include "commands/BusLayoutsCommand.h"
 #include "commands/GenerateAutomationCommand.h"
 #include "commands/ListParametersCommand.h"
+#include "commands/StateCommand.h"
 #include "commands/ProcessCommand.h"
 
 #include <juce_events/juce_events.h>
@@ -34,6 +35,9 @@ static int runCommandLine(const std::string& commandLineParameters) {
 
     GenerateAutomationCommand gac;
     registerSubcommand(app, gac);
+
+    StateCommand msc;
+    registerSubcommand(app, msc);
 
     BusLayoutsCommand blc;
     registerSubcommand(app, blc);

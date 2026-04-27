@@ -255,3 +255,11 @@ Example output:
     }
 }
 ```
+
+## Operate on Plugin State
+The `state` command can::
+ 1. output the default state of the plugin.
+ 1. take a parameter automation file (json) as input, set those parameters on the plugin and output the resulting plugin state.
+ 1. take a previously exported plugin state (in binary format), apply it to the plugin and output the resulting parameters in json format.
+
+Plugin state can be output in binary format or, if the state uses JUCE Value Trees, it can be serialized into XML so you can read it.

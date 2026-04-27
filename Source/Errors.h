@@ -17,3 +17,9 @@ struct CLIException : std::runtime_error {
     explicit CLIException(const juce::String& message)
         : std::runtime_error(message.toStdString()) {}
 };
+
+class FailedXmlError : public CLI::Error {
+  public:
+    FailedXmlError(std::string msg, int exit_code)
+        : CLI::Error("FailedXmlError", std::move(msg), exit_code) {}
+};
