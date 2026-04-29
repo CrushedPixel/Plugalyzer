@@ -1,7 +1,8 @@
-#include "Automation.h"
 #include "PluginProcess.h"
-#include "Parsers.h"
+
+#include "Automation.h"
 #include "Errors.h"
+#include "Parsers.h"
 #include "Utils.h"
 
 #include <CLI/CLI.hpp>
@@ -115,7 +116,8 @@ ParameterAutomation parseParameters(
     if (parameterFileOpt) {
         automation = Automation::parseAutomationDefinition(
             parameterFileOpt->loadFileAsString().toStdString(), plugin, sampleRate,
-            inputLengthInSamples);
+            inputLengthInSamples
+        );
     }
 
     // parse command-line supplied parameters
@@ -129,9 +131,11 @@ ParameterAutomation parseParameters(
 
         if (!isNormalizedValue) {
             if (!Automation::parameterSupportsTextToValueConversion(param)) {
-                throw CLIException("Parameter '" + paramName +
-                                   "' does not support text values. Use :n suffix to supply "
-                                   "a normalized value instead");
+                throw CLIException(
+                    "Parameter '" + paramName +
+                    "' does not support text values. Use :n suffix to supply "
+                    "a normalized value instead"
+                );
             }
 
             normalizedValue = param->getValueForText(textValue);
@@ -145,7 +149,7 @@ ParameterAutomation parseParameters(
                       << std::endl;
         }
 
-        automation[paramName] = AutomationKeyframes({{0, normalizedValue}});
+        automation[paramName] = AutomationKeyframes({ { 0, normalizedValue } });
     }
 
     return automation;
