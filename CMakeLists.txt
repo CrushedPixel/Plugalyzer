@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(PLUGALYZER VERSION 0.2.1)
+project(PLUGALYZER VERSION 0.3.0)
 
 # embrace the future, baby!
 set(CMAKE_CXX_STANDARD 23)
