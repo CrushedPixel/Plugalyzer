@@ -147,7 +147,8 @@ void ProcessCommand::execute() {
 
     // process the input files with the plugin
     juce::AudioBuffer<float> sampleBuffer(
-        (int) std::max(totalNumInputChannels, totalNumOutputChannels), (int) blockSize);
+        (int) std::max(totalNumInputChannels, totalNumOutputChannels), (int) blockSize
+    );
 
     juce::MidiBuffer midiBuffer;
     size_t sampleIndex = 0;
@@ -158,9 +159,11 @@ void ProcessCommand::execute() {
         // read next segment of audio input files into buffer
         unsigned int targetChannel = 0;
         for (auto* inputFileReader : audioInputFileReaders) {
-            if (!inputFileReader->read(sampleBuffer.getArrayOfWritePointers() + targetChannel,
-                                       (int) inputFileReader->numChannels, static_cast<juce::int64>(sampleIndex),
-                                       (int) blockSize)) {
+            if (!inputFileReader->read(
+                    sampleBuffer.getArrayOfWritePointers() + targetChannel,
+                    (int) inputFileReader->numChannels, static_cast<juce::int64>(sampleIndex),
+                    (int) blockSize
+                )) {
                 throw CLIException("Error reading input file"); // TODO: more context, which file?
             }
 
@@ -178,7 +181,8 @@ void ProcessCommand::execute() {
 
             for (auto& meh : *midiTrack) {
                 auto timestampSamples = secondsToSamples(meh->message.getTimeStamp(), sampleRate);
-                if (timestampSamples >= sampleIndex && timestampSamples < sampleIndex + static_cast<size_t>(blockSize)) {
+                if (timestampSamples >= sampleIndex &&
+                    timestampSamples < sampleIndex + static_cast<size_t>(blockSize)) {
                     midiBuffer.addEvent(meh->message, (int) (timestampSamples - sampleIndex));
                 }
             }
@@ -199,8 +203,9 @@ void ProcessCommand::execute() {
 
         // write to output
         if (startSample < blockSize) {
-            outWriter->writeFromAudioSampleBuffer(sampleBuffer, startSample,
-                                                  (int) blockSize - startSample);
+            outWriter->writeFromAudioSampleBuffer(
+                sampleBuffer, startSample, (int) blockSize - startSample
+            );
         }
 
         sampleIndex += static_cast<size_t>(blockSize);
