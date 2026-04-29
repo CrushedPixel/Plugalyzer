@@ -3,26 +3,40 @@
 set -euo pipefail
 
 # Build APH
-cmake -S JUCE -B juce_build -DJUCE_BUILD_EXTRAS=ON -DCMAKE_CXX_FLAGS="-DJUCE_LOG_ASSERTIONS=1"
-cmake --build juce_build --target=AudioPluginHost
+# cmake -S JUCE -B juce_build -DJUCE_BUILD_EXTRAS=ON -DCMAKE_CXX_FLAGS="-DJUCE_LOG_ASSERTIONS=1"
+# cmake --build juce_build --target=AudioPluginHost
 
 # Build Plugalyzer
 cmake -S . -B build
 cmake --build build
+plugalzer="./build/Plugalyzer_artefacts/Debug/Plugalyzer"
 
 # Build Plugalyzee
+rm -r test/PlugalyzeeAudio/build
 cmake -S test/PlugalyzeeAudio -B test/PlugalyzeeAudio/build
 cmake --build test/PlugalyzeeAudio/build
+mkdir -p "test/output/PlugalyzeeAudio/VST3"
+mv "test/PlugalyzeeAudio/build/PlugalyzeeAudio_artefacts/Debug/VST3/PlugalyzeeAudio.vst3" \
+  "test/output/PlugalyzeeAudio/VST3/PlugalyzeeAudio.vst3"
+plugalyzee="test/output/PlugalyzeeAudio/VST3/PlugalyzeeAudio.vst3"
+plugalyzee_preset="test/PlugalyzeeAudio/preset1.json"
+
+# Build Plugalyzee with sidechain
+cmake -S test/PlugalyzeeAudio -B test/PlugalyzeeAudio/build -DCMAKE_CXX_FLAGS="-DPLUGALYZEE_HAS_SIDECHAIN=1"
+cmake --build test/PlugalyzeeAudio/build
+mkdir -p "test/output/PlugalyzeeAudio_sidechain/VST3"
+mv "test/PlugalyzeeAudio/build/PlugalyzeeAudio_artefacts/Debug/VST3/PlugalyzeeAudio.vst3" \
+  "test/output/PlugalyzeeAudio_sidechain/VST3/PlugalyzeeAudio.vst3"
+plugalyzee_sidechain="test/output/PlugalyzeeAudio_sidechain/VST3/PlugalyzeeAudio.vst3"
+plugalyzee_preset="test/PlugalyzeeAudio/preset1.json"
 
 
 # Get arguments
-plugalyzee="test/PlugalyzeeAudio/build/PlugalyzeeAudio_artefacts/Debug/LV2/PlugalyzeeAudio.lv2"
-plugalyzee="test/PlugalyzeeAudio/build/PlugalyzeeAudio_artefacts/Debug/VST3/PlugalyzeeAudio.vst3"
-plugalzer="./build/Plugalyzer_artefacts/Debug/Plugalyzer"
-audio_sample=$(find test -maxdepth 1 -name "*.wav" -print -quit)
-audio_output="${audio_sample%.*}-proc.wav"
+# plugalyzee="test/PlugalyzeeAudio/build/PlugalyzeeAudio_artefacts/Debug/LV2/PlugalyzeeAudio.lv2"
 
-mkdir -p test
+audio_sample=$(find test -maxdepth 1 -name "*.wav" -print -quit)
+audio_sample_name="$(basename "$audio_sample")"
+audio_output="test/output/${audio_sample_name%.*}-proc.wav"
 
 echo ""
 echo "------"
@@ -129,7 +143,7 @@ echo "Generate Automation: file"
 "$plugalzer" \
   generateAutomation \
   -p "$plugalyzee" \
-  -o ./test/output/generateAutomation.json \
+  -o ./test/output/automation.json \
   -y
 
 echo ""
@@ -192,7 +206,18 @@ echo "Process"
   --plugin="$plugalyzee" \
   --input="$audio_sample" \
   --output="$audio_output" \
-  --paramFile=./test/output/preset1.json \
+  --paramFile="$plugalyzee_preset" \
+  -y
+
+echo ""
+echo "------"
+echo "Process sidechain plugin with missing sidechain"
+"$plugalzer" \
+  process \
+  --plugin="$plugalyzee_sidechain" \
+  --input="$audio_sample" \
+  --output="$audio_output" \
+  --paramFile="$plugalyzee_preset" \
   -y
 
 echo ""
@@ -247,7 +272,7 @@ echo "JSON params -> state as binary"
 "$plugalzer" \
   state \
   -p "$plugalyzee" \
-  -i "./test/output/preset1.json" \
+  -i "$plugalyzee_preset" \
   -o "./test/output/state-preset1.bin" \
   -y
 
@@ -258,7 +283,7 @@ echo "JSON params -> state as XML"
 "$plugalzer" \
   state \
   -p "$plugalyzee" \
-  -i "./test/output/preset1.json" \
+  -i "$plugalyzee_preset" \
   -o "./test/output/state-preset1.xml" \
   -f "xml" \
   -y
@@ -267,9 +292,10 @@ echo "JSON params -> state as XML"
 echo ""
 echo "------"
 echo "Diffing default state and preset state"
-diff "./test/output/default-state.bin" "./test/output/state-preset1.bin"
+diff "./test/output/default-state.bin" "./test/output/state-preset1.bin" || true
 
-rm "./test/output/default-state.bin"
-rm "./test/output/default-state.xml"
-rm "./test/output/state-preset1.bin"
+rm ./test/output/*.bin
+rm ./test/output/*.json
+rm ./test/output/*.xml
+rm ./test/output/*.txt
 
