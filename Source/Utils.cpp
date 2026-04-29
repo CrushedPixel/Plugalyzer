@@ -191,6 +191,56 @@ std::string getBusLayoutHumanReadable(const nlohmann::json& layoutJson) {
     return result;
 }
 
+int getTotalNumInputChannels(const juce::AudioProcessor::BusesLayout &layout) {
+    const auto inputBuses = layout.getBuses(true);
+    
+    int totalNumInputChannels{ 0 };
+
+    for (auto& bus : inputBuses)
+    {
+        totalNumInputChannels += bus.size();
+    }
+    return totalNumInputChannels;
+}
+
+int getTotalNumOutputChannels(const juce::AudioProcessor::BusesLayout &layout) {
+    const auto outputBuses = layout.getBuses(false);
+    
+    int totalNumOutputChannels{ 0 };
+
+    for (auto& bus : outputBuses)
+    {
+        totalNumOutputChannels += bus.size();
+    }
+    return totalNumOutputChannels;
+}
+
+juce::String describeBusesLayout(const juce::AudioProcessor::BusesLayout& layout) {
+    const auto inputBuses = layout.getBuses(true);
+    const auto outputBuses = layout.getBuses(false);
+    
+    juce::String result;
+    result << std::format("Input buses: {}, output buses: {}\n", inputBuses.size(), outputBuses.size());
+    
+    result << "Input buses:";
+    for (auto& bus : inputBuses)
+    {
+        result << bus.getDescription() << ",";
+    }
+    
+    result << "\n";
+
+    result << "Output buses:";
+    for (auto& bus : outputBuses)
+    {
+        result << bus.getDescription() << ",";
+    }
+    
+    result << "\n";
+    
+    return result;
+}
+
 void outputResult(const std::string& text, juce::File outPath, bool overwrite) {
     if (outPath == juce::File{}) {
         std::cout << text;

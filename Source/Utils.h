@@ -69,7 +69,7 @@ class PluginUtils {
 * @param plugin The plugin.
 * @param statePath The path to the binary state
 * @param state Memory into which to write the state
-* @throws FileLoadError If the state file couldn't be opened. 
+* @throws FileLoadError If the state file couldn't be opened.
 */
 void loadPluginStateFromFile(juce::AudioPluginInstance& plugin, const juce::File& statePath, juce::MemoryBlock& state);
 
@@ -105,6 +105,36 @@ nlohmann::json getBusLayoutJson(const juce::AudioProcessor::BusesLayout& layout)
  *         counts
  */
 std::string getBusLayoutHumanReadable(const nlohmann::json& layoutJson);
+
+/**
+ * Find out the total number of input channels across all buses in order to make the right sized
+ * AudioBuffer
+ *
+ * @param layout The buses layout
+ * @return The total number of input channels
+ */
+int getTotalNumInputChannels(const juce::AudioProcessor::BusesLayout& layout);
+
+/**
+ * Find out the total number of output channels across all buses in order to make the right sized
+ * AudioBuffer
+ *
+ * @param layout The buses layout
+ * @return The total number of input channels
+ */
+int getTotalNumOutputChannels(const juce::AudioProcessor::BusesLayout& layout);
+
+/**
+ * Get info about a BusesLayout
+ *  - Total count of input buses
+ *  - Total count of output buses
+ *  - Description of each input bus
+ *  - Description of each output bus
+ *
+ * @param layout BusesLayout
+ * @return String with description
+ */
+juce::String describeBusesLayout(const juce::AudioProcessor::BusesLayout& layout);
 
 /**
  * Outputs text either to stdout or to a file.

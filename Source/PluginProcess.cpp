@@ -71,37 +71,26 @@ juce::MidiFile readMIDIFile(const juce::File& file, double sampleRate, size_t& l
 juce::AudioPluginInstance::BusesLayout createBusLayout(
     const juce::AudioPluginInstance& plugin,
     const juce::OwnedArray<juce::AudioFormatReader>& audioInputFileReaders,
-    const std::optional<unsigned int>& outputChannelCountOpt,
-    unsigned int& totalNumInputChannelsOut, unsigned int& totalNumOutputChannelsOut
+    const std::optional<unsigned int>& outputChannelCount
 ) {
+    // Start with compatible bus layout
+    juce::AudioPluginInstance::BusesLayout layout{ plugin.getBusesLayout() };
+    jassert(layout.outputBuses.size() == 1);
 
-    totalNumInputChannelsOut = 0;
-    juce::AudioPluginInstance::BusesLayout layout;
-    if (audioInputFileReaders.isEmpty()) {
-        // if no input files are provided, use the plugin's default input bus layout
-        // to maximize compatibility with synths that expect an input
-        layout.inputBuses = plugin.getBusesLayout().inputBuses;
-        for (auto& cs : layout.inputBuses) {
-            totalNumInputChannelsOut += (unsigned int) cs.size();
-        }
-
-    } else {
-        for (auto* inputFileReader : audioInputFileReaders) {
-            layout.inputBuses.add(
-                juce::AudioChannelSet::canonicalChannelSet((int) inputFileReader->numChannels));
-            totalNumInputChannelsOut += inputFileReader->numChannels;
-        }
+    // Inputs: Change channel formats to match input files
+    for (const auto& [index, reader] : juce::enumerate(audioInputFileReaders)) {
+        layout.inputBuses[index] =
+            juce::AudioChannelSet::canonicalChannelSet((int) reader->numChannels);
     }
 
-    // create an output bus with the desired amount of channels,
-    // defaulting to the same amount of channels as the main input file if one exists,
-    // or the plugin's default bus layout otherwise.
-    totalNumOutputChannelsOut = (outputChannelCountOpt.value_or(
-        audioInputFileReaders.isEmpty()
-            ? (unsigned int) plugin.getBusesLayout().getMainOutputChannels()
-            : audioInputFileReaders[0]->numChannels));
-    layout.outputBuses.add(
-        juce::AudioChannelSet::canonicalChannelSet((int) totalNumOutputChannelsOut));
+    // Outputs: Change channel formats to match user-supplied option or first input file
+    if (outputChannelCount.has_value()) {
+        layout.outputBuses[0] =
+            juce::AudioChannelSet::canonicalChannelSet((int) *outputChannelCount);
+    } else if (!audioInputFileReaders.isEmpty()) {
+        layout.outputBuses[0] =
+            juce::AudioChannelSet::canonicalChannelSet((int) audioInputFileReaders[0]->numChannels);
+    }
 
     return layout;
 }
