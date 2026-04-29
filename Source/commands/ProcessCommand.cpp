@@ -1,12 +1,30 @@
 #include "ProcessCommand.h"
-#include "PluginProcess.h"
 
+#include "PluginProcess.h"
 #include "PresetLoadingExtensionsVisitor.h"
-#include "Parsers.h"
 #include "Utils.h"
 #include "Validators.h"
 
+#include <cstdio>
+#include <juce_audio_processors/juce_audio_processors.h>
+#include <print>
 
+// Let the user know if we'll be creating input buses for them
+static void
+checkBusCountsAndWarn(const juce::AudioPluginInstance& plugin, const auto& audioInputFileReaders) {
+    // The plugin's default number of inputs and outputs
+    auto pluginInputBusCount = plugin.getBusCount(true);
+    // The user-supplied number of inputs and outputs
+    auto userInputBusCount = audioInputFileReaders.size();
+    if (pluginInputBusCount != userInputBusCount) {
+        std::println(
+            stderr,
+            "Plugin requires {} input buses. {} input buses provided. "
+            "Other input buses will be silent.",
+            pluginInputBusCount, userInputBusCount
+        );
+    }
+}
 
 std::shared_ptr<CLI::App> ProcessCommand::createApp() {
     // don't break these lines, please
@@ -82,11 +100,18 @@ void ProcessCommand::execute() {
     }
 
     // create and apply the bus layout
-    unsigned int totalNumInputChannels, totalNumOutputChannels;
-    auto layout = createBusLayout(*plugin, audioInputFileReaders, outputChannelCountOpt,
-                                  totalNumInputChannels, totalNumOutputChannels);
+    const auto pluginOutputBusCount = plugin->getBusCount(false);
+    if (pluginOutputBusCount != 1) {
+        throw CLIException("Multi-output plugins currently not supported. Please write a PR!");
+    }
+    checkBusCountsAndWarn(*plugin, audioInputFileReaders);
+
+    auto layout = createBusLayout(*plugin, audioInputFileReaders, outputChannelCountOpt);
+
     if (!plugin->setBusesLayout(layout)) {
-        throw CLIException("Plugin does not support requested bus layout");
+        throw CLIException(
+            "Plugin does not support requested bus layout: " + describeBusesLayout(layout)
+        );
     }
 
     // parse plugin parameters
@@ -100,9 +125,12 @@ void ProcessCommand::execute() {
         throw CLIException("Output file already exists! Use --overwrite to overwrite the file");
     }
 
+    auto totalNumInputChannels = getTotalNumInputChannels(layout);
+    auto totalNumOutputChannels = getTotalNumOutputChannels(layout);
     std::unique_ptr<juce::AudioFormatWriter> outWriter;
     outputFilePath.deleteFile();
-    if (std::unique_ptr<juce::OutputStream> outputStream{ outputFilePath.createOutputStream(static_cast<size_t>(blockSize)) }) {
+    if (std::unique_ptr<juce::OutputStream> outputStream{
+            outputFilePath.createOutputStream(static_cast<size_t>(blockSize)) }) {
         juce::WavAudioFormat outFormat;
         outWriter = outFormat.createWriterFor(
             outputStream, // stream is now managed by writer
@@ -112,8 +140,9 @@ void ProcessCommand::execute() {
                 .withBitsPerSample(static_cast<int>(bitDepth))
         );
     } else {
-        throw CLIException("Could not create output stream to write to file " +
-                           outputFilePath.getFullPathName());
+        throw CLIException(
+            "Could not create output stream to write to file " + outputFilePath.getFullPathName()
+        );
     }
 
     // process the input files with the plugin

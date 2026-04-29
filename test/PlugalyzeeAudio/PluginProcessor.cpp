@@ -1,6 +1,7 @@
 #include "PluginProcessor.h"
 
 #include "PlugalyzeeAudio.h"
+#include <cstddef>
 #include <format>
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
@@ -13,6 +14,9 @@ PlugalyzeeAudioProcessor::PlugalyzeeAudioProcessor() :
         BusesProperties()
             .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
             .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
+#ifdef PLUGALYZEE_HAS_SIDECHAIN
+            .withInput("Sidechain", juce::AudioChannelSet::stereo(), true)
+#endif
     ),
     state(*this, nullptr, id::apvtsRoot, createParameterLayout())
 // clang-format on
@@ -101,11 +105,10 @@ void PlugalyzeeAudioProcessor::changeProgramName(int index, const juce::String& 
 void PlugalyzeeAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     DBG(std::format("Prepare to play({},{})", sampleRate, samplesPerBlock));
-    jassert(getTotalNumInputChannels() == getTotalNumOutputChannels());
     dsp::ProcessSpec spec{
         .sampleRate = sampleRate,
         .maximumBlockSize = static_cast<uint32>(samplesPerBlock),
-        .numChannels = static_cast<uint32>(getTotalNumInputChannels())
+        .numChannels = static_cast<uint32>(getTotalNumOutputChannels())
     };
     processor.prepare(spec);
 }
@@ -116,21 +119,46 @@ void PlugalyzeeAudioProcessor::releaseResources()
 
 bool PlugalyzeeAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
 {
-#if JucePlugin_IsMidiEffect
-    juce::ignoreUnused(layouts);
-    return true;
-#else
+    const auto candidateInputBuses = layouts.getBuses(true);
+    const auto candidateOutputBuses = layouts.getBuses(false);
+
+    auto describeLayout = [&]() {
+        juce::String result;
+        result << std::format("Input buses: {}, output buses: {}\n", candidateInputBuses.size(), candidateOutputBuses.size());
+
+        result << "Input buses:";
+        for (auto& bus : candidateInputBuses)
+        {
+            result << bus.getDescription() << ",";
+        }
+
+        result << "\n";
+
+        result << "Output buses:";
+        for (auto& bus : candidateOutputBuses)
+        {
+            result << bus.getDescription() << ",";
+        }
+
+        return result;
+    };
+
+    DBG(describeLayout());
+
+#ifdef PLUGALYZEE_HAS_SIDECHAIN
+    auto buses = layouts.getBuses(true);
+
+    if (buses.size() < 2)
+    {
+        return false;
+    }
+#endif
+
     if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
         && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
 
-    #if !JucePlugin_IsSynth
-    if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
-        return false;
-    #endif
-
     return true;
-#endif
 }
 
 void PlugalyzeeAudioProcessor::processBlock(
@@ -152,7 +180,8 @@ void PlugalyzeeAudioProcessor::processBlock(
     });
 
     dsp::AudioBlock<float> block{ buffer };
-    dsp::ProcessContextReplacing<float> context{ block };
+    auto blockToProcess = block.getSubsetChannelBlock(0, static_cast<size_t>(getTotalNumOutputChannels()));
+    dsp::ProcessContextReplacing<float> context{ blockToProcess };
 
     processor.process(context);
 }
