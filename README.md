@@ -15,6 +15,7 @@ Plugins with multiple input buses (such as sidechains) are supported.
     - [Limitations](#limitations)
   - [View Supported Bus Layouts](#view-supported-bus-layouts)
   - [Generate plugin automation](#generate-plugin-automation)
+  - [Operate on Plugin State](#operate-on-plugin-state)
 
 
 # Usage
