@@ -52,6 +52,8 @@ plugalyzer process                    \
   --param=Distortion:Off
 ```
 
+If a plugin requires a sidechain bus but you don't supply one as an input, silence will be used and you'll get a warning in stderr.
+
 ### Parameter automation
 Aside from the `--param` option, plugin parameters can also be supplied via JSON file using the `--paramFile` option.  
 This JSON file also allows for automation by supplying multiple keyframes that are linearly interpolated between.
