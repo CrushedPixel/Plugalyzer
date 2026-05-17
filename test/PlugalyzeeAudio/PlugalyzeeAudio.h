@@ -87,11 +87,11 @@ public:
         juce::AudioProcessorValueTreeState& apvtsToUse,
         PlugalyzeeParams& paramsToListenTo
     );
-    ~ParameterUpdateDebugger();
+    ~ParameterUpdateDebugger() override;
 
     // Parameter Listener
     void parameterValueChanged(int parameterIndex, float newValue) override;
-    void parameterGestureChanged(int, bool) override {};
+    void parameterGestureChanged(int, bool) override {}
     // APVTS Listener
     void parameterChanged(const juce::String& parameterID, float newValue) override;
 
