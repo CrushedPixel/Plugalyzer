@@ -72,7 +72,7 @@ void loadPluginStateFromFile(
 ) {
     if (statePath != juce::File{}) {
         if (statePath.loadFileAsData(state)) {
-            plugin.setStateInformation(state.getData(), state.getSize());
+            plugin.setStateInformation(state.getData(), static_cast<int>(state.getSize()));
         } else {
             throw FileLoadError{
                 std::format("Couldn't read file: {}", statePath.getFullPathName().toStdString()),

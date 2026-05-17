@@ -152,7 +152,7 @@ void StateCommand::execute() {
     } else if (outputFormat == OutputFormat::xml) {
         std::unique_ptr<juce::XmlElement> decodedState{};
         if (auto wrappedState =
-                juce::AudioProcessor::getXmlFromBinary(state.getData(), state.getSize())) {
+                juce::AudioProcessor::getXmlFromBinary(state.getData(), static_cast<int>(state.getSize()))) {
             decodedState = decodeState(wrappedState.get());
             outputResult(
                 decodedState->toString().toStdString(), outputFilePath, overwriteOutputFile
