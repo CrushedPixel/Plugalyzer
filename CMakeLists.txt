@@ -72,6 +72,13 @@ target_link_libraries(Plugalyzer
     juce::juce_recommended_warning_flags
 )
 
+if(MSVC)
+    target_compile_options(Plugalyzer PRIVATE /we4715)
+else()
+    target_compile_options(Plugalyzer PRIVATE -Werror=return-type)
+endif()
+
+
 if(APPLE)
     set_target_properties(Plugalyzer
         PROPERTIES 
