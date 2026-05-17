@@ -2,6 +2,12 @@
 
 #include <string>
 
+// Validators for CLI11
+// Signature:
+// std::string parse(const std::string& arg)
+// Usage:
+// option->check(validate::validator);
+
 namespace validate {
 /**
  * Validates that the parent directory of an output file path exists.
