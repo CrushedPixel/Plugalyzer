@@ -25,7 +25,7 @@ std::string binaryOrXml(const std::string& arg);
 /**
  * Validates the format of a plugin parameter passed via CLI to be "<key>:<value>".
  * This does not validate if the parameter exists on a plugin.
- * 
+ *
  * @param str The plugin parameter argument
  * @return Empty string if valid, or an error message
  */
@@ -33,7 +33,7 @@ std::string pluginParameter(const std::string& str);
 
 /**
  * Supported bit depths: 8, 16, 24, or 32
- * 
+ *
  * @param str The bit depth argument
  * @return Empty string if valid, or an error message
  */

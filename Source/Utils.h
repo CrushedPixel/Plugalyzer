@@ -12,7 +12,6 @@ inline const std::unordered_map<std::string, OutputFormat> formatMap{
     { "xml", OutputFormat::xml },
 };
 
-
 struct ParameterCLIArgument {
     std::string parameterName;
 
@@ -32,7 +31,6 @@ struct ParameterCLIArgument {
  * @return The time in samples.
  */
 size_t secondsToSamples(double sec, double sampleRate);
-
 
 class PluginUtils {
   public:
@@ -62,16 +60,19 @@ class PluginUtils {
 };
 
 /**
-* Loads a saved plugin state from file and applies it to the plugin.
-* The state should have been saved as binary using the manage state command.
-* Will throw if the file couldn't be opened, but has no idea if the plugin accepted/understood the binary blob it was given.
-*
-* @param plugin The plugin.
-* @param statePath The path to the binary state
-* @param state Memory into which to write the state
-* @throws FileLoadError If the state file couldn't be opened.
-*/
-void loadPluginStateFromFile(juce::AudioPluginInstance& plugin, const juce::File& statePath, juce::MemoryBlock& state);
+ * Loads a saved plugin state from file and applies it to the plugin.
+ * The state should have been saved as binary using the manage state command.
+ * Will throw if the file couldn't be opened, but has no idea if the plugin accepted/understood the
+ * binary blob it was given.
+ *
+ * @param plugin The plugin.
+ * @param statePath The path to the binary state
+ * @param state Memory into which to write the state
+ * @throws FileLoadError If the state file couldn't be opened.
+ */
+void loadPluginStateFromFile(
+    juce::AudioPluginInstance& plugin, const juce::File& statePath, juce::MemoryBlock& state
+);
 
 /**
  * Get the possible values of a discrete parameter (choice, bool).
