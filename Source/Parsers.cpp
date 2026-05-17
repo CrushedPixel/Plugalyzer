@@ -11,9 +11,7 @@
     }                                                                                              \
     return num
 
-
-namespace parse
-{
+namespace parse {
 OutputFormat outputFormat(const std::string& formatName) {
     if (formatMap.contains(formatName)) {
         return formatMap.at(formatName);
@@ -54,13 +52,16 @@ ParameterCLIArgument pluginParameterArgument(const std::string& str) {
         try {
             normalizedValue = parse::floatStrict(valueStr);
         } catch (const std::invalid_argument& ia) {
-            throw CLIException("Normalized parameter value must be a number, but is '" + valueStr +
-                               "'");
+            throw CLIException(
+                "Normalized parameter value must be a number, but is '" + valueStr + "'"
+            );
         }
 
         if (normalizedValue < 0 || normalizedValue > 1) {
-            throw CLIException("Normalized parameter value must be between 0 and 1, but is " +
-                               std::to_string(normalizedValue));
+            throw CLIException(
+                "Normalized parameter value must be between 0 and 1, but is " +
+                std::to_string(normalizedValue)
+            );
         }
 
         return {
