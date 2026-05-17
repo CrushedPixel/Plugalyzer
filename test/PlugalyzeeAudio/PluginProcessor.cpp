@@ -124,20 +124,18 @@ bool PlugalyzeeAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts
 
     auto describeLayout = [&]() {
         juce::String result;
-        result << std::format("Input buses: {}, output buses: {}\n", candidateInputBuses.size(), candidateOutputBuses.size());
+        result << std::format("Input buses: {:2}\tOutput buses: {:2}\t", candidateInputBuses.size(), candidateOutputBuses.size());
 
-        result << "Input buses:";
+        result << "Input buses: ";
         for (auto& bus : candidateInputBuses)
         {
-            result << bus.getDescription() << ",";
+            result << (std::format("{:16}", bus.getDescription().toStdString())) << " ";
         }
 
-        result << "\n";
-
-        result << "Output buses:";
+        result << "Output buses: ";
         for (auto& bus : candidateOutputBuses)
         {
-            result << bus.getDescription() << ",";
+            result << (std::format("{:16}", bus.getDescription().toStdString())) << " ";
         }
 
         return result;
