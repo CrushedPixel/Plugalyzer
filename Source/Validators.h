@@ -53,4 +53,13 @@ std::string bitDepth(const std::string& str);
  */
 std::string outputFormat(const std::string& str);
 
+/**
+ * Validates the necessary keys are present in the json description of a generator.
+ * Does not validate the values.
+ *
+ * @param str The generator argument
+ * @return Empty string if valid, or an error message
+ */
+std::string generator(const std::string& str);
+
 } // namespace validate
