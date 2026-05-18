@@ -124,6 +124,7 @@ std::shared_ptr<CLI::App> ListParametersCommand::createApp() {
         ->check(validate::outputPath)
         ->each([&](std::string arg) { outputFilePath = parse::stringToFile(arg); });
     app->add_option("-f,--format", argOutFormat, "The output format (text, json)")
+        ->check(validate::outputFormat)
         ->each([&](std::string arg) { outputFormat = parse::outputFormat(arg); });
     app->add_flag("-y,--overwrite", overwriteOutputFile, "Overwrite the output file if it exists");
 
