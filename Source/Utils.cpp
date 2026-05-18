@@ -1,11 +1,60 @@
 #include "Utils.h"
 
 #include "Errors.h"
+#include "Parsers.h"
 
+#include <algorithm>
+#include <cctype>
+#include <cstddef>
 #include <format>
 #include <iostream>
+#include <memory>
 #include <nlohmann/json.hpp>
+#include <stdexcept>
+#include <string>
+#include <string_view>
+#include <vector>
 
+constexpr double operator""_Hz(long double frequency) { return static_cast<double>(frequency); }
+
+namespace string_utils {
+
+std::string lowerCase(const std::string_view str) {
+    std::string ret;
+
+    ret.resize(str.length());
+    std::transform(str.begin(), str.end(), ret.begin(), [](unsigned char c) {
+        return std::tolower(c);
+    });
+    return ret;
+}
+
+std::string_view strip(std::string_view s) {
+    auto is_space = [](char c) { return std::isspace(static_cast<unsigned char>(c)); };
+
+    auto first_it = std::ranges::find_if_not(s, is_space);
+    if (first_it == std::end(s)) return {}; // all-spaces - empty string view
+
+    size_t first = static_cast<size_t>(first_it - std::begin(s));
+    size_t last = s.size() - 1;
+    while (last > first && is_space(s[last]))
+        --last;
+
+    return s.substr(first, last - first + 1);
+}
+} // namespace string_utils
+
+nlohmann::json getJson(const std::string& filePathOrJsonString) {
+    std::string jsonString{};
+    auto candidateFile = parse::stringToFile(filePathOrJsonString);
+
+    if (candidateFile.existsAsFile()) {
+        jsonString = candidateFile.loadFileAsString().toStdString();
+    } else {
+        jsonString = filePathOrJsonString;
+    }
+    return nlohmann::json::parse(jsonString);
+}
 
 size_t secondsToSamples(double sec, double sampleRate) { return (size_t) (sec * sampleRate); }
 
@@ -65,6 +114,51 @@ juce::AudioProcessorParameter* PluginUtils::getPluginParameterByName(
     }
 
     return *paramIt;
+}
+
+bool PluginUtils::pluginSupportsSingleOutputBus(const juce::AudioPluginInstance& plugin) {
+    using blo = juce::AudioProcessor::BusesLayout;
+
+    const auto channelSets = allChannelSets();
+
+    // 0x input, 1x output
+    for (const auto& cs : channelSets) {
+        if (plugin.checkBusesLayoutSupported(
+                blo{ .inputBuses = {}, .outputBuses = juce::Array{ cs } }
+            )) {
+            return true;
+        }
+    }
+
+    // 1x input, 1x output
+    for (const auto& cs_outer : channelSets) {
+        for (const auto& cs_inner : channelSets) {
+            if (plugin.checkBusesLayoutSupported(
+                    blo{ .inputBuses = juce::Array{ cs_outer },
+                        .outputBuses = juce::Array{ cs_inner } }
+                )) {
+                return true;
+            }
+        }
+    }
+
+    // 2x input, 1x output
+    for (const auto& cs_outer : channelSets) {
+        for (const auto& cs_inner : channelSets) {
+            for (const auto& cs : channelSets) {
+                if (plugin.checkBusesLayoutSupported(
+                        blo{
+                            .inputBuses = juce::Array{ cs_outer, cs_inner },
+                            .outputBuses = juce::Array{ cs },
+                        }
+                    )) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
 }
 
 void loadPluginStateFromFile(
