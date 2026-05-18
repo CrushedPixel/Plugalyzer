@@ -7,41 +7,6 @@
 
 #include <CLI/CLI.hpp>
 
-juce::OwnedArray<juce::AudioFormatReader>
-createAudioFileReaders(const std::vector<juce::File>& files, size_t& maxLengthInSamplesOut) {
-    maxLengthInSamplesOut = 0;
-
-    // parse the input files
-    juce::AudioFormatManager audioFormatManager;
-    audioFormatManager.registerBasicFormats();
-
-    juce::OwnedArray<juce::AudioFormatReader> audioInputFileReaders;
-
-    double sampleRate{ 0.0 };
-    for (size_t i = 0; i < files.size(); i++) {
-        auto& inputFile = files[i];
-
-        auto inputFileReader = audioFormatManager.createReaderFor(inputFile);
-        if (!inputFileReader) {
-            throw CLIException("Could not read input file " + inputFile.getFullPathName());
-        }
-
-        audioInputFileReaders.add(inputFileReader);
-
-        // ensure the sample rate of all input files is the same
-        if (i == 0) {
-            sampleRate = inputFileReader->sampleRate;
-        } else if (!juce::exactlyEqual(inputFileReader->sampleRate, sampleRate)) {
-            throw CLIException("Mismatched sample rate between input files");
-        }
-
-        maxLengthInSamplesOut =
-            std::max(maxLengthInSamplesOut, (size_t) inputFileReader->lengthInSamples);
-    }
-
-    return audioInputFileReaders;
-}
-
 juce::MidiFile readMIDIFile(const juce::File& file, double sampleRate, size_t& lengthInSamplesOut) {
     juce::MidiFile midiFile;
     lengthInSamplesOut = 0;
@@ -66,33 +31,6 @@ juce::MidiFile readMIDIFile(const juce::File& file, double sampleRate, size_t& l
     }
 
     return midiFile;
-}
-
-juce::AudioPluginInstance::BusesLayout createBusLayout(
-    const juce::AudioPluginInstance& plugin,
-    const juce::OwnedArray<juce::AudioFormatReader>& audioInputFileReaders,
-    const std::optional<unsigned int>& outputChannelCount
-) {
-    // Start with compatible bus layout
-    juce::AudioPluginInstance::BusesLayout layout{ plugin.getBusesLayout() };
-    jassert(layout.outputBuses.size() == 1);
-
-    // Inputs: Change channel formats to match input files
-    for (const auto& [index, reader] : juce::enumerate(audioInputFileReaders)) {
-        layout.inputBuses[index] =
-            juce::AudioChannelSet::canonicalChannelSet((int) reader->numChannels);
-    }
-
-    // Outputs: Change channel formats to match user-supplied option or first input file
-    if (outputChannelCount.has_value()) {
-        layout.outputBuses[0] =
-            juce::AudioChannelSet::canonicalChannelSet((int) *outputChannelCount);
-    } else if (!audioInputFileReaders.isEmpty()) {
-        layout.outputBuses[0] =
-            juce::AudioChannelSet::canonicalChannelSet((int) audioInputFileReaders[0]->numChannels);
-    }
-
-    return layout;
 }
 
 ParameterAutomation parseParameters(

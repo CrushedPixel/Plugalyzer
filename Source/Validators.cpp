@@ -3,14 +3,20 @@
 #include "Parsers.h"
 #include "Utils.h"
 
+#include <cstddef>
+#include <format>
+#include <nlohmann/json.hpp>
+#include <stdexcept>
+#include <string>
+#include <string_view>
+
 // Validators for CLI11
 // Signature:
 // std::string validate(const std::string& arg)
 // Usage:
 // option->check(validate);
 
-namespace validate
-{
+namespace validate {
 std::string outputPath(const std::string& arg) {
     auto file = parse::stringToFile(arg);
     if (!file.getParentDirectory().exists()) {
@@ -59,5 +65,50 @@ std::string outputFormat(const std::string& str) {
     }
 }
 
-} // namespace validate
+std::string generator(const std::string& str) {
+    auto generatorJson = getJson(str);
+    std::vector<std::string> errors;
 
+    auto check_contains = [&](const nlohmann::json& json, const std::string_view element,
+                              const std::string_view descriptionOfJsonNode) {
+        if (!json.contains(element)) {
+            errors.push_back(std::format("'{}' missing in {}", element, descriptionOfJsonNode));
+            return false;
+        }
+        return true;
+    };
+
+    auto check_true = [&](bool expression, const std::string_view errorMsg) {
+        if (!expression) {
+            errors.push_back(std::string{ errorMsg });
+            return false;
+        }
+        return true;
+    };
+
+    check_contains(generatorJson, "sample rate", "root of json");
+    check_contains(generatorJson, "num channels", "root of json");
+    check_contains(generatorJson, "duration", "root of json");
+
+    if (check_contains(generatorJson, "channels", "root of json")) {
+        if (check_true(generatorJson["channels"].is_array(), "'channels' must be an array")) {
+            std::size_t i{ 0 };
+            for (const auto& elem : generatorJson["channels"]) {
+                if (check_contains(elem, "generator", std::format("ch{}", i))) {
+                    if (elem["generator"] == "sine") {
+                        check_contains(elem, "frequency", std::format("ch{}", i));
+                    }
+                }
+                check_contains(elem, "amplitude", std::format("ch{}", i));
+                ++i;
+            }
+        }
+    }
+
+    if (!errors.empty()) {
+        return string_utils::join(errors, ", ");
+    }
+    return "";
+}
+
+} // namespace validate

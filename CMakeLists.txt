@@ -57,12 +57,10 @@ target_compile_definitions(Plugalyzer
 
 target_link_libraries(Plugalyzer
     PRIVATE
-    juce::juce_core
-    juce::juce_audio_basics
     juce::juce_audio_processors
     juce::juce_audio_formats
-    juce::juce_audio_devices
     juce::juce_audio_utils
+    juce::juce_dsp
 
     CLI11::CLI11
     nlohmann_json::nlohmann_json
