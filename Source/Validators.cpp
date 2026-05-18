@@ -49,5 +49,15 @@ std::string bitDepth(const std::string& str) {
     return std::string();
 }
 
+std::string outputFormat(const std::string& str) {
+    if (formatMap.contains(str)) {
+        return "";
+    } else {
+        return std::format(
+            "Unknown output format. Must be {}", string_utils::presentMapKeysAsOptions(formatMap)
+        );
+    }
+}
+
 } // namespace validate
 

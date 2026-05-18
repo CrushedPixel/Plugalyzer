@@ -45,4 +45,12 @@ std::string pluginParameter(const std::string& str);
  */
 std::string bitDepth(const std::string& str);
 
+/**
+ * Validates the choice of output format is supported.
+ *
+ * @param str The format argument
+ * @return Empty string if valid, or an error message
+ */
+std::string outputFormat(const std::string& str);
+
 } // namespace validate
