@@ -35,7 +35,7 @@ std::shared_ptr<CLI::App> ProcessCommand::createApp() {
         ->each([&](std::string arg){ audioInputs.push_back(parseAudioFileInput(arg)); });
     inputGroup->add_option("-m,--midiInput", midiInputFileOpt, "Input MIDI file path")
         ->check(CLI::ExistingFile);
-    auto* generatorInputOption = inputGroup->add_option("-g,--generatorInput", argGeneratorMain, "JSON string or file with the configuration to generate audio input")
+    auto* generatorInputOption = inputGroup->add_option("-g,--generatorInput", argGenerator, "JSON string or file with the configuration to generate audio input")
         ->check(validate::generator)
         ->check([&](const std::string& arg) { return this->validateInputGeneratorSampleRate(arg); })
         ->each([&](std::string arg){ audioInputs.push_back(parse::generatorInput(arg)); });
@@ -61,8 +61,9 @@ std::shared_ptr<CLI::App> ProcessCommand::createApp() {
         ->check(validate::bitDepth);
     app->add_option("-c,--outChannels", outputChannelCountOpt, "The amount of channels to use for the plugin's output bus");
 
-    app->add_option("--paramFile", paramsFileOpt, "Path to JSON file to read plugin parameters and automation data from")
-        ->check(CLI::ExistingFile);
+    app->add_option("--paramFile", argParamsFile, "Path to JSON file to read plugin parameters and automation data from")
+        ->check(CLI::ExistingFile)
+        ->each([&](std::string arg){ paramsFileOpt = parse::stringToFile(arg); });
     app->add_option("--param", params, "Plugin parameters to set. Explicitly specified parameters take precedence over parameters read from file")
         ->check(validate::pluginParameter);
 

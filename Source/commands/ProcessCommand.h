@@ -41,8 +41,9 @@ class ProcessCommand : public CLICommand {
     // String from CLI to be parsed into a File object
     std::string argStatePath;
     // String from CLI to be parsed into a Generator
-    std::string argGeneratorMain;
-    std::string argGeneratorSide;
+    std::string argGenerator;
+    // String from CLI to be parsed into a File object
+    std::string argParamsFile;
 
     // Sample rate found in audio inputs for validation
     double inputSampleRate{ 0.0 };
