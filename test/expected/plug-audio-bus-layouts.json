@@ -1,0 +1,2634 @@
+[
+    {
+        "inputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 3,
+                "description": "LCR"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 3,
+                "description": "LCR"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 3,
+                "description": "LCR"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 3,
+                "description": "LCR"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 3,
+                "description": "LRS"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 3,
+                "description": "LRS"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 3,
+                "description": "LRS"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 3,
+                "description": "LRS"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 4,
+                "description": "LCRS"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 4,
+                "description": "LCRS"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 4,
+                "description": "LCRS"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 4,
+                "description": "LCRS"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 5,
+                "description": "5.0 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 5,
+                "description": "5.0 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 5,
+                "description": "5.0 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 5,
+                "description": "5.0 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 6,
+                "description": "5.1 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 6,
+                "description": "5.1 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 6,
+                "description": "5.1 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 6,
+                "description": "5.1 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 6,
+                "description": "6.0 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 6,
+                "description": "6.0 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 6,
+                "description": "6.0 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 6,
+                "description": "6.0 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 7,
+                "description": "6.1 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 7,
+                "description": "6.1 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 7,
+                "description": "6.1 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 7,
+                "description": "6.1 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 6,
+                "description": "6.0 (Music) Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 6,
+                "description": "6.0 (Music) Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 6,
+                "description": "6.0 (Music) Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 6,
+                "description": "6.0 (Music) Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 7,
+                "description": "6.1 (Music) Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 7,
+                "description": "6.1 (Music) Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 7,
+                "description": "6.1 (Music) Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 7,
+                "description": "6.1 (Music) Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 7,
+                "description": "7.0 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 7,
+                "description": "7.0 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 7,
+                "description": "7.0 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 7,
+                "description": "7.0 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 7,
+                "description": "7.0 Surround SDDS"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 7,
+                "description": "7.0 Surround SDDS"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 7,
+                "description": "7.0 Surround SDDS"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 7,
+                "description": "7.0 Surround SDDS"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 8,
+                "description": "7.1 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 8,
+                "description": "7.1 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 8,
+                "description": "7.1 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 8,
+                "description": "7.1 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 8,
+                "description": "7.1 Surround SDDS"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 8,
+                "description": "7.1 Surround SDDS"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 8,
+                "description": "7.1 Surround SDDS"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 8,
+                "description": "7.1 Surround SDDS"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 4,
+                "description": "Quadraphonic"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 4,
+                "description": "Quadraphonic"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 4,
+                "description": "Quadraphonic"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 4,
+                "description": "Quadraphonic"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 5,
+                "description": "Pentagonal"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 5,
+                "description": "Pentagonal"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 5,
+                "description": "Pentagonal"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 5,
+                "description": "Pentagonal"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 6,
+                "description": "Hexagonal"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 6,
+                "description": "Hexagonal"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 6,
+                "description": "Hexagonal"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 6,
+                "description": "Hexagonal"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 8,
+                "description": "Octagonal"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 8,
+                "description": "Octagonal"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 8,
+                "description": "Octagonal"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 8,
+                "description": "Octagonal"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 7,
+                "description": "5.0.2 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 7,
+                "description": "5.0.2 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 7,
+                "description": "5.0.2 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 7,
+                "description": "5.0.2 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 8,
+                "description": "5.1.2 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 8,
+                "description": "5.1.2 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 8,
+                "description": "5.1.2 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 8,
+                "description": "5.1.2 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 9,
+                "description": "5.0.4 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 9,
+                "description": "5.0.4 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 9,
+                "description": "5.0.4 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 9,
+                "description": "5.0.4 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 10,
+                "description": "5.1.4 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 10,
+                "description": "5.1.4 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 10,
+                "description": "5.1.4 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 10,
+                "description": "5.1.4 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 9,
+                "description": "7.0.2 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 9,
+                "description": "7.0.2 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 9,
+                "description": "7.0.2 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 9,
+                "description": "7.0.2 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 10,
+                "description": "7.1.2 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 10,
+                "description": "7.1.2 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 10,
+                "description": "7.1.2 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 10,
+                "description": "7.1.2 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 11,
+                "description": "7.0.4 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 11,
+                "description": "7.0.4 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 11,
+                "description": "7.0.4 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 11,
+                "description": "7.0.4 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 12,
+                "description": "7.1.4 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 12,
+                "description": "7.1.4 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 12,
+                "description": "7.1.4 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 12,
+                "description": "7.1.4 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 13,
+                "description": "7.0.6 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 13,
+                "description": "7.0.6 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 13,
+                "description": "7.0.6 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 13,
+                "description": "7.0.6 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 14,
+                "description": "7.1.6 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 14,
+                "description": "7.1.6 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 14,
+                "description": "7.1.6 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 14,
+                "description": "7.1.6 Surround"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 13,
+                "description": "9.0.4 Surround (Atmos)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 13,
+                "description": "9.0.4 Surround (Atmos)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 13,
+                "description": "9.0.4 Surround (Atmos)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 13,
+                "description": "9.0.4 Surround (Atmos)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 14,
+                "description": "9.1.4 Surround (Atmos)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 14,
+                "description": "9.1.4 Surround (Atmos)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 14,
+                "description": "9.1.4 Surround (Atmos)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 14,
+                "description": "9.1.4 Surround (Atmos)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 15,
+                "description": "9.0.6 Surround (Atmos)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 15,
+                "description": "9.0.6 Surround (Atmos)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 15,
+                "description": "9.0.6 Surround (Atmos)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 15,
+                "description": "9.0.6 Surround (Atmos)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 16,
+                "description": "9.1.6 Surround (Atmos)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 16,
+                "description": "9.1.6 Surround (Atmos)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 16,
+                "description": "9.1.6 Surround (Atmos)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 16,
+                "description": "9.1.6 Surround (Atmos)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 13,
+                "description": "9.0.4 Surround (ITU)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 13,
+                "description": "9.0.4 Surround (ITU)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 13,
+                "description": "9.0.4 Surround (ITU)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 13,
+                "description": "9.0.4 Surround (ITU)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 14,
+                "description": "9.1.4 Surround (ITU)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 14,
+                "description": "9.1.4 Surround (ITU)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 14,
+                "description": "9.1.4 Surround (ITU)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 14,
+                "description": "9.1.4 Surround (ITU)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 15,
+                "description": "9.0.6 Surround (ITU)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 15,
+                "description": "9.0.6 Surround (ITU)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 15,
+                "description": "9.0.6 Surround (ITU)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 15,
+                "description": "9.0.6 Surround (ITU)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 16,
+                "description": "9.1.6 Surround (ITU)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 16,
+                "description": "9.1.6 Surround (ITU)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 16,
+                "description": "9.1.6 Surround (ITU)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 16,
+                "description": "9.1.6 Surround (ITU)"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 1,
+                "description": "0th Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 1,
+                "description": "0th Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 1,
+                "description": "0th Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 1,
+                "description": "0th Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 4,
+                "description": "1st Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 4,
+                "description": "1st Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 4,
+                "description": "1st Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 4,
+                "description": "1st Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 9,
+                "description": "2nd Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 9,
+                "description": "2nd Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 9,
+                "description": "2nd Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 9,
+                "description": "2nd Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 16,
+                "description": "3rd Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 16,
+                "description": "3rd Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 16,
+                "description": "3rd Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 16,
+                "description": "3rd Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 25,
+                "description": "4th Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 25,
+                "description": "4th Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 25,
+                "description": "4th Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 25,
+                "description": "4th Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 36,
+                "description": "5th Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 36,
+                "description": "5th Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 36,
+                "description": "5th Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 36,
+                "description": "5th Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 49,
+                "description": "6th Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 49,
+                "description": "6th Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 49,
+                "description": "6th Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 49,
+                "description": "6th Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 64,
+                "description": "7th Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 64,
+                "description": "7th Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 64,
+                "description": "7th Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 64,
+                "description": "7th Order Ambisonics"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 0,
+                "description": "Discrete #0"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Mono"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 2,
+                "description": "Stereo"
+            }
+        ]
+    },
+    {
+        "inputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ],
+        "outputBuses": [
+            {
+                "channels": 1,
+                "description": "Discrete #1"
+            }
+        ]
+    }
+]

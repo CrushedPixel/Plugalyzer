@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<VST3PluginState>
+  <IComponent>
+    <PlugalyzeeAPVTS>
+      <PARAM id="Attack" value="0.0"/>
+      <PARAM id="In_Gain" value="0.0"/>
+      <PARAM id="Out_Gain" value="0.0"/>
+      <PARAM id="Ratio" value="2.0"/>
+      <PARAM id="Release" value="0.0"/>
+      <PARAM id="Threshold" value="0.0"/>
+      <v v="1"/>
+      <extra>
+        <extraA/>
+        <extraB/>
+      </extra>
+    </PlugalyzeeAPVTS>
+    <JucePrivateData>
+      <JUCEPrivateData Bypass="0"/>
+    </JucePrivateData>
+  </IComponent>
+</VST3PluginState>

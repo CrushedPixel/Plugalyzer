@@ -1,0 +1,78 @@
+Plugin parameters: 
+0: In Gain
+   values: -96.0 to 12.0
+   automatable: true
+   boolean: false
+   defaultValue: "0.0"
+   discrete: false
+   label: "dB"
+   metaParameter: false
+   numSteps: 2147483647
+   supportsTextValues: true
+   versionHint: 0
+1: Threshold
+   values: -96.0 to 0.0
+   automatable: true
+   boolean: false
+   defaultValue: "0.0"
+   discrete: false
+   label: "dB"
+   metaParameter: false
+   numSteps: 2147483647
+   supportsTextValues: true
+   versionHint: 0
+2: Ratio
+   values: 1:1 to 1:100
+   automatable: true
+   boolean: false
+   defaultValue: "1:2"
+   discrete: false
+   label: ""
+   metaParameter: false
+   numSteps: 2147483647
+   supportsTextValues: true
+   versionHint: 0
+3: Attack
+   values: 0 to 200
+   automatable: true
+   boolean: false
+   defaultValue: "0"
+   discrete: false
+   label: "ms"
+   metaParameter: false
+   numSteps: 2147483647
+   supportsTextValues: true
+   versionHint: 0
+4: Release
+   values: 0 to 200
+   automatable: true
+   boolean: false
+   defaultValue: "0"
+   discrete: false
+   label: "ms"
+   metaParameter: false
+   numSteps: 2147483647
+   supportsTextValues: true
+   versionHint: 0
+5: Out Gain
+   values: -96.0 to 12.0
+   automatable: true
+   boolean: false
+   defaultValue: "0.0"
+   discrete: false
+   label: "dB"
+   metaParameter: false
+   numSteps: 2147483647
+   supportsTextValues: true
+   versionHint: 0
+6: Bypass
+   values: Off, On
+   automatable: true
+   boolean: false
+   defaultValue: "Off"
+   discrete: true
+   label: ""
+   metaParameter: false
+   numSteps: 2
+   supportsTextValues: true
+   versionHint: 0

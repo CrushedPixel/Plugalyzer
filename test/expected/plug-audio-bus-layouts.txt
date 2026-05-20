@@ -1,0 +1,188 @@
+In 1: 0ch Discrete #0              Out 1: 0ch Discrete #0              
+In 1: 0ch Discrete #0              Out 1: 1ch Mono                     
+In 1: 0ch Discrete #0              Out 1: 2ch Stereo                   
+In 1: 0ch Discrete #0              Out 1: 1ch Discrete #1              
+In 1: 1ch Mono                     Out 1: 0ch Discrete #0              
+In 1: 1ch Mono                     Out 1: 1ch Mono                     
+In 1: 1ch Mono                     Out 1: 2ch Stereo                   
+In 1: 1ch Mono                     Out 1: 1ch Discrete #1              
+In 1: 2ch Stereo                   Out 1: 0ch Discrete #0              
+In 1: 2ch Stereo                   Out 1: 1ch Mono                     
+In 1: 2ch Stereo                   Out 1: 2ch Stereo                   
+In 1: 2ch Stereo                   Out 1: 1ch Discrete #1              
+In 1: 3ch LCR                      Out 1: 0ch Discrete #0              
+In 1: 3ch LCR                      Out 1: 1ch Mono                     
+In 1: 3ch LCR                      Out 1: 2ch Stereo                   
+In 1: 3ch LCR                      Out 1: 1ch Discrete #1              
+In 1: 3ch LRS                      Out 1: 0ch Discrete #0              
+In 1: 3ch LRS                      Out 1: 1ch Mono                     
+In 1: 3ch LRS                      Out 1: 2ch Stereo                   
+In 1: 3ch LRS                      Out 1: 1ch Discrete #1              
+In 1: 4ch LCRS                     Out 1: 0ch Discrete #0              
+In 1: 4ch LCRS                     Out 1: 1ch Mono                     
+In 1: 4ch LCRS                     Out 1: 2ch Stereo                   
+In 1: 4ch LCRS                     Out 1: 1ch Discrete #1              
+In 1: 5ch 5.0 Surround             Out 1: 0ch Discrete #0              
+In 1: 5ch 5.0 Surround             Out 1: 1ch Mono                     
+In 1: 5ch 5.0 Surround             Out 1: 2ch Stereo                   
+In 1: 5ch 5.0 Surround             Out 1: 1ch Discrete #1              
+In 1: 6ch 5.1 Surround             Out 1: 0ch Discrete #0              
+In 1: 6ch 5.1 Surround             Out 1: 1ch Mono                     
+In 1: 6ch 5.1 Surround             Out 1: 2ch Stereo                   
+In 1: 6ch 5.1 Surround             Out 1: 1ch Discrete #1              
+In 1: 6ch 6.0 Surround             Out 1: 0ch Discrete #0              
+In 1: 6ch 6.0 Surround             Out 1: 1ch Mono                     
+In 1: 6ch 6.0 Surround             Out 1: 2ch Stereo                   
+In 1: 6ch 6.0 Surround             Out 1: 1ch Discrete #1              
+In 1: 7ch 6.1 Surround             Out 1: 0ch Discrete #0              
+In 1: 7ch 6.1 Surround             Out 1: 1ch Mono                     
+In 1: 7ch 6.1 Surround             Out 1: 2ch Stereo                   
+In 1: 7ch 6.1 Surround             Out 1: 1ch Discrete #1              
+In 1: 6ch 6.0 (Music) Surround     Out 1: 0ch Discrete #0              
+In 1: 6ch 6.0 (Music) Surround     Out 1: 1ch Mono                     
+In 1: 6ch 6.0 (Music) Surround     Out 1: 2ch Stereo                   
+In 1: 6ch 6.0 (Music) Surround     Out 1: 1ch Discrete #1              
+In 1: 7ch 6.1 (Music) Surround     Out 1: 0ch Discrete #0              
+In 1: 7ch 6.1 (Music) Surround     Out 1: 1ch Mono                     
+In 1: 7ch 6.1 (Music) Surround     Out 1: 2ch Stereo                   
+In 1: 7ch 6.1 (Music) Surround     Out 1: 1ch Discrete #1              
+In 1: 7ch 7.0 Surround             Out 1: 0ch Discrete #0              
+In 1: 7ch 7.0 Surround             Out 1: 1ch Mono                     
+In 1: 7ch 7.0 Surround             Out 1: 2ch Stereo                   
+In 1: 7ch 7.0 Surround             Out 1: 1ch Discrete #1              
+In 1: 7ch 7.0 Surround SDDS        Out 1: 0ch Discrete #0              
+In 1: 7ch 7.0 Surround SDDS        Out 1: 1ch Mono                     
+In 1: 7ch 7.0 Surround SDDS        Out 1: 2ch Stereo                   
+In 1: 7ch 7.0 Surround SDDS        Out 1: 1ch Discrete #1              
+In 1: 8ch 7.1 Surround             Out 1: 0ch Discrete #0              
+In 1: 8ch 7.1 Surround             Out 1: 1ch Mono                     
+In 1: 8ch 7.1 Surround             Out 1: 2ch Stereo                   
+In 1: 8ch 7.1 Surround             Out 1: 1ch Discrete #1              
+In 1: 8ch 7.1 Surround SDDS        Out 1: 0ch Discrete #0              
+In 1: 8ch 7.1 Surround SDDS        Out 1: 1ch Mono                     
+In 1: 8ch 7.1 Surround SDDS        Out 1: 2ch Stereo                   
+In 1: 8ch 7.1 Surround SDDS        Out 1: 1ch Discrete #1              
+In 1: 4ch Quadraphonic             Out 1: 0ch Discrete #0              
+In 1: 4ch Quadraphonic             Out 1: 1ch Mono                     
+In 1: 4ch Quadraphonic             Out 1: 2ch Stereo                   
+In 1: 4ch Quadraphonic             Out 1: 1ch Discrete #1              
+In 1: 5ch Pentagonal               Out 1: 0ch Discrete #0              
+In 1: 5ch Pentagonal               Out 1: 1ch Mono                     
+In 1: 5ch Pentagonal               Out 1: 2ch Stereo                   
+In 1: 5ch Pentagonal               Out 1: 1ch Discrete #1              
+In 1: 6ch Hexagonal                Out 1: 0ch Discrete #0              
+In 1: 6ch Hexagonal                Out 1: 1ch Mono                     
+In 1: 6ch Hexagonal                Out 1: 2ch Stereo                   
+In 1: 6ch Hexagonal                Out 1: 1ch Discrete #1              
+In 1: 8ch Octagonal                Out 1: 0ch Discrete #0              
+In 1: 8ch Octagonal                Out 1: 1ch Mono                     
+In 1: 8ch Octagonal                Out 1: 2ch Stereo                   
+In 1: 8ch Octagonal                Out 1: 1ch Discrete #1              
+In 1: 7ch 5.0.2 Surround           Out 1: 0ch Discrete #0              
+In 1: 7ch 5.0.2 Surround           Out 1: 1ch Mono                     
+In 1: 7ch 5.0.2 Surround           Out 1: 2ch Stereo                   
+In 1: 7ch 5.0.2 Surround           Out 1: 1ch Discrete #1              
+In 1: 8ch 5.1.2 Surround           Out 1: 0ch Discrete #0              
+In 1: 8ch 5.1.2 Surround           Out 1: 1ch Mono                     
+In 1: 8ch 5.1.2 Surround           Out 1: 2ch Stereo                   
+In 1: 8ch 5.1.2 Surround           Out 1: 1ch Discrete #1              
+In 1: 9ch 5.0.4 Surround           Out 1: 0ch Discrete #0              
+In 1: 9ch 5.0.4 Surround           Out 1: 1ch Mono                     
+In 1: 9ch 5.0.4 Surround           Out 1: 2ch Stereo                   
+In 1: 9ch 5.0.4 Surround           Out 1: 1ch Discrete #1              
+In 1: 10ch 5.1.4 Surround           Out 1: 0ch Discrete #0              
+In 1: 10ch 5.1.4 Surround           Out 1: 1ch Mono                     
+In 1: 10ch 5.1.4 Surround           Out 1: 2ch Stereo                   
+In 1: 10ch 5.1.4 Surround           Out 1: 1ch Discrete #1              
+In 1: 9ch 7.0.2 Surround           Out 1: 0ch Discrete #0              
+In 1: 9ch 7.0.2 Surround           Out 1: 1ch Mono                     
+In 1: 9ch 7.0.2 Surround           Out 1: 2ch Stereo                   
+In 1: 9ch 7.0.2 Surround           Out 1: 1ch Discrete #1              
+In 1: 10ch 7.1.2 Surround           Out 1: 0ch Discrete #0              
+In 1: 10ch 7.1.2 Surround           Out 1: 1ch Mono                     
+In 1: 10ch 7.1.2 Surround           Out 1: 2ch Stereo                   
+In 1: 10ch 7.1.2 Surround           Out 1: 1ch Discrete #1              
+In 1: 11ch 7.0.4 Surround           Out 1: 0ch Discrete #0              
+In 1: 11ch 7.0.4 Surround           Out 1: 1ch Mono                     
+In 1: 11ch 7.0.4 Surround           Out 1: 2ch Stereo                   
+In 1: 11ch 7.0.4 Surround           Out 1: 1ch Discrete #1              
+In 1: 12ch 7.1.4 Surround           Out 1: 0ch Discrete #0              
+In 1: 12ch 7.1.4 Surround           Out 1: 1ch Mono                     
+In 1: 12ch 7.1.4 Surround           Out 1: 2ch Stereo                   
+In 1: 12ch 7.1.4 Surround           Out 1: 1ch Discrete #1              
+In 1: 13ch 7.0.6 Surround           Out 1: 0ch Discrete #0              
+In 1: 13ch 7.0.6 Surround           Out 1: 1ch Mono                     
+In 1: 13ch 7.0.6 Surround           Out 1: 2ch Stereo                   
+In 1: 13ch 7.0.6 Surround           Out 1: 1ch Discrete #1              
+In 1: 14ch 7.1.6 Surround           Out 1: 0ch Discrete #0              
+In 1: 14ch 7.1.6 Surround           Out 1: 1ch Mono                     
+In 1: 14ch 7.1.6 Surround           Out 1: 2ch Stereo                   
+In 1: 14ch 7.1.6 Surround           Out 1: 1ch Discrete #1              
+In 1: 13ch 9.0.4 Surround (Atmos)   Out 1: 0ch Discrete #0              
+In 1: 13ch 9.0.4 Surround (Atmos)   Out 1: 1ch Mono                     
+In 1: 13ch 9.0.4 Surround (Atmos)   Out 1: 2ch Stereo                   
+In 1: 13ch 9.0.4 Surround (Atmos)   Out 1: 1ch Discrete #1              
+In 1: 14ch 9.1.4 Surround (Atmos)   Out 1: 0ch Discrete #0              
+In 1: 14ch 9.1.4 Surround (Atmos)   Out 1: 1ch Mono                     
+In 1: 14ch 9.1.4 Surround (Atmos)   Out 1: 2ch Stereo                   
+In 1: 14ch 9.1.4 Surround (Atmos)   Out 1: 1ch Discrete #1              
+In 1: 15ch 9.0.6 Surround (Atmos)   Out 1: 0ch Discrete #0              
+In 1: 15ch 9.0.6 Surround (Atmos)   Out 1: 1ch Mono                     
+In 1: 15ch 9.0.6 Surround (Atmos)   Out 1: 2ch Stereo                   
+In 1: 15ch 9.0.6 Surround (Atmos)   Out 1: 1ch Discrete #1              
+In 1: 16ch 9.1.6 Surround (Atmos)   Out 1: 0ch Discrete #0              
+In 1: 16ch 9.1.6 Surround (Atmos)   Out 1: 1ch Mono                     
+In 1: 16ch 9.1.6 Surround (Atmos)   Out 1: 2ch Stereo                   
+In 1: 16ch 9.1.6 Surround (Atmos)   Out 1: 1ch Discrete #1              
+In 1: 13ch 9.0.4 Surround (ITU)     Out 1: 0ch Discrete #0              
+In 1: 13ch 9.0.4 Surround (ITU)     Out 1: 1ch Mono                     
+In 1: 13ch 9.0.4 Surround (ITU)     Out 1: 2ch Stereo                   
+In 1: 13ch 9.0.4 Surround (ITU)     Out 1: 1ch Discrete #1              
+In 1: 14ch 9.1.4 Surround (ITU)     Out 1: 0ch Discrete #0              
+In 1: 14ch 9.1.4 Surround (ITU)     Out 1: 1ch Mono                     
+In 1: 14ch 9.1.4 Surround (ITU)     Out 1: 2ch Stereo                   
+In 1: 14ch 9.1.4 Surround (ITU)     Out 1: 1ch Discrete #1              
+In 1: 15ch 9.0.6 Surround (ITU)     Out 1: 0ch Discrete #0              
+In 1: 15ch 9.0.6 Surround (ITU)     Out 1: 1ch Mono                     
+In 1: 15ch 9.0.6 Surround (ITU)     Out 1: 2ch Stereo                   
+In 1: 15ch 9.0.6 Surround (ITU)     Out 1: 1ch Discrete #1              
+In 1: 16ch 9.1.6 Surround (ITU)     Out 1: 0ch Discrete #0              
+In 1: 16ch 9.1.6 Surround (ITU)     Out 1: 1ch Mono                     
+In 1: 16ch 9.1.6 Surround (ITU)     Out 1: 2ch Stereo                   
+In 1: 16ch 9.1.6 Surround (ITU)     Out 1: 1ch Discrete #1              
+In 1: 1ch 0th Order Ambisonics     Out 1: 0ch Discrete #0              
+In 1: 1ch 0th Order Ambisonics     Out 1: 1ch Mono                     
+In 1: 1ch 0th Order Ambisonics     Out 1: 2ch Stereo                   
+In 1: 1ch 0th Order Ambisonics     Out 1: 1ch Discrete #1              
+In 1: 4ch 1st Order Ambisonics     Out 1: 0ch Discrete #0              
+In 1: 4ch 1st Order Ambisonics     Out 1: 1ch Mono                     
+In 1: 4ch 1st Order Ambisonics     Out 1: 2ch Stereo                   
+In 1: 4ch 1st Order Ambisonics     Out 1: 1ch Discrete #1              
+In 1: 9ch 2nd Order Ambisonics     Out 1: 0ch Discrete #0              
+In 1: 9ch 2nd Order Ambisonics     Out 1: 1ch Mono                     
+In 1: 9ch 2nd Order Ambisonics     Out 1: 2ch Stereo                   
+In 1: 9ch 2nd Order Ambisonics     Out 1: 1ch Discrete #1              
+In 1: 16ch 3rd Order Ambisonics     Out 1: 0ch Discrete #0              
+In 1: 16ch 3rd Order Ambisonics     Out 1: 1ch Mono                     
+In 1: 16ch 3rd Order Ambisonics     Out 1: 2ch Stereo                   
+In 1: 16ch 3rd Order Ambisonics     Out 1: 1ch Discrete #1              
+In 1: 25ch 4th Order Ambisonics     Out 1: 0ch Discrete #0              
+In 1: 25ch 4th Order Ambisonics     Out 1: 1ch Mono                     
+In 1: 25ch 4th Order Ambisonics     Out 1: 2ch Stereo                   
+In 1: 25ch 4th Order Ambisonics     Out 1: 1ch Discrete #1              
+In 1: 36ch 5th Order Ambisonics     Out 1: 0ch Discrete #0              
+In 1: 36ch 5th Order Ambisonics     Out 1: 1ch Mono                     
+In 1: 36ch 5th Order Ambisonics     Out 1: 2ch Stereo                   
+In 1: 36ch 5th Order Ambisonics     Out 1: 1ch Discrete #1              
+In 1: 49ch 6th Order Ambisonics     Out 1: 0ch Discrete #0              
+In 1: 49ch 6th Order Ambisonics     Out 1: 1ch Mono                     
+In 1: 49ch 6th Order Ambisonics     Out 1: 2ch Stereo                   
+In 1: 49ch 6th Order Ambisonics     Out 1: 1ch Discrete #1              
+In 1: 64ch 7th Order Ambisonics     Out 1: 0ch Discrete #0              
+In 1: 64ch 7th Order Ambisonics     Out 1: 1ch Mono                     
+In 1: 64ch 7th Order Ambisonics     Out 1: 2ch Stereo                   
+In 1: 64ch 7th Order Ambisonics     Out 1: 1ch Discrete #1              
+In 1: 1ch Discrete #1              Out 1: 0ch Discrete #0              
+In 1: 1ch Discrete #1              Out 1: 1ch Mono                     
+In 1: 1ch Discrete #1              Out 1: 2ch Stereo                   
+In 1: 1ch Discrete #1              Out 1: 1ch Discrete #1              
