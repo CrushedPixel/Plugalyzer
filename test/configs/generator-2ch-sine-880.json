@@ -1,0 +1,17 @@
+{
+    "sample rate": 48000.0,
+    "num channels": 2,
+    "duration": "1s",
+    "channels": [
+        {
+            "generator": "sine",
+            "frequency": "880Hz",
+            "amplitude": "-20dB"
+        },
+        {
+            "generator": "sine",
+            "frequency": "880Hz",
+            "amplitude": "-20dB"
+        }
+    ]
+}

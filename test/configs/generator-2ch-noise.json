@@ -1,0 +1,17 @@
+{
+    "sample rate": 48000.0,
+    "num channels": 2,
+    "duration": "1s",
+    "channels": [
+        {
+            "generator": "white noise",
+            "amplitude": "-6dB",
+            "random seed": 1769063962461
+        },
+        {
+            "generator": "white noise",
+            "amplitude": "-6dB",
+            "random seed": 1769063962461
+        }
+    ]
+}
