@@ -1,11 +1,23 @@
 #include "Automation.h"
+
 #include "Parsers.h"
 #include "Utils.h"
 
-ParameterAutomation Automation::parseAutomationDefinition(const std::string& jsonStr,
-                                                          const juce::AudioPluginInstance& plugin,
-                                                          double sampleRate,
-                                                          size_t inputLengthInSamples) {
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstddef>
+#include <iterator>
+#include <juce_audio_processors/juce_audio_processors.h>
+#include <map>
+#include <nlohmann/json.hpp>
+#include <stdexcept>
+#include <string>
+
+ParameterAutomation Automation::parseAutomationDefinition(
+    const std::string& jsonStr, const juce::AudioPluginInstance& plugin, double sampleRate,
+    std::size_t inputLengthInSamples
+) {
     auto json = nlohmann::json::parse(jsonStr);
     // parse JSON into a map of parameter names to automation definitions
 
@@ -43,7 +55,8 @@ ParameterAutomation Automation::parseAutomationDefinition(const std::string& jso
                     //  requires us to keep track of all timeStr -> time mappings
                     throw std::runtime_error(
                         "Duplicate keyframe time: " + std::to_string(timeSamples) +
-                        " (obtained from input string " + timeStr + ")");
+                        " (obtained from input string " + timeStr + ")"
+                    );
                 }
 
                 // get the internal float representation of the value provided
@@ -57,16 +70,19 @@ ParameterAutomation Automation::parseAutomationDefinition(const std::string& jso
         automation[paramName] = keyframes;
 
         if (usedTextFormat && !parameterSupportsTextToValueConversion(param)) {
-            throw std::runtime_error("Text value used for parameter '" + paramName +
-                                     "', but parameter only supports normalized values");
+            throw std::runtime_error(
+                "Text value used for parameter '" + paramName +
+                "', but parameter only supports normalized values"
+            );
         }
     }
 
     return automation;
 }
 
-size_t Automation::parseKeyframeTime(juce::String timeStr, double sampleRate,
-                                     size_t inputLengthInSamples) {
+size_t Automation::parseKeyframeTime(
+    juce::String timeStr, double sampleRate, std::size_t inputLengthInSamples
+) {
     // remove an excess whitespace
     timeStr = timeStr.trim();
 
@@ -82,8 +98,9 @@ size_t Automation::parseKeyframeTime(juce::String timeStr, double sampleRate,
         try {
             time = parse::floatStrict(timeStr.toStdString());
         } catch (const std::invalid_argument& ia) {
-            throw std::runtime_error("Invalid floating-point number '" + timeStr.toStdString() +
-                                     "'");
+            throw std::runtime_error(
+                "Invalid floating-point number '" + timeStr.toStdString() + "'"
+            );
         }
 
         if (isSeconds) {
@@ -104,13 +121,15 @@ size_t Automation::parseKeyframeTime(juce::String timeStr, double sampleRate,
     return time;
 }
 
-float Automation::getParameterValueFromJSONPrimitive(const juce::AudioProcessorParameter* param,
-                                                     const nlohmann::json& primitive) {
+float Automation::getParameterValueFromJSONPrimitive(
+    const juce::AudioProcessorParameter* param, const nlohmann::json& primitive
+) {
     if (primitive.is_number()) {
         float val = primitive.get<float>();
         if (val < 0 || val > 1) {
-            throw std::out_of_range("Normalized parameter value must be between 0 and 1, but is " +
-                                    std::to_string(val));
+            throw std::out_of_range(
+                "Normalized parameter value must be between 0 and 1, but is " + std::to_string(val)
+            );
         }
 
         return val;
@@ -123,8 +142,9 @@ float Automation::getParameterValueFromJSONPrimitive(const juce::AudioProcessorP
     throw std::invalid_argument("Invalid parameter value type. Must be a number or string");
 }
 
-void Automation::applyParameters(juce::AudioPluginInstance& plugin,
-                                 const ParameterAutomation& automation, size_t sampleIndex) {
+void Automation::applyParameters(
+    juce::AudioPluginInstance& plugin, const ParameterAutomation& automation, size_t sampleIndex
+) {
 
     for (const auto& [paramName, keyframes] : automation) {
         // find parameter
@@ -135,11 +155,12 @@ void Automation::applyParameters(juce::AudioPluginInstance& plugin,
         {
             // find first keyframe with time that is greater than the sample time.
             // this works because std::map is sorted by key in ascending order
-            auto nextKeyframe =
-                std::upper_bound(keyframes.begin(), keyframes.end(), sampleIndex,
-                                 [](size_t _sampleIndex, const std::pair<size_t, float>& keyframe) {
-                                     return _sampleIndex < keyframe.first;
-                                 });
+            auto nextKeyframe = std::upper_bound(
+                keyframes.begin(), keyframes.end(), sampleIndex,
+                [](size_t _sampleIndex, const std::pair<size_t, float>& keyframe) {
+                    return _sampleIndex < keyframe.first;
+                }
+            );
 
             if (nextKeyframe == keyframes.begin()) {
                 // use the value of the first keyframe
@@ -167,7 +188,8 @@ void Automation::applyParameters(juce::AudioPluginInstance& plugin,
 }
 
 bool Automation::parameterSupportsTextToValueConversion(
-    const juce::AudioProcessorParameter* param) {
+    const juce::AudioProcessorParameter* param
+) {
     int numValuesToTry = std::min(100, param->getNumSteps());
 
     for (int i = 0; i < numValuesToTry; i++) {
