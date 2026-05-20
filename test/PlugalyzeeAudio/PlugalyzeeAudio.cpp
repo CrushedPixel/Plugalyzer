@@ -16,7 +16,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
         return std::make_unique<AudioParameterFloat>(
             ParameterID{ paramId, parameterVersion },
             humanName,
-            NormalisableRange<float>{ -96.f, 12.f },
+            NormalisableRange<float>{ -96.f, 12.f, 0.1f },
             0.0f,
             AudioParameterFloatAttributes().withLabel(id::dB)
         );
@@ -27,8 +27,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
         return std::make_unique<AudioParameterFloat>(
             ParameterID{ paramId, parameterVersion },
             humanName,
-            NormalisableRange<float>{ -96.f, 0.f },
-            0.1f,
+            NormalisableRange<float>{ -96.f, 0.f, 0.1f },
+            0.0f,
             AudioParameterFloatAttributes().withLabel(id::dB)
         );
     };
