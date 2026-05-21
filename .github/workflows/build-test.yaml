@@ -15,6 +15,7 @@ jobs:
   build:
     name: Plugalyzer Build
     strategy:
+      fail-fast: false
       matrix:
         include:
           - name: Linux
@@ -64,6 +65,18 @@ jobs:
         run: |
           echo "APP_DIR=${{ env.BUILD_DIR }}/${{ env.BINARY_NAME }}_artefacts/${{ env.BUILD_TYPE }}" >> $GITHUB_ENV
           echo "ZIP_FILE_NAME=${{ env.BINARY_NAME }}_${{ matrix.name }}.zip" >> $GITHUB_ENV
+      
+      - name: Setup CMake Generator (Mac)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          echo "CMAKE_GENERATOR=Xcode" >> $GITHUB_ENV
+
+      - name: Setup CMake Generator (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          echo "CMAKE_GENERATOR=Ninja Multi-Config" >> $GITHUB_ENV
 
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1.2
@@ -85,17 +98,5 @@ jobs:
       - name: Build
         run: cmake --build ${{ env.BUILD_DIR }} --config ${{ env.BUILD_TYPE }}
 
-      - name: Run Plugalyzer Tests (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          ${{ env.APP_DIR }}\${{ env.BINARY_NAME }}.exe -h
-
-      - name: Run Plugalyzer Tests (macOS)
-        if: runner.os == 'macOS'
-        run: |
-          ${{ env.APP_DIR }}/${{ env.BINARY_NAME }} -h
-
-      - name: Run Plugalyzer Tests (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          ${{ env.APP_DIR }}/${{ env.BINARY_NAME }} -h
+      - name: Run e2e Tests
+        run: python3 test/e2e_tests/run_tests.py
