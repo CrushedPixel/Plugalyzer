@@ -15,8 +15,6 @@
 #include <string_view>
 #include <vector>
 
-constexpr double operator""_Hz(long double frequency) { return static_cast<double>(frequency); }
-
 namespace string_utils {
 
 std::string lowerCase(const std::string_view str) {

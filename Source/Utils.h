@@ -13,7 +13,7 @@
 #include <vector>
 
 using Hertz = double;
-constexpr double operator""_Hz(long double frequency);
+constexpr double operator""_Hz(long double frequency) { return static_cast<double>(frequency); }
 
 enum class OutputFormat { text, json, binary, xml };
 
