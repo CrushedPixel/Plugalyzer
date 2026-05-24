@@ -88,6 +88,42 @@ static std::unique_ptr<juce::XmlElement> decodeState(juce::XmlElement* stateXml)
     return rootElement;
 }
 
+static juce::MemoryBlock encodeStateXml(const juce::File& inputFile) {
+    using namespace juce;
+    auto root = parseXML(inputFile);
+    if (root == nullptr || !root->hasTagName("VST3PluginState")) {
+        throw FailedXmlError{ "Input XML must have a VST3PluginState root.", 220 };
+    }
+
+    auto* componentElement = root->getChildByName("IComponent");
+    if (componentElement == nullptr) {
+        throw FailedXmlError{ "Input XML is missing IComponent.", 221 };
+    }
+
+    XmlElement* pluginStateXml = nullptr;
+    for (auto* child : componentElement->getChildIterator()) {
+        if (!child->hasTagName("JucePrivateData")) {
+            pluginStateXml = child;
+            break;
+        }
+    }
+    if (pluginStateXml == nullptr) {
+        throw FailedXmlError{ "IComponent is missing plugin state XML.", 222 };
+    }
+
+    MemoryBlock componentState;
+    AudioProcessor::copyXmlToBinary(*pluginStateXml, componentState);
+
+    auto wrappedState = std::make_unique<XmlElement>("VST3PluginState");
+    auto wrappedComponent = std::make_unique<XmlElement>("IComponent");
+    wrappedComponent->addTextElement(componentState.toBase64Encoding());
+    wrappedState->addChildElement(wrappedComponent.release());
+
+    MemoryBlock result;
+    AudioProcessor::copyXmlToBinary(*wrappedState, result);
+    return result;
+}
+
 std::shared_ptr<CLI::App> StateCommand::createApp() {
     std::shared_ptr<CLI::App> app = std::make_shared<CLI::App>(
         "Load parameter automation and save as binary plugin state, load plugin binary state and "
@@ -131,6 +167,8 @@ void StateCommand::execute() {
     if (inputFilePath == juce::File{}) {
         // Default state only
         plugin->getStateInformation(state);
+    } else if (inputFilePath.hasFileExtension("xml")) {
+        state = encodeStateXml(inputFilePath);
     } else if (inputFilePath.hasFileExtension("json")) {
         // Parse the automation file and output the state
         auto automation = parseParameters(
@@ -139,12 +177,16 @@ void StateCommand::execute() {
         Automation::applyParameters(*plugin, automation, firstSampleIndex);
         plugin->getStateInformation(state);
 
-    } else {
+    } else if (outputFormat == OutputFormat::json) {
         // Load the state and return the plugin's parameter values
         loadPluginStateFromFile(*plugin, inputFilePath, state);
         auto params = getParameterValuesAsJson(plugin->getParameters());
         outputResult(params.dump(4), outputFilePath, overwriteOutputFile);
         return;
+    } else {
+        // Load the state and re-export the resulting plugin state.
+        loadPluginStateFromFile(*plugin, inputFilePath, state);
+        plugin->getStateInformation(state);
     }
 
     if (outputFormat == OutputFormat::binary) {

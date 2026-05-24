@@ -26,6 +26,7 @@ class ProcessCommand : public CLICommand {
     juce::File statePath;
     juce::File outputFilePath;
     bool overwriteOutputFile;
+    bool ignoreExtraOutputs = false;
     double sampleRate = 44100;
     int blockSize = 1024;
     std::optional<unsigned int> outputChannelCountOpt;

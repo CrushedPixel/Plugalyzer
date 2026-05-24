@@ -40,6 +40,7 @@ std::shared_ptr<CLI::App> ProcessCommand::createApp() {
     inputGroup->require_option();
 
     app->add_option("--preset", presetFileOpt, "Preset file path. Currently only .vstpreset files for VST3 are supported.")->check(CLI::ExistingFile);
+    app->add_option("--state", statePath, "Binary plugin state file to apply before processing.")->check(CLI::ExistingFile);
 
     app->add_option("-o,--output", outputFilePath, "Output audio file path")->required();
     app->add_flag("-y,--overwrite", overwriteOutputFile, "Overwrite the output file if it exists");
@@ -51,6 +52,7 @@ std::shared_ptr<CLI::App> ProcessCommand::createApp() {
     app->add_option("-b,--blockSize", blockSize, "The buffer size to use when processing audio");
     app->add_option("-d,--bitDepth", outputBitDepthOpt, "The output file's bit depth. Defaults to the input file's bit depth if present, or 16 bits if no input file is provided.")->check(validate::bitDepth);
     app->add_option("-c,--outChannels", outputChannelCountOpt, "The amount of channels to use for the plugin's output bus");
+    app->add_flag("--ignoreExtraOutputs", ignoreExtraOutputs, "Allow plugins with multiple output buses and write only the main output bus");
 
     app->add_option("--paramFile", paramsFileOpt, "Path to JSON file to read plugin parameters and automation data from")->check(CLI::ExistingFile);
     app->add_option("--param", params, "Plugin parameters to set. Explicitly specified parameters take precedence over parameters read from file")->check(validate::pluginParameter);
@@ -87,6 +89,9 @@ void ProcessCommand::execute() {
     // create the plugin instance
     auto plugin = PluginUtils::createPluginInstance(pluginPath, sampleRate, (int) blockSize);
 
+    juce::MemoryBlock pluginState;
+    loadPluginStateFromFile(*plugin, statePath, pluginState);
+
     if (presetFileOpt) {
         // read preset file into memory block
         juce::MemoryBlock presetData;
@@ -101,8 +106,15 @@ void ProcessCommand::execute() {
 
     // create and apply the bus layout
     const auto pluginOutputBusCount = plugin->getBusCount(false);
-    if (pluginOutputBusCount != 1) {
+    if (pluginOutputBusCount != 1 && !ignoreExtraOutputs) {
         throw CLIException("Multi-output plugins currently not supported. Please write a PR!");
+    }
+    if (pluginOutputBusCount > 1 && ignoreExtraOutputs) {
+        std::println(
+            stderr,
+            "Plugin has {} output buses. Only the main output bus will be written.",
+            pluginOutputBusCount
+        );
     }
     checkBusCountsAndWarn(*plugin, audioInputFileReaders);
 
@@ -127,6 +139,12 @@ void ProcessCommand::execute() {
 
     auto totalNumInputChannels = getTotalNumInputChannels(layout);
     auto totalNumOutputChannels = getTotalNumOutputChannels(layout);
+    auto fileOutputChannelCount = totalNumOutputChannels;
+    const auto mainOutputChannelCount =
+        layout.outputBuses.isEmpty() ? 0 : layout.outputBuses[0].size();
+    if (ignoreExtraOutputs && mainOutputChannelCount > 0)
+        fileOutputChannelCount = mainOutputChannelCount;
+
     std::unique_ptr<juce::AudioFormatWriter> outWriter;
     outputFilePath.deleteFile();
     if (std::unique_ptr<juce::OutputStream> outputStream{
@@ -136,7 +154,7 @@ void ProcessCommand::execute() {
             outputStream, // stream is now managed by writer
             juce::AudioFormatWriterOptions{}
                 .withSampleRate(sampleRate)
-                .withNumChannels(static_cast<int>(totalNumOutputChannels))
+                .withNumChannels(static_cast<int>(fileOutputChannelCount))
                 .withBitsPerSample(static_cast<int>(bitDepth))
         );
     } else {

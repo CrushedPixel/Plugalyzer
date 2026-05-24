@@ -75,21 +75,22 @@ juce::AudioPluginInstance::BusesLayout createBusLayout(
 ) {
     // Start with compatible bus layout
     juce::AudioPluginInstance::BusesLayout layout{ plugin.getBusesLayout() };
-    jassert(layout.outputBuses.size() == 1);
 
     // Inputs: Change channel formats to match input files
     for (const auto& [index, reader] : juce::enumerate(audioInputFileReaders)) {
-        layout.inputBuses[index] =
+        layout.inputBuses.getReference(static_cast<int>(index)) =
             juce::AudioChannelSet::canonicalChannelSet((int) reader->numChannels);
     }
 
-    // Outputs: Change channel formats to match user-supplied option or first input file
-    if (outputChannelCount.has_value()) {
-        layout.outputBuses[0] =
-            juce::AudioChannelSet::canonicalChannelSet((int) *outputChannelCount);
-    } else if (!audioInputFileReaders.isEmpty()) {
-        layout.outputBuses[0] =
-            juce::AudioChannelSet::canonicalChannelSet((int) audioInputFileReaders[0]->numChannels);
+    if (!layout.outputBuses.isEmpty()) {
+        // Main output: Change channel format to match user-supplied option or first input file.
+        if (outputChannelCount.has_value()) {
+            layout.outputBuses.getReference(0) =
+                juce::AudioChannelSet::canonicalChannelSet((int) *outputChannelCount);
+        } else if (!audioInputFileReaders.isEmpty()) {
+            layout.outputBuses.getReference(0) =
+                juce::AudioChannelSet::canonicalChannelSet((int) audioInputFileReaders[0]->numChannels);
+        }
     }
 
     return layout;
