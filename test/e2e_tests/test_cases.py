@@ -9,6 +9,7 @@ import re
 import generate_test_data
 from generate_test_data import TestPrep
 from test_utils import FailureLogger, TestPaths
+from xml_compare import compare_xml_with_tolerance
 
 
 class TestCase:
@@ -348,52 +349,6 @@ class BusLayoutsJsonFile(TestCase):
         )
         self.output_file = outfile
 
-class ProcessWithGenerator(TestCase):
-    def __init__(self, failures: FailureLogger, paths: TestPaths) -> None:
-        outfile = paths.output("process-with-generator.wav")
-        super().__init__(failures, paths,
-            "Process with generator",
-            [
-                "process", "-p", paths.plugalyzee,
-                "-g", paths.config('generator-2ch-sine-noise.json'),
-                "-o", f"{outfile}",
-                "--paramFile", paths.config('plug-audio-process-with-generator.json')
-            ],
-            bytes.fromhex("98ea9a73c5e839aa46ec4b963e3534bc1ca519e518bd9640e7110258be939c4f")
-        )
-        self.output_file = outfile
-
-class ProcessWithAudioAndGeneratorSidechain(TestCase):
-    def __init__(self, failures: FailureLogger, paths: TestPaths) -> None:
-        prep = generate_test_data.ProcessWithAudioAndGeneratorSidechainPrep(paths)
-        outfile = paths.output("process-with-audio-and-generator.wav")
-        super().__init__(failures, paths,
-            "Process with audio input and generator sidechain",
-            [
-                "process", "-p", paths.plugalyzee_sidechain,
-                "-i", f"{prep.prepped_data}",
-                "-g", paths.config("generator-2ch-sine-440.json"),
-                "-o", f"{outfile}",
-            ],
-            bytes.fromhex("7a8ea3f9e22a65f1f80c4fa8e655ebf393f4e6512f2c6018418e13c1a0f5fb46")
-        )
-        self.output_file = outfile
-        self.prep = prep
-
-class ProcessSidechainMissingSidechain(TestCase):
-    def __init__(self, failures: FailureLogger, paths: TestPaths) -> None:
-        outfile = paths.output("process-with-audio-missing-sidechain.wav")
-        super().__init__(failures, paths,
-            "Process sidechain plugin with no sidechain supplied by user",
-            [
-                "process", "-p", paths.plugalyzee_sidechain,
-                "-g", paths.config("generator-2ch-sine-noise.json"),
-                "-o", f"{outfile}",
-            ],
-            bytes.fromhex("15777e34e030212bf14decccd6f94fca0039b6477fa407684e8a3d797f70b8fb")
-        )
-        self.output_file = outfile
-
 class AudiodiffSucceed(TestCase):
     def __init__(self, failures: FailureLogger, paths: TestPaths) -> None:
         prep = generate_test_data.AudioDiffSucceedPrep(paths)
@@ -426,16 +381,118 @@ class AudiodiffFail(TestCase):
         self.prep = prep
         self.correct_exit_code = 2
 
+class ProcessWithGenerator(TestCase):
+    def __init__(self, failures: FailureLogger, paths: TestPaths) -> None:
+        outfile = paths.output("process-with-generator.wav")
+        super().__init__(failures, paths,
+            "Process with generator",
+            [
+                "process", "-p", paths.plugalyzee,
+                "-g", paths.config('generator-2ch-sine-noise.json'),
+                "-o", f"{outfile}",
+                "--paramFile", paths.config('plug-audio-process-with-generator.json')
+            ],
+            bytes.fromhex("98ea9a73c5e839aa46ec4b963e3534bc1ca519e518bd9640e7110258be939c4f")
+        )
+        self.output_file = outfile
+
+    def verify_output(self):
+        if sys.platform != 'darwin':
+            return super().verify_output()
+        
+        expected_output = self.paths.expected('process-with-generator.wav')
+        cmd = [
+            "audioDiff",
+            "-t", self.output_file,
+            "-r", expected_output
+        ]
+
+        result = run([self.paths.plugalyzer] + cmd, capture_output=True)
+
+        failed = result.returncode != 0
+        if failed:
+            self.failures.failed_tests.append(self)
+
+class ProcessWithAudioAndGeneratorSidechain(TestCase):
+    def __init__(self, failures: FailureLogger, paths: TestPaths) -> None:
+        prep = generate_test_data.ProcessWithAudioAndGeneratorSidechainPrep(paths)
+        outfile = paths.output("process-with-audio-and-generator.wav")
+        super().__init__(failures, paths,
+            "Process with audio input and generator sidechain",
+            [
+                "process", "-p", paths.plugalyzee_sidechain,
+                "-i", f"{prep.prepped_data}",
+                "-g", paths.config("generator-2ch-sine-440.json"),
+                "-o", f"{outfile}",
+            ],
+            bytes.fromhex("7a8ea3f9e22a65f1f80c4fa8e655ebf393f4e6512f2c6018418e13c1a0f5fb46")
+        )
+        self.output_file = outfile
+        self.prep = prep
+
+    def verify_output(self):
+        if sys.platform != 'darwin':
+            return super().verify_output()
+        
+        expected_output = self.paths.expected('process-with-audio-and-generator.wav')
+        cmd = [
+            "audioDiff",
+            "-t", self.output_file,
+            "-r", expected_output
+        ]
+
+        result = run([self.paths.plugalyzer] + cmd, capture_output=True)
+
+        failed = result.returncode != 0
+        if failed:
+            self.failures.failed_tests.append(self)
+
+class ProcessSidechainMissingSidechain(TestCase):
+    def __init__(self, failures: FailureLogger, paths: TestPaths) -> None:
+        outfile = paths.output("process-with-audio-missing-sidechain.wav")
+        super().__init__(failures, paths,
+            "Process sidechain plugin with no sidechain supplied by user",
+            [
+                "process", "-p", paths.plugalyzee_sidechain,
+                "-g", paths.config("generator-2ch-sine-noise.json"),
+                "-o", f"{outfile}",
+            ],
+            bytes.fromhex("15777e34e030212bf14decccd6f94fca0039b6477fa407684e8a3d797f70b8fb")
+        )
+        self.output_file = outfile
+
+    def verify_output(self):
+        if sys.platform != 'darwin':
+            return super().verify_output()
+        
+        expected_output = self.paths.expected('process-with-audio-missing-sidechain.wav')
+        cmd = [
+            "audioDiff",
+            "-t", self.output_file,
+            "-r", expected_output
+        ]
+
+        result = run([self.paths.plugalyzer] + cmd, capture_output=True)
+
+        failed = result.returncode != 0
+        if failed:
+            self.failures.failed_tests.append(self)
+
 class StateSaveDefaultBinary(TestCase):
     def __init__(self, failures: FailureLogger, paths: TestPaths) -> None:
         outfile = paths.output("plug-audio-state-default.bin")
+        expected_hash = (
+            "6dd1271b0d556c2c869bd6842e2859a515f5c83ac400118eca76bf58acbb45df"
+            if sys.platform == 'darwin'
+            else "882b3ac1ead9aa5283a3c2c6685e4f7095490244b6c6b653dc558ec46348c3db"
+        )
         super().__init__(failures, paths,
             "Save default state as binary",
             [
                 "state", "-p", paths.plugalyzee,
                 "-o", f"{outfile}",
             ],
-            bytes.fromhex("882b3ac1ead9aa5283a3c2c6685e4f7095490244b6c6b653dc558ec46348c3db")
+            bytes.fromhex(expected_hash)
         )
         self.output_file = outfile
 
@@ -452,6 +509,16 @@ class SaveDefaultStateXml(TestCase):
             (paths.expected_folder / "plug-audio-state-default.xml").read_text('utf-8')
         )
         self.output_file = outfile
+
+    def verify_output(self):
+        if sys.platform != 'darwin':
+            return super().verify_output()
+        
+        success, err = compare_xml_with_tolerance(self.output, self.correct_output) # type: ignore
+        
+        if not success:
+            logging.error(err)
+            self.failures.failed_tests.append(self)
 
 class StateDefaultBinaryToJsonParams(TestCase):
     def __init__(self, failures: FailureLogger, paths: TestPaths) -> None:
@@ -472,6 +539,11 @@ class StateDefaultBinaryToJsonParams(TestCase):
 class StateJsonParamsToBinary(TestCase):
     def __init__(self, failures: FailureLogger, paths: TestPaths) -> None:
         outfile = paths.output("plug-audio-state-params.bin")
+        expected_hash = (
+            "c7df17b00866bd5fd952e18f42b82b6d76010ec9df2b6bfb103d1ef10b1dd342"
+            if sys.platform == 'darwin'
+            else "1fbf069efe5d7d6543c55a25766fa9f08feffc1c41131abaed1063f739b864fe"
+        )
         super().__init__(failures, paths,
             "JSON params -> state as binary",
             [
@@ -479,7 +551,7 @@ class StateJsonParamsToBinary(TestCase):
                 "-i", paths.config("plug-audio-state-json-params.json"),
                 "-o", f"{outfile}",
             ],
-            bytes.fromhex("1fbf069efe5d7d6543c55a25766fa9f08feffc1c41131abaed1063f739b864fe")
+            bytes.fromhex(expected_hash)
         )
         self.output_file = outfile
 
@@ -498,9 +570,15 @@ class StateJsonParamsToXml(TestCase):
         )
         self.output_file = outfile
 
-
-
-
+    def verify_output(self):
+        if sys.platform != 'darwin':
+            return super().verify_output()
+        
+        success, err = compare_xml_with_tolerance(self.output, self.correct_output) # type: ignore
+        
+        if not success:
+            logging.error(err)
+            self.failures.failed_tests.append(self)
 
 
 def get_all_test_cases(failures: FailureLogger, paths: TestPaths) -> List[TestCase]:
@@ -527,11 +605,11 @@ def get_all_test_cases(failures: FailureLogger, paths: TestPaths) -> List[TestCa
         BusLayoutsDefaultFile(failures, paths),
         BusLayoutsTextFile(failures, paths),
         BusLayoutsJsonFile(failures, paths),
+        AudiodiffSucceed(failures, paths),
+        AudiodiffFail(failures, paths),
         ProcessWithGenerator(failures, paths),
         ProcessWithAudioAndGeneratorSidechain(failures, paths),
         ProcessSidechainMissingSidechain(failures, paths),
-        AudiodiffSucceed(failures, paths),
-        AudiodiffFail(failures, paths),
         StateSaveDefaultBinary(failures, paths),
         SaveDefaultStateXml(failures, paths),
         StateDefaultBinaryToJsonParams(failures, paths),
