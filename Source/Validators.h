@@ -62,4 +62,13 @@ std::string outputFormat(const std::string& str);
  */
 std::string generator(const std::string& str);
 
+/**
+ * Validates an amplitude.
+ * Can be linear or with a dB suffix.
+ *
+ * @param str The amplitude argument
+ * @return Empty string if valid, or an error message
+ */
+std::string amplitude(const std::string& str);
+
 } // namespace validate

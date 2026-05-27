@@ -1,14 +1,24 @@
 #include "AudioDiffCommand.h"
 
+#include "Errors.h"
+#include "Parsers.h"
+#include "Validators.h"
+
 #include <print>
 
 std::shared_ptr<CLI::App> AudioDiffCommand::createApp() {
-    // don't break these lines, please
     // clang-format off
     std::shared_ptr<CLI::App> app = std::make_shared<CLI::App>("Compares two audio files", "audioDiff");
 
-    app->add_option("-t,--test", inputFilePaths.at(AudioFileRole::test), "Audio to test")->required()->check(CLI::ExistingFile);
-    app->add_option("-r,--reference", inputFilePaths.at(AudioFileRole::reference), "Reference audio")->required()->check(CLI::ExistingFile);
+    app->add_option("-t,--test", inputFilePaths.at(AudioFileRole::test), "Audio to test")
+        ->required()
+        ->check(CLI::ExistingFile);
+    app->add_option("-r,--reference", inputFilePaths.at(AudioFileRole::reference), "Reference audio")
+        ->required()
+        ->check(CLI::ExistingFile);
+    app->add_option("-d,--tolerance", argThreshold, "How different the audio can be before it's considered a failure, in RMS.")
+        ->check(validate::amplitude)
+        ->each([&](std::string arg){ rmsThreshold = parse::amplitude(arg) - 1.0; });
 
     return app;
     // clang-format on
@@ -25,10 +35,8 @@ void AudioDiffCommand::execute() {
             verifiedInPath = juce::File::getCurrentWorkingDirectory().getChildFile(inPath);
         }
 
-        audioFiles.insert({role, juce::File{verifiedInPath}});
+        audioFiles.insert({ role, juce::File{ verifiedInPath } });
     }
-
-    std::println("Reading audio files");
 
     auto differ = AudioDiff::create(audioFiles);
 
@@ -36,20 +44,16 @@ void AudioDiffCommand::execute() {
         for (const auto& [role, errorMessage] : differ.error()) {
             std::println(std::cerr, "{}: {}", stringFromRole(role), errorMessage.toStdString());
         }
-        throw FileReadError("Couldn't read files. Aborting.", 1);
+        throw FileLoadError("Couldn't read files. Aborting.", 1);
     }
-
-    const double rmsThresh = 0.005;
 
     const auto actualRMS = differ->getDifferenceRMS();
+    std::println("{}", actualRMS);
 
-    std::println("Difference in RMS between test audio and reference: {}", actualRMS);
-
-    if (actualRMS > rmsThresh) {
-        std::println("Cancellation test failed: detected SNR of {}, which exceeds threshold of {}",
-                     actualRMS, rmsThresh);
+    if (actualRMS > rmsThreshold) {
+        std::println(
+            stderr, "Detected SNR of {}, which exceeds threshold of {}", actualRMS, rmsThreshold
+        );
         throw FailedDiffError("Cancellation test failed", 2);
     }
-
-    std::println("Cancellation test successful.");
 }

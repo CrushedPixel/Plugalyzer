@@ -10,6 +10,7 @@
 #include <string>
 #include <string_view>
 
+
 // Validators for CLI11
 // Signature:
 // std::string validate(const std::string& arg)
@@ -108,6 +109,23 @@ std::string generator(const std::string& str) {
     if (!errors.empty()) {
         return string_utils::join(errors, ", ");
     }
+    return "";
+}
+
+std::string amplitude(const std::string& str) {
+    try {
+        auto [value, unit] = parse::numberAndUnits<double>(str);
+        if (unit != "" && string_utils::lowerCase(unit) != "db") {
+            return "If units are provided, it must be in dB, e.g. '1.5dB'";
+        }
+    } catch (const std::invalid_argument& e) {
+        return std::format("Can't get a number from: {}, error: {}", str, e.what());
+    } catch (const std::out_of_range& e) {
+        return std::format("Number too large: {}, error: {}", str, e.what());
+    } catch (const std::exception& e) {
+        return std::format("Couldn't parse: {}, error: {}", str, e.what());
+    }
+
     return "";
 }
 
