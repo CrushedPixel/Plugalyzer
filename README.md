@@ -164,21 +164,21 @@ You can pass the path to a JSON file or a JSON string.
 ## Compare audio files
 The `audioDiff` command takes two input files, compares the values of each sample and returns the RMS of the difference. It can be used to compare the output of two plugins, or two versions of the same plugin for regression testing.
 
-| Option                | Description                                                                                   | Required |
-|-----------------------|-----------------------------------------------------------------------------------------------|----------|
-| `--test <path>`       | Path to an audio file to compare - the output being tested.                                   | Yes      |
-| `--reference <path>`  | Path to an audio file to compare - the reference audio against which the output is compared.  | Yes      |
+| Option               | Description                                                                                  | Required |
+| -------------------- | -------------------------------------------------------------------------------------------- | -------- |
+| `--test <path>`      | Path to an audio file to compare - the output being tested.                                  | Yes      |
+| `--reference <path>` | Path to an audio file to compare - the reference audio against which the output is compared. | Yes      |
 
 
 ## List plugin parameters
 The `listParameters` command lists all available plugin parameters and their value range, as well as whether they support parameter values in text form.
 
-| Option                  | Description                                                                                                                                                                 | Required |
-|-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
-| `--plugin=<path>`       | Path to the plugin to use.                                                                                                                                                  | Yes      |
-| `--output=<path>`       | Path to output the automation.<br>If not supplied, will be output to stdout.                                                                                                | No       |
-| `--overwrite`           | Overwrite the output file if it exists.<br>If this option is not set and the file exists, a new file with a different name (eg. 'outputfile2.json') will be created.        | No       |
-| `--format=<text\|json>` | The format in which to output the parameter list. Default text.                                                                                                             | No       |
+| Option                  | Description                                                                                                                                                          | Required |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| `--plugin=<path>`       | Path to the plugin to use.                                                                                                                                           | Yes      |
+| `--output=<path>`       | Path to output the automation.<br>If not supplied, will be output to stdout.                                                                                         | No       |
+| `--overwrite`           | Overwrite the output file if it exists.<br>If this option is not set and the file exists, a new file with a different name (eg. 'outputfile2.json') will be created. | No       |
+| `--format=<text\|json>` | The format in which to output the parameter list. Default text.                                                                                                      | No       |
 
 Example usage:
 ```shell
@@ -241,11 +241,11 @@ In 1: 2ch Stereo                   Out 1: 2ch Stereo
 ## Generate plugin automation
 The `generateAutomation` command creates a json string you can pass to the `process` command to process with automation. You can modify the output if you want to test certain parameters.
 
-| Option                  | Description                                                                                                                                                                 | Required |
-|-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
-| `--plugin=<path>`       | Path to the plugin to use.                                                                                                                                                  | Yes      |
-| `--output=<path>`       | Path to output the automation.<br>If not supplied, will be output to stdout.                                                                                                | No       |
-| `--overwrite`           | Overwrite the output file if it exists.<br>If this option is not set and the file exists, a new file with a different name (eg. 'outputfile2.json') will be created.        | No       |
+| Option            | Description                                                                                                                                                          | Required |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| `--plugin=<path>` | Path to the plugin to use.                                                                                                                                           | Yes      |
+| `--output=<path>` | Path to output the automation.<br>If not supplied, will be output to stdout.                                                                                         | No       |
+| `--overwrite`     | Overwrite the output file if it exists.<br>If this option is not set and the file exists, a new file with a different name (eg. 'outputfile2.json') will be created. | No       |
 
 Example usage:
 ```shell
