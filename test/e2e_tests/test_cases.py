@@ -1,4 +1,5 @@
 import hashlib
+import json
 import logging
 from pathlib import Path
 from subprocess import CompletedProcess, run
@@ -413,6 +414,40 @@ class ProcessWithGenerator(TestCase):
         if failed:
             self.failures.failed_tests.append(self)
 
+class ProcessWithGeneratorTextInput(TestCase):
+    def __init__(self, failures: FailureLogger, paths: TestPaths) -> None:
+        outfile = paths.output("process-with-generator.wav")
+        generator_config = json.loads((paths.config_folder / 'generator-2ch-sine-noise.json').read_text('utf-8'))
+
+        super().__init__(failures, paths,
+            "Process with generator using configuration on command line",
+            [
+                "process", "-p", paths.plugalyzee,
+                "-g", json.dumps(generator_config),
+                "-o", f"{outfile}",
+                "--paramFile", paths.config('plug-audio-process-with-generator.json')
+            ],
+            bytes.fromhex("98ea9a73c5e839aa46ec4b963e3534bc1ca519e518bd9640e7110258be939c4f")
+        )
+        self.output_file = outfile
+
+    def verify_output(self):
+        if sys.platform != 'darwin':
+            return super().verify_output()
+        
+        expected_output = self.paths.expected('process-with-generator.wav')
+        cmd = [
+            "audioDiff",
+            "-t", self.output_file,
+            "-r", expected_output
+        ]
+
+        result = run([self.paths.plugalyzer] + cmd, capture_output=True)
+
+        failed = result.returncode != 0
+        if failed:
+            self.failures.failed_tests.append(self)
+
 class ProcessWithAudioAndGeneratorSidechain(TestCase):
     def __init__(self, failures: FailureLogger, paths: TestPaths) -> None:
         prep = generate_test_data.ProcessWithAudioAndGeneratorSidechainPrep(paths)
@@ -608,6 +643,7 @@ def get_all_test_cases(failures: FailureLogger, paths: TestPaths) -> List[TestCa
         AudiodiffSucceed(failures, paths),
         AudiodiffFail(failures, paths),
         ProcessWithGenerator(failures, paths),
+        ProcessWithGeneratorTextInput(failures, paths),
         ProcessWithAudioAndGeneratorSidechain(failures, paths),
         ProcessSidechainMissingSidechain(failures, paths),
         StateSaveDefaultBinary(failures, paths),
