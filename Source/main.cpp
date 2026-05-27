@@ -2,17 +2,21 @@
 #include "commands/BusLayoutsCommand.h"
 #include "commands/GenerateAutomationCommand.h"
 #include "commands/ListParametersCommand.h"
-#include "commands/StateCommand.h"
 #include "commands/ProcessCommand.h"
+#include "commands/StateCommand.h"
 
+#include <iterator>
 #include <juce_events/juce_events.h>
 #include <print>
+#include <ranges>
+
 
 static void registerSubcommand(CLI::App& app, CLICommand& subcommand) {
     app.add_subcommand(subcommand.createApp())->callback([&subcommand]() { subcommand.execute(); });
 }
 
-static int runCommandLine(const std::string& commandLineParameters) {
+// CLI11 expects vector of arguments reversed with no program name
+static int runCommandLine(std::vector<std::string>& commandLineParameters) {
     CLI::App app("Command-line audio plugin host");
 
     app.add_flag_callback(
@@ -43,7 +47,7 @@ static int runCommandLine(const std::string& commandLineParameters) {
     registerSubcommand(app, blc);
 
     try {
-        app.parse(commandLineParameters, false);
+        app.parse(commandLineParameters);
     } catch (const CLI::Error& error) {
         return app.exit(error);
     } catch (const std::exception& e) {
@@ -75,8 +79,21 @@ class PlugalyzerApplication : public juce::JUCEApplicationBase {
         // for some reason, this doesn't actually get called and the runtime just terminates...
     }
 
-    void initialise(const juce::String& commandLineParameters) override {
-        int exitCode = runCommandLine(commandLineParameters.toStdString());
+    void initialise(const juce::String& /* commandLineParameters */) override {
+        auto reverseVector = [](juce::StringArray arr) {
+            std::vector<std::string> vec;
+
+            std::ranges::transform(
+                arr | std::views::reverse, std::back_inserter(vec),
+                [](const auto& s) { return s.toStdString(); }
+            );
+
+            return vec;
+        };
+
+        auto argsReversed = reverseVector(getCommandLineParameterArray());
+
+        int exitCode = runCommandLine(argsReversed);
 
         setApplicationReturnValue(exitCode);
         quit();
