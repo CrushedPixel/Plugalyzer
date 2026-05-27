@@ -360,7 +360,7 @@ class AudiodiffSucceed(TestCase):
                 "-t", f"{prep.prepped_data}",
                 "-r", f"{prep.prepped_data}"
             ],
-            "Reading audio files\nDifference in RMS between test audio and reference: 0\nCancellation test successful.\n"
+            "0\n"
         )
         self.prep = prep
 
@@ -375,12 +375,28 @@ class AudiodiffFail(TestCase):
                 "-r", f"{prep.prepped_data_r}"
             ],
             re.compile(
-                r"^Reading audio files\sDifference in RMS between test audio and reference.*?\sCancellation test failed.*?\s$",
-                re.DOTALL | re.MULTILINE
+                r"^\d*\.\d*\s$"
             )
         )
         self.prep = prep
         self.correct_exit_code = 2
+
+class AudiodiffSucceedWithTolerance(TestCase):
+    def __init__(self, failures: FailureLogger, paths: TestPaths) -> None:
+        prep = generate_test_data.AudioDiffFailPrep(paths)
+        super().__init__(failures, paths,
+            "Audiodiff: succeed using custom tolerance",
+            [
+                "audioDiff",
+                "-t", f"{prep.prepped_data_t}",
+                "-r", f"{prep.prepped_data_r}",
+                "-d", "1dB"
+            ],
+            re.compile(
+                r"^\d*\.\d*\s$"
+            )
+        )
+        self.prep = prep
 
 class ProcessWithGenerator(TestCase):
     def __init__(self, failures: FailureLogger, paths: TestPaths) -> None:
@@ -642,6 +658,7 @@ def get_all_test_cases(failures: FailureLogger, paths: TestPaths) -> List[TestCa
         BusLayoutsJsonFile(failures, paths),
         AudiodiffSucceed(failures, paths),
         AudiodiffFail(failures, paths),
+        AudiodiffSucceedWithTolerance(failures, paths),
         ProcessWithGenerator(failures, paths),
         ProcessWithGeneratorTextInput(failures, paths),
         ProcessWithAudioAndGeneratorSidechain(failures, paths),
