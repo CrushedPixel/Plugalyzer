@@ -299,9 +299,30 @@ Example output:
 ```
 
 ## Operate on Plugin State
-The `state` command can::
+The `state` command can:
  1. output the default state of the plugin.
  1. take a parameter automation file (json) as input, set those parameters on the plugin and output the resulting plugin state.
  1. take a previously exported plugin state (in binary format), apply it to the plugin and output the resulting parameters in json format.
 
 Plugin state can be output in binary format or, if the state uses JUCE Value Trees, it can be serialized into XML so you can read it.
+
+This is useful when updating a plugin - you can verify that presets or saved projects are compatible between plugin versions.
+
+| Option            | Description                                                                                                                                                          | Required |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| `--plugin=<path>` | Path to the plugin to use.                                                                                                                                           | Yes      |
+| `--input=<path>`  | Path to either json parameters file or a binary state file                                                                                                           | No       |
+| `--output=<path>` | Path to output the state/parameter file.<br>If not supplied, will be output to stdout.                                                                               | No       |
+| `--format=<path>` | The output format. If the input is JSON, this should be binary or XML. If the input is binary, the output format should be JSON.                                     | No       |
+| `--overwrite`     | Overwrite the output file if it exists.<br>If this option is not set and the file exists, a new file with a different name (eg. 'outputfile2.json') will be created. | No       |
+
+Example usage:
+```shell
+plugalyzer \
+  state \
+  --plugin=/path/to/my/plugin.vst3 \
+  --input=/path/to/my/automation_file.json \
+  --output=/path/to/binary_state.bin \
+  --format=binary \
+  --overwrite
+```
