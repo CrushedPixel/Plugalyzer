@@ -360,7 +360,7 @@ class AudiodiffSucceed(TestCase):
                 "-t", f"{prep.prepped_data}",
                 "-r", f"{prep.prepped_data}"
             ],
-            "0\n"
+            "-inf dB\n"
         )
         self.prep = prep
 
@@ -375,11 +375,11 @@ class AudiodiffFail(TestCase):
                 "-r", f"{prep.prepped_data_r}"
             ],
             re.compile(
-                r"^\d*\.\d*\s$"
+                r"^-?\d*\.\d* dB\s$"
             )
         )
         self.prep = prep
-        self.correct_exit_code = 2
+        self.correct_exit_code = 1
 
 class AudiodiffSucceedWithTolerance(TestCase):
     def __init__(self, failures: FailureLogger, paths: TestPaths) -> None:
@@ -390,10 +390,10 @@ class AudiodiffSucceedWithTolerance(TestCase):
                 "audioDiff",
                 "-t", f"{prep.prepped_data_t}",
                 "-r", f"{prep.prepped_data_r}",
-                "-d", "1dB"
+                "-d", "-20dB"
             ],
             re.compile(
-                r"^\d*\.\d*\s$"
+                r"^-?\d*\.\d* dB\s$"
             )
         )
         self.prep = prep

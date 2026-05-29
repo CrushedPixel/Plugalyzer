@@ -1,4 +1,3 @@
-import os
 import subprocess
 import shutil
 from pathlib import Path
@@ -94,12 +93,12 @@ def main():
 
     for fail in failures:
         logstring = f"Failed: {fail.description}\n"
-        if isinstance(fail.correct_output, str):
-            logstring += f"Expected: {fail.correct_output}\n"
-            logstring += f"Got:      {fail.output}\n"
-        elif isinstance(fail.correct_output, bytes):
+        if isinstance(fail.correct_output, bytes):
             logstring += f"Expected: {fail.correct_output.hex()}\n"
             logstring += f"Got:      {fail.output.hex()}\n"
+        else:
+            logstring += f"Expected: {fail.correct_output}\n"
+            logstring += f"Got:      {fail.output}\n"
         if fail.correct_exit_code != 0:
             logstring += f"Expected exit code {fail.correct_exit_code}, got {fail.exit_code}\n"
 

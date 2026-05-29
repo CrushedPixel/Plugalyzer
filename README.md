@@ -164,11 +164,19 @@ You can pass the path to a JSON file or a JSON string.
 ## Compare audio files
 The `audioDiff` command takes two input files, compares the values of each sample and returns the RMS of the difference. It can be used to compare the output of two plugins, or two versions of the same plugin for regression testing.
 
-| Option               | Description                                                                                  | Required |
-| -------------------- | -------------------------------------------------------------------------------------------- | -------- |
-| `--test <path>`      | Path to an audio file to compare - the output being tested.                                  | Yes      |
-| `--reference <path>` | Path to an audio file to compare - the reference audio against which the output is compared. | Yes      |
+| Option                          | Description                                                                                      | Required |
+| ------------------------------- | ------------------------------------------------------------------------------------------------ | -------- |
+| `--test <path>`                 | Path to an audio file to compare - the output being tested.                                      | Yes      |
+| `--reference <path>`            | Path to an audio file to compare - the reference audio against which the output is compared.     | Yes      |
+| `--tolerance <number/dB value>` | The volume of the difference at which the two files will be considered different. Default -50dB. | No       |
 
+Example usage:
+```shell
+plugalyzer audioDiff \
+  --test=new_audio.wav \
+  --reference=audio_from_plugin_v1.wav \
+  --tolerance=-30dB
+```
 
 ## List plugin parameters
 The `listParameters` command lists all available plugin parameters and their value range, as well as whether they support parameter values in text form.
