@@ -2,6 +2,7 @@
 
 #include "AudioDiff.h"
 #include "CLICommand.h"
+
 #include <juce_audio_formats/juce_audio_formats.h>
 
 class FailedDiffError : public CLI::Error {
@@ -20,9 +21,9 @@ class AudioDiffCommand : public CLICommand {
     // String from CLI to be parsed into a double
     std::string argThreshold;
 
-    double rmsThreshold{ 0.005 };
+    double rmsThreshold{ juce::Decibels::decibelsToGain(-50.0, -96.0) };
     std::map<AudioFileRole, juce::String> inputFilePaths{
-        {AudioFileRole::test, {}},
-        {AudioFileRole::reference, {}},
+        { AudioFileRole::test, {} },
+        { AudioFileRole::reference, {} },
     };
 };

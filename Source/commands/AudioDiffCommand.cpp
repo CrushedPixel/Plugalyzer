@@ -4,7 +4,9 @@
 #include "Parsers.h"
 #include "Validators.h"
 
+#include <juce_audio_basics/juce_audio_basics.h>
 #include <print>
+
 
 std::shared_ptr<CLI::App> AudioDiffCommand::createApp() {
     // clang-format off
@@ -18,7 +20,7 @@ std::shared_ptr<CLI::App> AudioDiffCommand::createApp() {
         ->check(CLI::ExistingFile);
     app->add_option("-d,--tolerance", argThreshold, "How different the audio can be before it's considered a failure, in RMS.")
         ->check(validate::amplitude)
-        ->each([&](std::string arg){ rmsThreshold = parse::amplitude(arg) - 1.0; });
+        ->each([&](std::string arg){ rmsThreshold = parse::amplitude(arg); });
 
     return app;
     // clang-format on
@@ -44,16 +46,24 @@ void AudioDiffCommand::execute() {
         for (const auto& [role, errorMessage] : differ.error()) {
             std::println(std::cerr, "{}: {}", stringFromRole(role), errorMessage.toStdString());
         }
-        throw FileLoadError("Couldn't read files. Aborting.", 1);
+        throw FileLoadError("Couldn't read files. Aborting.", 2);
     }
 
     const auto actualRMS = differ->getDifferenceRMS();
-    std::println("{}", actualRMS);
+    const auto actualRMSdB = juce::Decibels::gainToDecibels(actualRMS, -96.f);
+    const auto actualRMSdBReadout =
+        juce::Decibels::toString(actualRMSdB, 6, -96.f, true, "-inf").toStdString();
+    const auto rmsThresholddB = juce::Decibels::gainToDecibels(rmsThreshold, -96.0);
+    const auto rmsThresholddBReadout =
+        juce::Decibels::toString(rmsThresholddB, 6, -96.0, true, "-inf").toStdString();
+
+    std::println("{}", actualRMSdBReadout);
 
     if (actualRMS > rmsThreshold) {
         std::println(
-            stderr, "Detected SNR of {}, which exceeds threshold of {}", actualRMS, rmsThreshold
+            stderr, "Detected SNR of {}, which exceeds threshold of {}", actualRMSdBReadout,
+            rmsThresholddBReadout
         );
-        throw FailedDiffError("Cancellation test failed", 2);
+        throw FailedDiffError("Cancellation test failed", 1);
     }
 }
